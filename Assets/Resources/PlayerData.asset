@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cd7159eeb9b096f4fa6230607e63e354, type: 3}
+  m_Name: PlayerData
+  m_EditorClassIdentifier: 
+  decklist: {fileID: 11400000, guid: 1553ee566ea75f54191e3e58e11309de, type: 2}
+  weapon: {fileID: 0}
+  armor: {fileID: 11400000, guid: 45b3149de235eb64eb78d11b08add786, type: 2}
+  relic: {fileID: 0}
