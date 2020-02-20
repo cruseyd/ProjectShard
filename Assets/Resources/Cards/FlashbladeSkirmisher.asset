@@ -28,5 +28,6 @@ MonoBehaviour:
   perception: 0
   finesse: 0
   power: 2
-  allegiance: 2
+  allegiance: 1
+  upkeep: 0
   damageType: 0

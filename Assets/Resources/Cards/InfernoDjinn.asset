@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Inferno Djinn
   id: INFERNO_DJINN
-  level: 3
+  level: 2
   color: 2
   violetAffinity: 0
-  redAffinity: 2
+  redAffinity: 3
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
@@ -29,4 +29,5 @@ MonoBehaviour:
   finesse: 0
   power: 3
   allegiance: 2
+  upkeep: 0
   damageType: 0

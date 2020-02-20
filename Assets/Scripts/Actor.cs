@@ -272,7 +272,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
 
             s.SetStatus(data, stacks);
             _statusConditions[id] = s;
-            events.GainStatus(s, stacks);
+            events.GainStatus(_statusConditions[id], stacks);
         }
         Refresh();
     }

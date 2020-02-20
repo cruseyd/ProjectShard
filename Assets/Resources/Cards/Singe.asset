@@ -25,8 +25,9 @@ MonoBehaviour:
   type: 1
   keywords: ca0000002c010000
   strength: 1
-  perception: 3
-  finesse: 2
+  perception: 2
+  finesse: 1
   power: 0
   allegiance: 0
+  upkeep: 0
   damageType: 0

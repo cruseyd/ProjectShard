@@ -863,7 +863,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
             s.SetStatus(data, stacks);
             _statusConditions[id] = s;
-            events.GainStatus(s, stacks);
+            events.GainStatus(_statusConditions[id], stacks);
         }
         Refresh();
     }

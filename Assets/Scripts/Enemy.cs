@@ -21,7 +21,9 @@ public class Enemy : Actor
     }
     public IEnumerator DoDrawRandom()
     {
-        int n = Random.Range(Dungeon.gameParams.enemyDrawMin, Dungeon.gameParams.enemyDrawMax + 1);
+        //int n = Random.Range(Dungeon.gameParams.enemyDrawMin, Dungeon.gameParams.enemyDrawMax + 1);
+        int n = Random.Range(1, 7);
+        n = (int)((float)n / 2.0f);
         yield return DoDraw(n);
     }
     public override void Awake()

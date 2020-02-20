@@ -303,19 +303,20 @@ public class A_Singe : Ability
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(source, targets, undo, state);
-        int stacks = 2;
         if (state != null)
         {
 
         } else
         {
-            source.opponent.AddStatus(StatusName.BURN, stacks);
+            int n = source.opponent.GetStatus(StatusName.BURN);
+            if (n > 0) { source.opponent.AddStatus(StatusName.BURN, 1); }
+            else { source.opponent.AddStatus(StatusName.BURN, 2); }
         }
     }
 
     public override string Text(Card source)
     {
-        return "Singe adds 2 stacks of Burn to your opponent.";
+        return "Your oppenent gains 1 stack of Burn. If they had no stacks of Burn, add an additional stack.";
     }
 }
 public class A_Blitz : Ability
@@ -562,14 +563,15 @@ public class A_FrostLattice : Ability
         Debug.Log("Frost Lattice has " + validTargets.Count + " valid targets");
 
         ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
-
+        target.AddStatus(StatusName.CHILL, 1);
+        target = validTargets[Random.Range(0, validTargets.Count)];
         target.AddStatus(StatusName.CHILL, 1);
         source.owner.Draw();
     }
 
     public override string Text(Card source)
     {
-        return "Frost Lattice adds 1 stack of Chill to a random opposing target. Draw a card.";
+        return "Frost Lattice adds 1 stack of Chill to 2 random opposing targets. Draw a card.";
     }
 }
 

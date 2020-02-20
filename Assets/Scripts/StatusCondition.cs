@@ -91,6 +91,16 @@ public class StatusCondition : MonoBehaviour
                 target.Controller().events.onStartTurn -= Stun; break;
             case StatusName.ELDER_KNOWLEDGE:
                 target.Controller().events.onDrawCard -= ElderKnowledge; break;
+            case StatusName.CHILL:
+                if (target is Card)
+                {
+                    ((Card)target).events.onGainStatus -= Chill;
+                }
+                else if (target is Actor)
+                {
+                    ((Actor)target).events.onGainStatus -= Chill;
+                }
+                break;
             default: break;
         }
         gameObject.SetActive(false);
