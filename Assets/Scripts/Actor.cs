@@ -66,7 +66,20 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
             }
         }
     }
-
+    public Card[] discard
+    {
+        get
+        {
+            if (isPlayer)
+            {
+                return Dungeon.GetCards(CardZone.PLAYER_DISCARD);
+            }
+            else
+            {
+                return Dungeon.GetCards(CardZone.DUNGEON_DISCARD);
+            }
+        }
+    }
 
     public virtual void Awake()
     {
@@ -108,6 +121,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         {
             card.events.Destroy();
         }
+        card.FaceUp(true, false);
         Dungeon.MoveCard(card, _discardZone);
         card.particles.Clear();
     }
@@ -248,6 +262,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         if (_statusConditions.ContainsKey(id))
         {
             _statusConditions[id].stacks += stacks;
+            events.GainStatus(_statusConditions[id], stacks);
         }
         else
         {
@@ -257,6 +272,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
 
             s.SetStatus(data, stacks);
             _statusConditions[id] = s;
+            events.GainStatus(s, stacks);
         }
         Refresh();
     }
@@ -266,6 +282,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         {
             StatusCondition s = _statusConditions[id];
             s.stacks -= stacks;
+            events.RemoveStatus(s, stacks);
         }
     }
     public virtual int GetStatus(StatusName id)

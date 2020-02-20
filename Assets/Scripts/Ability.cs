@@ -35,6 +35,8 @@ public abstract class Ability
                 _index["ELIXIR_OF_REASON"] = new A_Elixir();
                 _index["CHILL"] = new A_Chill();
                 _index["DRIFTING_VOIDLING"] = new A_DriftingVoidling();
+                _index["ICE_ELEMENTAL"] = new A_IceElemental();
+                _index["FROST_LATTICE"] = new A_FrostLattice();
 
             }
             return _index;
@@ -156,7 +158,7 @@ public abstract class Ability
                 ((Card)source).FaceUp(true, true);
                 if (targets!= null && targets.Count > 0)
                 {
-                    Targeter.ShowTarget(source, targets[0]);
+                    Targeter.ShowTarget(Dungeon.GetZone(CardZone.MAGNIFY).transform, targets[0].transform);
                 }
                 break;
             case Mode.ATTACK:
@@ -390,12 +392,6 @@ public class A_Slash : Ability
 }
 public class A_FlashbladeSkirmisher : Ability
 {
-    /*
-    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(source, targets, undo, state);
-    }
-    */
     public override string Text(Card source)
     {
         return "<i>Flavor text</i>";
@@ -403,12 +399,6 @@ public class A_FlashbladeSkirmisher : Ability
 }
 public class A_InfernoDjinn : Ability
 {
-    /*
-    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(source, targets, undo, state);
-    }
-    */
     public override string Text(Card source)
     {
         return "<i>Flavor text</i>";
@@ -485,10 +475,10 @@ public class A_Chill : Ability
         DamageData data = new DamageData(damage, damageType, source, target);
         Ability.Damage(data, undo, state);
 
-        if (target is Card)
-        {
-            ((Card)target).AddStatus(StatusName.STUN);
-        }
+       // if (target is Card)
+       // {
+            ((ITargetable)target).AddStatus(StatusName.CHILL,1);
+       // }
     }
 
     public override string Text(Card source)
@@ -501,7 +491,7 @@ public class A_DriftingVoidling : Ability
 {
     public override string Text(Card source)
     {
-        return "When Drifting Voidling is destroyed, draw a card.";
+        return "When Drifting Voidling is destroyed, its controller gains a stack of Elder Knowledge.";
     }
 
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
@@ -512,13 +502,12 @@ public class A_DriftingVoidling : Ability
     protected override void Create(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Create(source, targets, undo, state);
-        Debug.Log("Called create ability");
         source.events.onDestroy += OnDestroy;
     }
 
     private void OnDestroy(Card card)
     {
-        card.owner.Draw();
+        card.owner.AddStatus(StatusName.ELDER_KNOWLEDGE);
         Debug.Log("Called destroy ability");
     }
 }
@@ -529,7 +518,13 @@ public class A_IceElemental : Ability
         base.Play(source, targets, undo, state);
         if (source.playerCard)
         {
-
+            TargetTemplate t = new TargetTemplate();
+            t.inHand = true;
+            t.isSelf = true;
+            t.keyword = Keyword.ICE;
+            t.cardType = Card.Type.SPELL;
+            TemplateModifier mod = new TemplateModifier(-1, Stat.Name.COST, t, source);
+            Dungeon.AddModifier(mod);
         }
     }
 
@@ -537,12 +532,44 @@ public class A_IceElemental : Ability
     {
         if (source.playerCard)
         {
-            return "While Ice Elemental is in play, ice Spells and Cantrips have Cost - 1";
+            return "While Ice Elemental is in play, ice Spells have Cost - 1";
         } else
         {
             return "";
         }
         
+    }
+}
+
+public class A_FrostLattice : Ability
+{
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+        TargetTemplate t = new TargetTemplate();
+        t.isDamageable = true;
+        t.isOpposing = true;
+        t.inPlay = true;
+        List < ITargetable > validTargets = new List<ITargetable>();
+        validTargets.Add(source.opponent);
+        foreach (Card card in source.opponent.active)
+        {
+            if (card.Compare(t, source.owner))
+            {
+                validTargets.Add(card);
+            }
+        }
+        Debug.Log("Frost Lattice has " + validTargets.Count + " valid targets");
+
+        ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
+
+        target.AddStatus(StatusName.CHILL, 1);
+        source.owner.Draw();
+    }
+
+    public override string Text(Card source)
+    {
+        return "Frost Lattice adds 1 stack of Chill to a random opposing target. Draw a card.";
     }
 }
 

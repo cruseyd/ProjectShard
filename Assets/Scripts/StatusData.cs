@@ -7,7 +7,9 @@ public enum StatusName
     DEFAULT,
     POISON,
     BURN,
-    STUN
+    STUN,
+    ELDER_KNOWLEDGE,
+    CHILL
 }
 
 [CreateAssetMenu(fileName = "NewStatusData", menuName = "StatusData")]

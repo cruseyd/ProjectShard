@@ -14,19 +14,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Flashblade Skirmisher
   id: FLASHBLADE_SKIRMISHER
-  level: 3
+  level: 2
   color: 2
   violetAffinity: 0
-  redAffinity: 3
+  redAffinity: 2
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
-  purpleAffinity: 0
+  indigoAffinity: 0
   type: 6
   keywords: 
   strength: 0
   perception: 0
   finesse: 0
-  power: 3
-  allegiance: 3
+  power: 2
+  allegiance: 2
   damageType: 0

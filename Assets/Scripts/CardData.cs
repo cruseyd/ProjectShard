@@ -26,8 +26,10 @@ public class CardData : ScriptableObject
     public int perception;
     public int finesse;
 
+    [Header("Thrall Specific Parameters")]
     public int power;
     public int allegiance;
+    public int upkeep;
     public Keyword damageType;
 
 }

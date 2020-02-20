@@ -363,6 +363,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card.particles.Clear();
 
         // EVENTS
+        GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
+        GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
         card.owner.events.onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
@@ -376,6 +378,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnDestroy()
     {
+        GameEvents.current.onAddGlobalModifier -= AddGlobalModifier;
+        GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
         owner.events.onStartTurn -= ResetFlags;
@@ -413,6 +417,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void Refresh()
     {
+        foreach (TemplateModifier mod in Dungeon.modifiers)
+        {
+            if (mod != null && Compare(mod.template, owner))
+            {
+                AddModifier(mod.modifier, mod.statName);
+            }
+        }
+
+
         _costDisplay.value = cost.value;
         _finesseDisplay.value = finesse.value;
         _perceptionDisplay.value = perception.value;
@@ -436,6 +449,47 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
     
+    public void AddGlobalModifier(TemplateModifier mod)
+    {
+        if (Compare(mod.template, owner))
+        {
+            AddModifier(mod.modifier, mod.statName);
+        }
+    }
+
+    public void RemoveGlobalModifier(TemplateModifier mod)
+    {
+        RemoveModifier(mod.modifier, mod.statName);
+    }
+
+    public bool AddModifier(StatModifier mod, Stat.Name stat)
+    {
+        switch (stat)
+        {
+            case Stat.Name.COST: return cost.AddModifier(mod);
+            case Stat.Name.POWER: return power.AddModifier(mod);
+            case Stat.Name.ALLEGIANCE: return allegiance.AddModifier(mod);
+            case Stat.Name.STRENGTH: return strength.AddModifier(mod);
+            case Stat.Name.PERCEPTION: return perception.AddModifier(mod);
+            case Stat.Name.FINESSE: return finesse.AddModifier(mod);
+            default: return false;
+        }
+    }
+
+    public bool RemoveModifier(StatModifier mod, Stat.Name stat)
+    {
+        switch (stat)
+        {
+            case Stat.Name.COST: return cost.RemoveModifier(mod);
+            case Stat.Name.POWER: return power.RemoveModifier(mod);
+            case Stat.Name.ALLEGIANCE: return allegiance.RemoveModifier(mod);
+            case Stat.Name.STRENGTH: return strength.RemoveModifier(mod);
+            case Stat.Name.PERCEPTION: return perception.RemoveModifier(mod);
+            case Stat.Name.FINESSE: return finesse.RemoveModifier(mod);
+            default: return false;
+        }
+    }
+
     public bool Resolve(Ability.Mode mode, List<ITargetable> targets)
     {
         if (_ability.NumTargets(mode) > 0)
@@ -486,7 +540,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         allegiance.baseValue -= data.damage;
         if (allegiance.value <= 0)
         {
-            Debug.Log("Destroying...");
             owner.Discard(this);
         }
     }
@@ -730,6 +783,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         bool flag = true;
         if (query.isActor) { return false; }
+        if (query.inHand) { flag &= (zone == CardZone.DUNGEON_HAND || zone == CardZone.PLAYER_HAND); }
         if (query.inPlay) { flag &= (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE); }
         if (query.isDamageable) { flag &= (type == Type.THRALL); }
         if (query.isAttackable) { flag &= (type == Type.THRALL); }
@@ -737,6 +791,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (query.isSelf) { flag &= (owner == self); }
         if (query.cardType != Type.DEFAULT) { flag &= (type == query.cardType); }
         if (query.cardColor != Color.DEFAULT) { flag &= (data.color == query.cardColor); }
+        if (query.keyword != Keyword.DEFAULT)
+        {
+            bool tmpFlag = false;
+            foreach (Keyword key in data.keywords)
+            {
+                tmpFlag |= (key == query.keyword);
+            }
+            flag &= tmpFlag;
+        }
         foreach (TemplateParam _param in query.templateParams)
         {
             switch (_param.param)
@@ -790,6 +853,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (_statusConditions.ContainsKey(id))
         {
             _statusConditions[id].stacks += stacks;
+            events.GainStatus(_statusConditions[id], stacks);
         }
         else
         {
@@ -799,6 +863,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
             s.SetStatus(data, stacks);
             _statusConditions[id] = s;
+            events.GainStatus(s, stacks);
         }
         Refresh();
     }
@@ -808,6 +873,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             StatusCondition s = _statusConditions[id];
             s.stacks -= stacks;
+            events.RemoveStatus(s, stacks);
         }
     }
     public virtual int GetStatus(StatusName id)

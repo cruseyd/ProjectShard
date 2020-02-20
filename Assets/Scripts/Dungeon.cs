@@ -43,6 +43,8 @@ public class Dungeon : MonoBehaviour
     [SerializeField] private ParticleSystem _playerParticleUnderlay;
     [SerializeField] private ParticleSystem _enemyParticleUnderlay;
 
+    public static List<TemplateModifier> modifiers;
+
     public static int combatTurn;
     public static GameParams gameParams
     {
@@ -93,6 +95,7 @@ public class Dungeon : MonoBehaviour
         if (instance == null) { instance = this; }
         else { Destroy(this); }
         Card.dropZone = _dropZone;
+        modifiers = new List<TemplateModifier>();
     }
     public void Start()
     {
@@ -126,6 +129,29 @@ public class Dungeon : MonoBehaviour
             case CardZone.MAGNIFY: return instance._magnifyWindow;
             case CardZone.TARGETING: return instance._targetingSource;
             default: return null;
+        }
+    }
+
+    public static bool AddModifier(TemplateModifier mod)
+    {
+        if (modifiers.Contains(mod)) { return false; }
+        else
+        {
+            modifiers.Add(mod);
+            GameEvents.current.AddGlobalModifier(mod);
+            return true;
+        }
+    }
+    public static bool RemoveModifier(TemplateModifier mod)
+    {
+        if (modifiers.Contains(mod))
+        {
+            modifiers.Remove(mod);
+            GameEvents.current.RemoveGlobalModifier(mod);
+            return true;
+        } else
+        {
+            return false;
         }
     }
     public static void Organize(CardZone zone)

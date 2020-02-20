@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
+  m_Name: Elder_Knowledge
+  m_EditorClassIdentifier: 
+  id: 4
+  stackable: 1
+  tooltipHeader: Elder Knowledge
+  tooltipContent: 'When you draw a card, remove all stacks of Elder Knowledge and
+    draw an additional card for each stack removed. '
+  iconColor: {r: 0, g: 0, b: 0, a: 1}
+  backgroundColor: {r: 0.19301856, g: 0, b: 0.8018868, a: 1}

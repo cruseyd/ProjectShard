@@ -83,4 +83,10 @@ public class Targeter : MonoBehaviour
         current._targetBeam.SetTarget(target.transform.position);
         current._targetBeam.gameObject.SetActive(true);
     }
+    public static void ShowTarget(Transform source, Transform target)
+    {
+        current._targetBeam.transform.position = source.position;
+        current._targetBeam.SetTarget(target.position);
+        current._targetBeam.gameObject.SetActive(true);
+    }
 }

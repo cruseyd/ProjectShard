@@ -65,6 +65,17 @@ public class StatusCondition : MonoBehaviour
                 target.Controller().events.onStartTurn += Burn; break;
             case StatusName.STUN:
                 target.Controller().events.onStartTurn += Stun; break;
+            case StatusName.ELDER_KNOWLEDGE:
+                target.Controller().events.onDrawCard += ElderKnowledge; break;
+            case StatusName.CHILL:
+                if (target is Card)
+                {
+                    ((Card)target).events.onGainStatus += Chill;
+                } else if (target is Actor)
+                {
+                    ((Actor)target).events.onGainStatus += Chill;
+                }
+                break;
             default: break;
         }
     }
@@ -78,6 +89,8 @@ public class StatusCondition : MonoBehaviour
                 target.Controller().events.onStartTurn -= Burn; break;
             case StatusName.STUN:
                 target.Controller().events.onStartTurn -= Stun; break;
+            case StatusName.ELDER_KNOWLEDGE:
+                target.Controller().events.onDrawCard -= ElderKnowledge; break;
             default: break;
         }
         gameObject.SetActive(false);
@@ -105,5 +118,28 @@ public class StatusCondition : MonoBehaviour
         Debug.Assert(((Card)target).type == Card.Type.THRALL);
         ((Card)target).attackAvailable = false;
         Remove();
+    }
+
+    private void ElderKnowledge(Card drawn)
+    {
+        Debug.Assert(target is Actor);
+        int n = stacks;
+        stacks = 0;
+        Actor actor = (Actor)target;
+        actor.Draw(n);
+    }
+
+    private void Chill(StatusCondition status, int s)
+    {
+        if (status == null || status._data.id != StatusName.CHILL) { return; }
+        if (target is Card && ((Card)target).cost.value <= status.stacks)
+        {
+            status.stacks -= ((Card)target).cost.value;
+            target.AddStatus(StatusName.STUN, 1);
+        } else if (target is Actor && status.stacks >= 5)
+        {
+            status.stacks -= 5;
+            ((Actor)target).DiscardAll();
+        }
     }
 }

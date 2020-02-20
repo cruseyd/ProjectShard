@@ -39,20 +39,7 @@ public class PlayerTurnPhase : GamePhase
 {
     public override void Enter()
     {
-        List<Card> thralls = new List<Card>();
-        foreach (Card card in Player.instance.active)
-        {
-            if (card.type == Card.Type.THRALL) { thralls.Add(card); }
-        }
-        if (thralls.Count > Player.instance.maxFocus.value)
-        {
-            foreach (Card thrall in thralls)
-            {
-                thrall.allegiance.baseValue -= 1;
-            }
-        }
-
-        Player.instance.focus.baseValue = Player.instance.maxFocus.value - thralls.Count;
+        Player.instance.focus.baseValue = Player.instance.maxFocus.value;
         Player.instance.Redraw();
 
         Dungeon.SetConfirmButtonText("End Turn");

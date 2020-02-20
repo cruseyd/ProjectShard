@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: TestEnemy
   m_EditorClassIdentifier: 
   name: Test Enemy
-  maxHealth: 7
+  maxHealth: 20
   weapon: {fileID: 0}
   armor: {fileID: 11400000, guid: 45b3149de235eb64eb78d11b08add786, type: 2}
   cardPool:
@@ -21,7 +21,7 @@ MonoBehaviour:
     - rates:
       - card: {fileID: 11400000, guid: 79b11672514155848a7a24b6932a0583, type: 2}
         rate: 0
-      quantity: 5
+      quantity: 3
     - rates:
       - card: {fileID: 11400000, guid: 9590eac642ee3254695e424b62b4ca45, type: 2}
         rate: 0
@@ -33,4 +33,4 @@ MonoBehaviour:
     - rates:
       - card: {fileID: 11400000, guid: a9eb759cbcf754645861af0bc35cae83, type: 2}
         rate: 0
-      quantity: 5
+      quantity: 3

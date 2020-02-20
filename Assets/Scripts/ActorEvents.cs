@@ -13,6 +13,8 @@ public class ActorEvents
     public event Action onEndTurn;
     public event Action<Card> onDrawCard;
     public event Action<Card> onPlayCard;
+    public event Action<StatusCondition, int> onGainStatus;
+    public event Action<StatusCondition, int> onRemoveStatus;
     public event Action<DamageData> onRawDamage;
     public event Action<DamageData> onModifiedDamage;
     public event Action<DamageData> onReceiveDamage;
@@ -24,4 +26,8 @@ public class ActorEvents
     public void RawDamage(DamageData data) { onRawDamage?.Invoke(data); }
     public void ModifiedDamage(DamageData data) { onModifiedDamage?.Invoke(data); }
     public void ReceiveDamage(DamageData data) { onReceiveDamage?.Invoke(data); }
+
+    public void GainStatus(StatusCondition status, int stacks) { onGainStatus?.Invoke(status, stacks); }
+    public void RemoveStatus(StatusCondition status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
+
 }

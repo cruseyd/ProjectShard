@@ -5,9 +5,9 @@ using UnityEngine;
 public class StatModifier
 {
     public readonly float value;
-    public readonly Object source;
+    public readonly object source;
 
-    public StatModifier(float _value, Object _source)
+    public StatModifier(float _value, object _source)
     {
         value = _value;
         source = _source;
@@ -21,18 +21,19 @@ public class TemplateModifier
     public readonly TargetTemplate template;
     private Card _source;
 
-    public TemplateModifier(StatModifier mod, Stat.Name stat, TargetTemplate t, Card source)
+    public TemplateModifier(int mod, Stat.Name stat, TargetTemplate t, Card source)
     {
-        modifier = mod;
+        modifier = new StatModifier(mod, this);
         statName = stat;
         template = t;
         _source = source;
-        //source.events.onLeavePlay += this.Destroy()
+        source.events.onDestroy += Destroy;
     }
 
     private void Destroy(Card source)
     {
-
+        Debug.Log("Destroying a template modifier");
+        Dungeon.RemoveModifier(this);
     }
 }
 
@@ -83,6 +84,29 @@ public class Stat
         _modifiers = new List<StatModifier>();
     }
 
+    public bool AddModifier(StatModifier mod)
+    {
+        if (_modifiers.Contains(mod)) { return false; }
+        else
+        {
+            Debug.Log("Adding modifier");
+            _modifiers.Add(mod);
+            return true;
+        }
+    }
+    public bool RemoveModifier(StatModifier mod)
+    {
+        if (_modifiers.Contains(mod))
+        {
+            Debug.Log("Removing modifier");
+            _modifiers.Remove(mod);
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
     public bool RemoveModifiersFromSource(Object a_source)
     {
         bool didRemove = false;

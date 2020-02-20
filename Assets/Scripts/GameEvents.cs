@@ -24,12 +24,16 @@ public class GameEvents : MonoBehaviour
     public event Action onRefresh;
     public event Action<Actor> onStartTurn;
     public event Action<TargetTemplate, ITargetable, bool> onQueryTarget;
+    public event Action<TemplateModifier> onAddGlobalModifier;
+    public event Action<TemplateModifier> onRemoveGlobalModifier;
     public void Refresh() { onRefresh?.Invoke(); }
     public void StartTurn(Actor actor) { onStartTurn?.Invoke(actor); }
     public void QueryTarget(TargetTemplate query, ITargetable source, bool show)
     {
         onQueryTarget?.Invoke(query, source, show);
     }
+    public void AddGlobalModifier(TemplateModifier mod) { onAddGlobalModifier?.Invoke(mod); }
+    public void RemoveGlobalModifier(TemplateModifier mod) { onRemoveGlobalModifier?.Invoke(mod); }
 
     /*
     private event Action<DamageData> onPlayerRawDamage;
