@@ -24,6 +24,7 @@ public class Enemy : Actor
         //int n = Random.Range(Dungeon.gameParams.enemyDrawMin, Dungeon.gameParams.enemyDrawMax + 1);
         int n = Random.Range(1, 7);
         n = (int)((float)n / 2.0f);
+        n = Mathf.Max(n, 1);
         yield return DoDraw(n);
     }
     public override void Awake()
@@ -43,16 +44,10 @@ public class Enemy : Actor
         //set enemy UI to be active
         _data = data;
         _nameText.text = data.name;
-        if (_statusConditions == null)
-        {
-            _statusConditions = new Dictionary<StatusName, StatusCondition>();
-        }
-        StatusCondition[] buffs = _statusDisplays.GetComponentsInChildren<StatusCondition>();
-        foreach (StatusCondition s in buffs)
-        {
-            s.gameObject.SetActive(false);
-        }
-        
+        StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
+        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+
         health.baseValue = data.maxHealth;
         maxHealth.baseValue = health.value;
 

@@ -21,7 +21,7 @@ public interface ITargetable : IMonoBehaviour
     TargetTemplate GetQuery(Ability.Mode mode, int n);
     bool Resolve(Ability.Mode mode, List<ITargetable> targets);
 
-    void AddStatus(StatusName id, int stacks);
-    void RemoveStatus(StatusName id, int stacks);
+    void AddStatus(StatusName id, int stacks = 1);
+    void RemoveStatus(StatusName id, int stacks = 1);
     int GetStatus(StatusName id);
 }

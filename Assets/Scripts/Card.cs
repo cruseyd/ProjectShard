@@ -64,7 +64,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private CardData _data;
     private Ability _ability;
     private CardEvents _events;
-    private Dictionary<StatusName, StatusCondition> _statusConditions;
+    private Dictionary<StatusName, StatusEffect> _statusEffects;
     private List<ITargetable> _validTargets;
 
     private bool _translating = false;
@@ -262,7 +262,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // DATA AND STATE
         card._data = data;
         card._validTargets = new List<ITargetable>();
-        card._statusConditions = new Dictionary<StatusName, StatusCondition>();
+        card._statusEffects = new Dictionary<StatusName, StatusEffect>();
         card._events = new CardEvents(card);
         card.playerCard = playerCard;
         card.attackAvailable = false;
@@ -355,11 +355,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             card._allegianceDisplay.gameObject.SetActive(false);
             card._powerDisplay.gameObject.SetActive(false);
         }
-        foreach (StatusCondition s in card._statusDisplays.GetComponentsInChildren<StatusCondition>())
-        {
-            s.target = card;
-            s.gameObject.SetActive(false);
-        }
+        StatusDisplay[] displays = card._statusDisplays.GetComponentsInChildren<StatusDisplay>();
+        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
         card.particles.Clear();
 
         // EVENTS
@@ -424,7 +421,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 AddModifier(mod.modifier, mod.statName);
             }
         }
-
 
         _costDisplay.value = cost.value;
         _finesseDisplay.value = finesse.value;
@@ -847,40 +843,44 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         return moves;
     }
-
     public virtual void AddStatus(StatusName id, int stacks = 1)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            _statusConditions[id].stacks += stacks;
-            events.GainStatus(_statusConditions[id], stacks);
+            _statusEffects[id].stacks += stacks;
+            events.GainStatus(_statusEffects[id], stacks);
         }
         else
         {
-            int n = _statusConditions.Count;
-            StatusCondition s = _statusDisplays.transform.GetChild(n).GetComponent<StatusCondition>();
-            StatusData data = Resources.Load("StatusConditions/" + id.ToString()) as StatusData;
-
-            s.SetStatus(data, stacks);
-            _statusConditions[id] = s;
-            events.GainStatus(_statusConditions[id], stacks);
+            int n = _statusEffects.Count;
+            StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
+            StatusEffect s = new StatusEffect(id, this, display, stacks);
+            _statusEffects[id] = s;
+            events.GainStatus(_statusEffects[id], stacks);
         }
-        Refresh();
     }
     public virtual void RemoveStatus(StatusName id, int stacks = 1)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            StatusCondition s = _statusConditions[id];
-            s.stacks -= stacks;
+            StatusEffect s = _statusEffects[id];
             events.RemoveStatus(s, stacks);
+            if (stacks >= s.stacks)
+            {
+                _statusEffects[id].Remove();
+                _statusEffects.Remove(id);
+            }
+            else
+            {
+                s.stacks -= stacks;
+            }
         }
     }
     public virtual int GetStatus(StatusName id)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            return _statusConditions[id].stacks;
+            return _statusEffects[id].stacks;
         }
         else
         {

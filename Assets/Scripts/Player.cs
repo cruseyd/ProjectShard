@@ -43,79 +43,7 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public Stat indigoAffinity;
 
     public List<Stat> affinity;
-    /*
-    public static int endurance
-    {
-        get { return instance._endurance; }
-        set
-        {
-            instance._endurance = value;
-            instance._enduranceDisplay.value = endurance;
-        }
-    }
-    public int focus
-    {
-        get { return instance._focus; }
-        set { instance._focus = value; instance._focusDisplay.value = focus; }
-    }
-    public int maxFocus
-    {
-        get { return instance._maxFocus; }
-        set { instance._maxFocus = value; instance._focusDisplay.baseValue = maxFocus; }
-    }
-
-
-    public int violetAffinity
-    {
-        set { instance._violetAffinity.value = value; }
-        get
-        {
-            return instance._violetAffinity.value;
-        }
-    }
-    public int redAffinity
-    {
-        set { instance._redAffinity.value = value; }
-        get
-        {
-            return instance._redAffinity.value;
-        }
-    }
-    public int goldAffinity
-    {
-        set { instance._goldAffinity.value = value; }
-        get
-        {
-            return instance._goldAffinity.value;
-        }
-    }
-    public int greenAffinity
-    {
-        set { instance._greenAffinity.value = value; }
-        get
-        {
-            return instance._greenAffinity.value;
-        }
-    }
-    public int blueAffinity
-    {
-        set { instance._blueAffinity.value = value; }
-        get
-        {
-            return instance._blueAffinity.value;
-        }
-    }
-    public int purpleAffinity
-    {
-        set { instance._purpleAffinity.value = value; }
-        get
-        {
-            return instance._purpleAffinity.value;
-        }
-    }
-
-    */
-
+    
     public override void Awake()
     {
         base.Awake();
@@ -160,11 +88,6 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         _armor.Equip(data.armor, this);
         _relic.Equip(data.relic, this);
 
-        StatusCondition[] buffs = _statusDisplays.GetComponentsInChildren<StatusCondition>();
-        foreach (StatusCondition s in buffs)
-        {
-            s.gameObject.SetActive(false);
-        }
         Refresh();
     }
     public override void Refresh()
@@ -184,7 +107,6 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     {
         base.StartEncounter();
         focus.baseValue = maxFocus.value;
-        //StartCoroutine(DoDraw(Dungeon.gameParams.playerHandSize));
     }
     public void Redraw()
     {

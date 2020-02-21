@@ -21,5 +21,5 @@ MonoBehaviour:
 
     When a player has 5 stacks of chill, remove them
     and that player discards their hand.'
-  iconColor: {r: 0.3820755, g: 0.8186125, b: 1, a: 1}
+  iconColor: {r: 0.3803922, g: 0.647152, b: 1, a: 1}
   backgroundColor: {r: 1, g: 1, b: 1, a: 1}

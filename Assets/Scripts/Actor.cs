@@ -32,7 +32,8 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public Equipment armor { get { return _armor; } }
     public Equipment relic { get { return _relic; } }
 
-    protected Dictionary<StatusName, StatusCondition> _statusConditions;
+    //protected Dictionary<StatusName, StatusCondition> _statusConditions;
+    protected Dictionary<StatusName, StatusEffect> _statusEffects;
 
     public ActorParticles particles;
 
@@ -83,11 +84,10 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
 
     public virtual void Awake()
     {
-        _statusConditions = new Dictionary<StatusName, StatusCondition>();
-        foreach (StatusCondition s in _statusDisplays.GetComponentsInChildren<StatusCondition>())
-        {
-            s.target = this;
-        }
+        _statusEffects = new Dictionary<StatusName, StatusEffect>();
+        StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
+        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+
         if (isPlayer)
         {
             _handZone = CardZone.PLAYER_HAND;
@@ -125,6 +125,15 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         Dungeon.MoveCard(card, _discardZone);
         card.particles.Clear();
     }
+
+    public virtual void DiscardRandom()
+    {
+        if (hand.Length > 0)
+        {
+            int choice = Random.Range(0, hand.Length);
+            Discard(hand[choice]);
+        }
+    }
     public virtual void PutInPlay(Card card)
     {
         Dungeon.MoveCard(card, _activeZone);
@@ -161,15 +170,6 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     }
     public virtual void Refresh()
     {
-        List<StatusName> toRemove = new List<StatusName>();
-        foreach (StatusName s in _statusConditions.Keys)
-        {
-            if (GetStatus(s) <= 0)
-            {
-                toRemove.Add(s);
-            }
-        }
-        foreach (StatusName s in toRemove) { _statusConditions.Remove(s); }
         _healthDisplay.value = health.value;
         _healthDisplay.baseValue = maxHealth.value;
         particles.Clear();
@@ -259,37 +259,40 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     }
     public virtual void AddStatus(StatusName id, int stacks = 1)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            _statusConditions[id].stacks += stacks;
-            events.GainStatus(_statusConditions[id], stacks);
-        }
-        else
+            _statusEffects[id].stacks += stacks;
+            events.GainStatus(_statusEffects[id], stacks);
+        } else
         {
-            int n = _statusConditions.Count;
-            StatusCondition s = _statusDisplays.transform.GetChild(n).GetComponent<StatusCondition>();
-            StatusData data = Resources.Load("StatusConditions/" + id.ToString()) as StatusData;
-
-            s.SetStatus(data, stacks);
-            _statusConditions[id] = s;
-            events.GainStatus(_statusConditions[id], stacks);
+            int n = _statusEffects.Count;
+            StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
+            StatusEffect s = new StatusEffect(id, this, display, stacks);
+            _statusEffects[id] = s;
+            events.GainStatus(_statusEffects[id], stacks);
         }
-        Refresh();
     }
     public virtual void RemoveStatus(StatusName id, int stacks = 1)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            StatusCondition s = _statusConditions[id];
-            s.stacks -= stacks;
+            StatusEffect s = _statusEffects[id];
             events.RemoveStatus(s, stacks);
+            if (stacks >= s.stacks)
+            {
+                _statusEffects[id].Remove();
+                _statusEffects.Remove(id);
+            } else
+            {
+                s.stacks -= stacks;
+            }
         }
     }
     public virtual int GetStatus(StatusName id)
     {
-        if (_statusConditions.ContainsKey(id))
+        if (_statusEffects.ContainsKey(id))
         {
-            return _statusConditions[id].stacks;
+            return _statusEffects[id].stacks;
         }
         else
         {
