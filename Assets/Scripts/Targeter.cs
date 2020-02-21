@@ -36,9 +36,11 @@ public class Targeter : MonoBehaviour
         active = true;
         _source = src;
         _abilityMode = mode;
+        /*
         current._targetBeam.transform.position = _source.transform.position;
         current._targetBeam.followCursor = true;
         current._targetBeam.gameObject.SetActive(true);
+        */
         src.FindTargets(_abilityMode, 0, true);
     }
     public static int AddTarget(ITargetable node)
@@ -83,10 +85,15 @@ public class Targeter : MonoBehaviour
         current._targetBeam.SetTarget(target.transform.position);
         current._targetBeam.gameObject.SetActive(true);
     }
-    public static void ShowTarget(Transform source, Transform target)
+    public static void ShowTarget(Vector3 source, Vector3 target)
     {
-        current._targetBeam.transform.position = source.position;
-        current._targetBeam.SetTarget(target.position);
+        current._targetBeam.transform.position = source;
+        current._targetBeam.SetTarget(target);
         current._targetBeam.gameObject.SetActive(true);
+    }
+
+    public static void HideTargeter()
+    {
+        current._targetBeam.gameObject.SetActive(false);
     }
 }

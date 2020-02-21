@@ -14,7 +14,10 @@ public enum CardZone
     DUNGEON_ACTIVE,
     DUNGEON_DISCARD,
     MAGNIFY,
-    TARGETING
+    DROP,
+    BURN,
+
+
 }
 
 public class Dungeon : MonoBehaviour
@@ -25,7 +28,8 @@ public class Dungeon : MonoBehaviour
     //[SerializeField] private Enemy _enemy;
     [SerializeField] private GamePhase _phase;
 
-    [SerializeField] private GameObject _dropZone;
+    [SerializeField] private RectTransform _dropZone;
+    [SerializeField] private RectTransform _burnZone;
     [SerializeField] private GameObject _confirmButton;
     [SerializeField] private TextMeshProUGUI _confirmButtonText;
     [SerializeField] private RectTransform _playerHandZone;
@@ -37,7 +41,6 @@ public class Dungeon : MonoBehaviour
     [SerializeField] private RectTransform _playerDeckZone;
     [SerializeField] private RectTransform _dungeonDeckZone;
     [SerializeField] private RectTransform _magnifyWindow;
-    [SerializeField] private RectTransform _targetingSource;
     [SerializeField] private GameObject _tooltipWindow;
 
     [SerializeField] private ParticleSystem _playerParticleUnderlay;
@@ -94,7 +97,6 @@ public class Dungeon : MonoBehaviour
     {
         if (instance == null) { instance = this; }
         else { Destroy(this); }
-        Card.dropZone = _dropZone;
         modifiers = new List<TemplateModifier>();
     }
     public void Start()
@@ -127,7 +129,8 @@ public class Dungeon : MonoBehaviour
             case CardZone.DUNGEON_DISCARD: return instance._dungeonDiscardZone;
             case CardZone.DUNGEON_HAND: return instance._dungeonHandZone;
             case CardZone.MAGNIFY: return instance._magnifyWindow;
-            case CardZone.TARGETING: return instance._targetingSource;
+            case CardZone.DROP: return instance._dropZone;
+            case CardZone.BURN: return instance._burnZone;
             default: return null;
         }
     }

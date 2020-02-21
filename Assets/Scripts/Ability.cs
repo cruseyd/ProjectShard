@@ -159,7 +159,7 @@ public abstract class Ability
                 ((Card)source).FaceUp(true, true);
                 if (targets!= null && targets.Count > 0)
                 {
-                    Targeter.ShowTarget(Dungeon.GetZone(CardZone.MAGNIFY).transform, targets[0].transform);
+                    Targeter.ShowTarget(Dungeon.GetZone(CardZone.MAGNIFY).transform.position, targets[0].transform.position);
                 }
                 break;
             case Mode.ATTACK:

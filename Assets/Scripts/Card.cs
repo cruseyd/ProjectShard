@@ -39,7 +39,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     
     private static GameObject _cardPrefab;
     private static GameObject _enemyCardPrefab;
-    public static GameObject dropZone;
 
     [SerializeField] private GameObject _cardFront;
     [SerializeField] private GameObject _cardBack;
@@ -68,6 +67,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private List<ITargetable> _validTargets;
 
     private bool _translating = false;
+    private bool _followingCursor = false;
     private bool _faceUp;
 
     public bool activationAvailable;
@@ -694,7 +694,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (!needsTarget)
         {
-            if (playable && OverDropZone(eventData))
+            if (playable && OverZone(eventData, CardZone.DROP))
             {
                 Resolve(Ability.Mode.PLAY, null);
             }
@@ -716,31 +716,61 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
             Targeter.Clear();
         }
+        _followingCursor = false;
         GameEvents.current.Refresh();
     }
     public void OnDrag(PointerEventData eventData)
     {
         if (_translating || !playerCard) { return; }
-        if (zone == CardZone.PLAYER_HAND && !needsTarget)
+        if (zone == CardZone.PLAYER_HAND)
         {
-            transform.position = eventData.position;
-            if (playable && OverDropZone(eventData))
+            if (needsTarget)
             {
-                particles.Glow(true);
-            } else
-            {
-                particles.Glow(false);
+                if (!(OverZone(eventData, CardZone.PLAYER_HAND) || OverZone(eventData, CardZone.BURN)))
+                {
+                    if (_followingCursor)
+                    {
+                        _followingCursor = false;
+                        Dungeon.Organize(zone);
+                        
+                    }
+                    Targeter.ShowTarget(transform.position, eventData.position);
+                } else
+                {
+                    if (!_followingCursor)
+                    {
+                        _followingCursor = true;
+                        Targeter.HideTargeter();
+                    }
+                    
+                    transform.position = eventData.position;
+                }
             }
+            if (!needsTarget)
+            {
+                _followingCursor = true;
+                transform.position = eventData.position;
+                if (playable && OverZone(eventData, CardZone.DROP))
+                {
+                    particles.Glow(true);
+                }
+                else
+                {
+                    particles.Glow(false);
+                }
+            }
+            
         }
     }
 
-    private bool OverDropZone(PointerEventData eventData)
+    private bool OverZone(PointerEventData eventData, CardZone zone)
     {
         List<RaycastResult> hits = new List<RaycastResult>();
         EventSystem.current.RaycastAll(eventData, hits);
+        GameObject zoneObject = Dungeon.GetZone(zone).gameObject;
         foreach (RaycastResult hit in hits)
         {
-            if (hit.gameObject == dropZone) { return true; }
+            if (hit.gameObject == zoneObject) { return true; }
         }
         return false;
     }
