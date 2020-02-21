@@ -11,11 +11,17 @@ public class CardEvents
         _source = source;
     }
 
-    public Action<Card> onDraw;
-    public Action<Card> onEnterPlay;
-    public Action<Card> onDestroy;
+    public event Action<Card> onDraw;
+    public event Action<Card> onEnterPlay;
+    public event Action<Card> onDestroy;
     public event Action<StatusEffect, int> onGainStatus;
     public event Action<StatusEffect, int> onRemoveStatus;
+    public event Action<DamageData> onDealDamage;
+    public event Action<DamageData> onRawDamage;
+    public event Action<DamageData> onModifiedDamage;
+    public event Action<DamageData> onReceiveDamage;
+
+
     public void Draw() { onDraw?.Invoke(_source); }
     public void EnterPlay() { onEnterPlay?.Invoke(_source); }
     public void Destroy() { onDestroy?.Invoke(_source); }

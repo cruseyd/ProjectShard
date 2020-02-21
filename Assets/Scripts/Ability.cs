@@ -37,6 +37,7 @@ public abstract class Ability
                 _index["DRIFTING_VOIDLING"] = new A_DriftingVoidling();
                 _index["ICE_ELEMENTAL"] = new A_IceElemental();
                 _index["FROST_LATTICE"] = new A_FrostLattice();
+                _index["STATIC"] = new A_Static();
 
             }
             return _index;
@@ -407,6 +408,7 @@ public class A_InfernoDjinn : Ability
 }
 
 // ============================================ BLUE CARDS ============================================
+
 public class A_Continuity : Ability
 {
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
@@ -575,3 +577,46 @@ public class A_FrostLattice : Ability
     }
 }
 
+public class A_RimeSprite : Ability
+{
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+    }
+
+    public override string Text(Card source)
+    {
+        return "When Rime Sprite deals damage to a target, add a Chill counter to that target and destroy this.";
+    }
+}
+// ============================================ MULTICOLOR CARDS ============================================
+public class A_Static : Ability
+{
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+        TargetTemplate t = new TargetTemplate();
+        t.isDamageable = true;
+        t.isOpposing = true;
+        t.inPlay = true;
+        List<ITargetable> validTargets = new List<ITargetable>();
+        validTargets.Add(source.opponent);
+        foreach (Card card in source.opponent.active)
+        {
+            if (card.Compare(t, source.owner))
+            {
+                validTargets.Add(card);
+            }
+        }
+
+        ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
+        Damage(new DamageData(1, Keyword.LIGHTNING, source, (IDamageable)target), undo, state);
+        target = validTargets[Random.Range(0, validTargets.Count)];
+        Damage(new DamageData(1, Keyword.LIGHTNING, source, (IDamageable)target), undo, state);
+    }
+
+    public override string Text(Card source)
+    {
+        return "Static deals 1 Lightning damage to 2 random targets.";
+    }
+}
