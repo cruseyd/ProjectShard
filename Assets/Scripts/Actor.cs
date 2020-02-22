@@ -17,7 +17,6 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     protected CardZone _handZone;
     protected CardZone _activeZone;
     protected CardZone _discardZone;
-
     
     public Actor opponent
     {
@@ -31,8 +30,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public Equipment weapon { get { return _weapon; } }
     public Equipment armor { get { return _armor; } }
     public Equipment relic { get { return _relic; } }
-
-    //protected Dictionary<StatusName, StatusCondition> _statusConditions;
+    
     protected Dictionary<StatusName, StatusEffect> _statusEffects;
 
     public ActorParticles particles;

@@ -7,19 +7,23 @@ public class CardParticles : MonoBehaviour
 
     [SerializeField] ParticleSystem _goldShimmer;
     [SerializeField] ParticleSystem _blueShimmer;
-    [SerializeField] ParticleSystem _glow;
+    [SerializeField] ParticleSystem _goldGlow;
+    [SerializeField] ParticleSystem _redGlow;
+
     void Start()
     {
         _goldShimmer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         _blueShimmer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        _glow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        _goldGlow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        _redGlow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
     }
 
     public void Clear()
     {
         Play(_goldShimmer, false);
         Play(_blueShimmer, false);
-        Play(_glow, false);
+        Play(_goldGlow, false);
+        Play(_redGlow, false);
     }
 
     public void MarkValidTarget()
@@ -40,7 +44,12 @@ public class CardParticles : MonoBehaviour
 
     public void Glow(bool flag)
     {
-        Play(_glow, flag);
+        Play(_goldGlow, flag);
+    }
+
+    public void RedGlow(bool flag)
+    {
+        Play(_redGlow, flag);
     }
 
     private void Play(ParticleSystem system, bool flag)

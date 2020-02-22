@@ -26,7 +26,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         GOLD,
         GREEN,
         BLUE,
-        PURPLE,
+        INDIGO,
         TAN
     }
     public enum Attribute
@@ -335,7 +335,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             for (int ii = 0; ii < data.indigoAffinity; ii++)
             {
                 pips[pipNum].enabled = true;
-                pips[pipNum].color = Dungeon.gameParams.GetColor(Card.Color.PURPLE);
+                pips[pipNum].color = Dungeon.gameParams.GetColor(Card.Color.INDIGO);
                 pipNum++;
             }
         }
@@ -495,15 +495,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (playerCard && mode == Ability.Mode.PLAY)
         {
             Player.instance.focus.baseValue -= cost.value;
-            switch (data.color)
-            {
-                case Card.Color.VIOLET: Player.instance.violetAffinity.baseValue++; break;
-                case Card.Color.RED: Player.instance.redAffinity.baseValue++; break;
-                case Card.Color.GOLD: Player.instance.goldAffinity.baseValue++; break;
-                case Card.Color.GREEN: Player.instance.greenAffinity.baseValue++; break;
-                case Card.Color.BLUE: Player.instance.blueAffinity.baseValue++; break;
-                case Card.Color.PURPLE: Player.instance.indigoAffinity.baseValue++; break;
-            }
+            //Player.instance.addAffinity(data.color, 1);
         }
         _ability?.Use(mode, this, targets);
         if (mode == Ability.Mode.PLAY)
@@ -692,6 +684,14 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnEndDrag(PointerEventData eventData)
     {
+        if (!playerCard) { return; }
+        if (OverZone(eventData, CardZone.BURN))
+        {
+            owner.Discard(this);
+            Player.instance.addAffinity(data.color, 1);
+            GameEvents.current.Refresh();
+            return;
+        }
         if (!needsTarget)
         {
             if (playable && OverZone(eventData, CardZone.DROP))
@@ -744,7 +744,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                     }
                     
                     transform.position = eventData.position;
+                    
                 }
+                
             }
             if (!needsTarget)
             {
@@ -759,7 +761,14 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                     particles.Glow(false);
                 }
             }
-            
+            if (OverZone(eventData, CardZone.BURN))
+            {
+                particles.RedGlow(true);
+            }
+            else
+            {
+                particles.RedGlow(false);
+            }
         }
     }
 

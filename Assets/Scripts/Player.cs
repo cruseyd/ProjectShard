@@ -44,6 +44,18 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
 
     public List<Stat> affinity;
     
+    public void addAffinity(Card.Color color, int delta)
+    {
+        switch (color)
+        {
+            case Card.Color.VIOLET: violetAffinity.baseValue += delta; break;
+            case Card.Color.RED: redAffinity.baseValue += delta; break;
+            case Card.Color.GOLD: goldAffinity.baseValue += delta; break;
+            case Card.Color.GREEN: greenAffinity.baseValue += delta; break;
+            case Card.Color.BLUE: blueAffinity.baseValue += delta; break;
+            case Card.Color.INDIGO: indigoAffinity.baseValue += delta; break;
+        }
+    }
     public override void Awake()
     {
         base.Awake();

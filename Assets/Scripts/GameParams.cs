@@ -10,7 +10,7 @@ public class GameParams : ScriptableObject
     public Color GOLD;
     public Color GREEN;
     public Color BLUE;
-    public Color PURPLE;
+    public Color INDIGO;
     public Color TAN;
 
     public int playerHandSize;
@@ -28,7 +28,7 @@ public class GameParams : ScriptableObject
             case Card.Color.GOLD: return GOLD;
             case Card.Color.GREEN: return GREEN;
             case Card.Color.BLUE: return BLUE;
-            case Card.Color.PURPLE: return PURPLE;
+            case Card.Color.INDIGO: return INDIGO;
             case Card.Color.TAN: return TAN;
             default: return Color.white;
         }
