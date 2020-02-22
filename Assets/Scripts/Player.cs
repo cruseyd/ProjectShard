@@ -27,10 +27,6 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
 
     private List<ValueDisplay> _affinityDisplay;
 
-    //private int _endurance;
-    //private int _focus;
-    //private int _maxFocus;
-
     public Stat endurance;
     public Stat focus;
     public Stat maxFocus;
@@ -43,7 +39,9 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public Stat indigoAffinity;
 
     public List<Stat> affinity;
-    
+
+    public bool burnAvailable = true;
+
     public void addAffinity(Card.Color color, int delta)
     {
         switch (color)

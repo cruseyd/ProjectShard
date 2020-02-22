@@ -16,8 +16,6 @@ public enum CardZone
     MAGNIFY,
     DROP,
     BURN,
-
-
 }
 
 public class Dungeon : MonoBehaviour

@@ -676,7 +676,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (needsTarget)
         {
             if (playable) { Targeter.SetSource(this, Ability.Mode.PLAY); }
-            else if (canAttack) { Targeter.SetSource(this, Ability.Mode.ATTACK); }
+            else if (canAttack)
+            {
+                Targeter.SetSource(this, Ability.Mode.ATTACK);
+            }
         }
         StopAllCoroutines();
         transform.SetAsLastSibling();
@@ -685,10 +688,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!playerCard) { return; }
-        if (OverZone(eventData, CardZone.BURN))
+        if (OverZone(eventData, CardZone.BURN) && Player.instance.burnAvailable)
         {
             owner.Discard(this);
             Player.instance.addAffinity(data.color, 1);
+            Player.instance.burnAvailable = false;
             GameEvents.current.Refresh();
             return;
         }
@@ -722,53 +726,51 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnDrag(PointerEventData eventData)
     {
         if (_translating || !playerCard) { return; }
-        if (zone == CardZone.PLAYER_HAND)
+
+        if (needsTarget)
         {
-            if (needsTarget)
+            if (!(OverZone(eventData, CardZone.PLAYER_HAND) || OverZone(eventData, CardZone.BURN)))
             {
-                if (!(OverZone(eventData, CardZone.PLAYER_HAND) || OverZone(eventData, CardZone.BURN)))
+                if (_followingCursor)
                 {
-                    if (_followingCursor)
-                    {
-                        _followingCursor = false;
-                        Dungeon.Organize(zone);
+                    _followingCursor = false;
+                    Dungeon.Organize(zone);
                         
-                    }
-                    Targeter.ShowTarget(transform.position, eventData.position);
-                } else
-                {
-                    if (!_followingCursor)
-                    {
-                        _followingCursor = true;
-                        Targeter.HideTargeter();
-                    }
-                    
-                    transform.position = eventData.position;
-                    
                 }
-                
-            }
-            if (!needsTarget)
+                Targeter.ShowTarget(transform.position, eventData.position);
+            } else
             {
-                _followingCursor = true;
+                if (!_followingCursor)
+                {
+                    _followingCursor = true;
+                    Targeter.HideTargeter();
+                }
+                    
                 transform.position = eventData.position;
-                if (playable && OverZone(eventData, CardZone.DROP))
-                {
-                    particles.Glow(true);
-                }
-                else
-                {
-                    particles.Glow(false);
-                }
+                    
             }
-            if (OverZone(eventData, CardZone.BURN))
+                
+        }
+        if (!needsTarget)
+        {
+            _followingCursor = true;
+            transform.position = eventData.position;
+            if (playable && OverZone(eventData, CardZone.DROP))
             {
-                particles.RedGlow(true);
+                particles.Glow(true);
             }
             else
             {
-                particles.RedGlow(false);
+                particles.Glow(false);
             }
+        }
+        if (OverZone(eventData, CardZone.BURN) && Player.instance.burnAvailable)
+        {
+            particles.RedGlow(true);
+        }
+        else
+        {
+            particles.RedGlow(false);
         }
     }
 

@@ -39,6 +39,7 @@ public class PlayerTurnPhase : GamePhase
 {
     public override void Enter()
     {
+        Player.instance.burnAvailable = true;
         Player.instance.focus.baseValue = Player.instance.maxFocus.value;
         Player.instance.Redraw();
 
