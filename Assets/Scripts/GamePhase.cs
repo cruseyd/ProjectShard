@@ -47,7 +47,7 @@ public class PlayerTurnPhase : GamePhase
         Dungeon.EnableConfirmButton(true);
         Dungeon.SetParticleUnderlay(true);
 
-        Player.instance.events.StartTurn();
+        ((ActorEvents)Player.instance.events).StartTurn();
     }
     public override void Exit()
     {
@@ -67,7 +67,7 @@ public class EnemyTurnPhase : GamePhase
         
         Dungeon.EnableConfirmButton(true);
         Dungeon.SetParticleUnderlay(false);
-        Enemy.instance.events.StartTurn();
+        ((ActorEvents)Enemy.instance.events).StartTurn();
 
         _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove();
         if (_currentMove == null)

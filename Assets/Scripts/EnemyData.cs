@@ -12,5 +12,6 @@ public class EnemyData : ScriptableObject
     public EquipmentData armor;
 
     public CardPool cardPool;
+    public Decklist decklist;
     
 }

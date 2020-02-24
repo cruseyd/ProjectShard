@@ -29,4 +29,5 @@ public class DamageData
 public interface IDamageable
 {
     void Damage(DamageData data);
+    void ResolveDamage(DamageData data);
 }

@@ -22,22 +22,27 @@ public abstract class Ability
             {
                 _index = new Dictionary<string, Ability>();
                 _index["NULL"] = new A_Null();
+
+                // resources
+                _index["PASSION"] = new A_Ideal();
+                _index["REASON"] = new A_Ideal();
+                _index["ELIXIR_OF_PASSION"] = new A_Elixir();
+                _index["ELIXIR_OF_REASON"] = new A_Elixir();
+
                 _index["CINDER"] = new A_Cinder();
                 _index["SINGE"] = new A_Singe();
                 _index["BLITZ"] = new A_Blitz();
                 _index["SLASH"] = new A_Slash();
                 _index["FLASHBLADE_SKIRMISHER"] = new A_FlashbladeSkirmisher();
                 _index["INFERNO_DJINN"] = new A_InfernoDjinn();
+
                 _index["CONTINUITY"] = new A_Continuity();
-                _index["PASSION"] = new A_Resource();
-                _index["REASON"] = new A_Resource();
-                _index["ELIXIR_OF_PASSION"] = new A_Elixir();
-                _index["ELIXIR_OF_REASON"] = new A_Elixir();
                 _index["CHILL"] = new A_Chill();
                 _index["DRIFTING_VOIDLING"] = new A_DriftingVoidling();
                 _index["ICE_ELEMENTAL"] = new A_IceElemental();
                 _index["FROST_LATTICE"] = new A_FrostLattice();
                 _index["STATIC"] = new A_Static();
+                _index["RIME_SPRITE"] = new A_RimeSprite();
 
             }
             return _index;
@@ -64,12 +69,19 @@ public abstract class Ability
     protected virtual void Create(Card source, List<ITargetable> targets, bool undo = false, GameState state = null) { }
     protected static void Attack(Card source, IDamageable target, bool undo = false, GameState state = null)
     {
-        Ability.Damage(new DamageData(source.power.value, source.damageType, source, target), undo, state);
+        DamageData sourceDamage = new DamageData(source.power.value, source.damageType, source, target);
+        DamageData targetDamage = null;
         if (target is Card)
         {
             Card targetCard = (Card)target;
-            Ability.Damage(new DamageData(targetCard.power.value, targetCard.damageType, targetCard, source), undo, state);
+            targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, source);
         }
+
+        target.Damage(sourceDamage);
+        source.Damage(targetDamage);
+        target.ResolveDamage(sourceDamage);
+        source.ResolveDamage(targetDamage);
+
         if (state != null)
         {
             if (undo) { source.attackAvailable = true; }
@@ -202,6 +214,7 @@ public abstract class Ability
         } else
         {
             data.target.Damage(data);
+            data.target.ResolveDamage(data);
         }
     }
 
@@ -242,7 +255,7 @@ public class A_Elixir : Ability
         return "Gain 2/1 Focus.";
     }
 }
-public class A_Resource : Ability
+public class A_Ideal : Ability
 {
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -505,7 +518,7 @@ public class A_DriftingVoidling : Ability
     protected override void Create(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Create(source, targets, undo, state);
-        source.events.onDestroy += OnDestroy;
+        ((CardEvents)source.events).onDestroy += OnDestroy;
     }
 
     private void OnDestroy(Card card)
@@ -582,11 +595,20 @@ public class A_RimeSprite : Ability
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(source, targets, undo, state);
+        source.events.onDealDamage += DamageHandler;
     }
-
     public override string Text(Card source)
     {
-        return "When Rime Sprite deals damage to a target, add a Chill counter to that target and destroy this.";
+        return "When Rime Sprite deals damage to a target, add a Chill counter to that target.";
+    }
+
+    public void DamageHandler(DamageData data)
+    {
+        ((Card)data.source).events.onDealDamage -= DamageHandler;
+        Debug.Log("Rime Sprite ability: " + data.source.name + " is dealing damage to " + ((ITargetable)data.target).name);
+        ((ITargetable)data.target).AddStatus(StatusName.CHILL, 1);
+        
+        data.source.Controller().Discard(((Card)data.source));
     }
 }
 // ============================================ MULTICOLOR CARDS ============================================

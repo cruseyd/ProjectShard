@@ -55,6 +55,16 @@ public class Enemy : Actor
         _armor.Equip(data.armor, this);
         _relic = null;
 
-        _deck.Init(data.cardPool);
+        if (_data.cardPool != null && _data.cardPool.pool.Count > 0)
+        {
+            _deck.Init(data.cardPool);
+        } else if (_data.decklist != null)
+        {
+            _deck.Init(_data.decklist);
+        } else
+        {
+            Debug.Log("Could not seed cards for " + name);
+        }
+        
     }
 }

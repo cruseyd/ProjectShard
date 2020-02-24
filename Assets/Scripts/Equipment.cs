@@ -20,14 +20,31 @@ public class Equipment : MonoBehaviour
     private EquipmentAbility _ability;
 
     public Actor owner { get { return _owner; } }
-    public new string name { get { return _data.name; } }
+    public new string name
+    { 
+        get 
+        { 
+            if (_data == null) { return "NO EQUIPMENT FOUND"; }
+            return _data.name;
+        }
+    }
     public int durability
     {
         get { return _durability; }
         set {
-            _durability = Mathf.Min(value, _data.durability);
+            _durability = Mathf.Clamp(value, 0, _data.durability);
             _durabilityDisplay.value = durability;
         }
+    }
+
+    public bool HasKeyword(Keyword key)
+    {
+        if (_data == null) { return false; }
+        foreach (Keyword word in _data.keywords)
+        {
+            if (key == word) { return true; }
+        }
+        return false;
     }
 
     public void Unequip()

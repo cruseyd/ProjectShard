@@ -42,18 +42,7 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
 
     public bool burnAvailable = true;
 
-    public void addAffinity(Card.Color color, int delta)
-    {
-        switch (color)
-        {
-            case Card.Color.VIOLET: violetAffinity.baseValue += delta; break;
-            case Card.Color.RED: redAffinity.baseValue += delta; break;
-            case Card.Color.GOLD: goldAffinity.baseValue += delta; break;
-            case Card.Color.GREEN: greenAffinity.baseValue += delta; break;
-            case Card.Color.BLUE: blueAffinity.baseValue += delta; break;
-            case Card.Color.INDIGO: indigoAffinity.baseValue += delta; break;
-        }
-    }
+    
     public override void Awake()
     {
         base.Awake();
@@ -132,7 +121,18 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         yield return DoDraw(Dungeon.gameParams.playerHandSize);
 
     }
-
+    public void addAffinity(Card.Color color, int delta)
+    {
+        switch (color)
+        {
+            case Card.Color.VIOLET: violetAffinity.baseValue += delta; break;
+            case Card.Color.RED: redAffinity.baseValue += delta; break;
+            case Card.Color.GOLD: goldAffinity.baseValue += delta; break;
+            case Card.Color.GREEN: greenAffinity.baseValue += delta; break;
+            case Card.Color.BLUE: blueAffinity.baseValue += delta; break;
+            case Card.Color.INDIGO: indigoAffinity.baseValue += delta; break;
+        }
+    }
     public void OnEndDrag(PointerEventData eventData)
     {
         ITargetable hovered = Targeter.HoveredTarget(eventData);

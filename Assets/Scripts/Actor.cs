@@ -117,7 +117,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     {
         if (card.inPlay)
         {
-            card.events.Destroy();
+            ((CardEvents)card.events).Destroy();
         }
         card.FaceUp(true, false);
         Dungeon.MoveCard(card, _discardZone);
@@ -135,7 +135,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public virtual void PutInPlay(Card card)
     {
         Dungeon.MoveCard(card, _activeZone);
-        card.events.EnterPlay();
+        ((CardEvents)card.events).EnterPlay();
     }
     public virtual void Draw()
     {
@@ -143,7 +143,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         card.FaceUp(isPlayer, true);
         Dungeon.MoveCard(card, _handZone);
         card.Refresh();
-        events.DrawCard(card);
+        ((ActorEvents)events).DrawCard(card);
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
     public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
@@ -179,12 +179,25 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     }
     public virtual void Damage(DamageData data)
     {
+        if (data == null) { return; }
         events.RawDamage(data);
         events.ModifiedDamage(data);
         events.ReceiveDamage(data);
         health.baseValue -= data.damage;
+        if (data.source is Card)
+        {
+            ((Card)data.source).events.DealDamage(data);
+        }
+        else if (data.source is Actor)
+        {
+            ((Actor)data.source).events.DealDamage(data);
+        }
     }
 
+    public virtual void ResolveDamage(DamageData data)
+    {
+
+    }
     // ITargetable Interface
     public Actor Controller() { return this; }
     public void AddTarget(ITargetable target)

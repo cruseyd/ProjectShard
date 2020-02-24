@@ -36,11 +36,6 @@ public class Targeter : MonoBehaviour
         active = true;
         _source = src;
         _abilityMode = mode;
-        /*
-        current._targetBeam.transform.position = _source.transform.position;
-        current._targetBeam.followCursor = true;
-        current._targetBeam.gameObject.SetActive(true);
-        */
         src.FindTargets(_abilityMode, 0, true);
     }
     public static int AddTarget(ITargetable node)

@@ -15,13 +15,17 @@ MonoBehaviour:
   list:
   - card: {fileID: 11400000, guid: 9590eac642ee3254695e424b62b4ca45, type: 2}
     quantity: 4
-  - card: {fileID: 11400000, guid: c0ccc3a5b8685ea49a704e387955f8d2, type: 2}
-    quantity: 3
-  - card: {fileID: 11400000, guid: 5945c31faf7c633468ea59ad2879b8d8, type: 2}
-    quantity: 2
-  - card: {fileID: 11400000, guid: 5fdf2d755b25e81489243691a90f7a86, type: 2}
-    quantity: 3
-  - card: {fileID: 11400000, guid: 03a67418f0d94174fab6fea08a5d8b90, type: 2}
+  - card: {fileID: 11400000, guid: 9cedb7ed4ca33704899cedb9cf7cf6e7, type: 2}
     quantity: 3
   - card: {fileID: 11400000, guid: e8b247b3eb7a7024a95d50eba521b0f7, type: 2}
     quantity: 4
+  - card: {fileID: 11400000, guid: 5fdf2d755b25e81489243691a90f7a86, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 03a67418f0d94174fab6fea08a5d8b90, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 125150cd9a4bd144585b9fd1b8982987, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: 6bfef92935b9e8d4b8ee3ecd4c8e7bb8, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: d87c9e4b6c255de4aa42d06ebfd6387b, type: 2}
+    quantity: 3

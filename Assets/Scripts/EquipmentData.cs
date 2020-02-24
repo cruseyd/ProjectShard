@@ -9,5 +9,6 @@ public class EquipmentData : ScriptableObject
     public string id;
 
     public Equipment.Type type;
+    public List<Keyword> keywords;
     public int durability;
 }

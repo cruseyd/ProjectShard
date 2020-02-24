@@ -27,4 +27,8 @@ public class CardEvents
     public void Destroy() { onDestroy?.Invoke(_source); }
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
+    public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
+    public void RawDamage(DamageData data) { onRawDamage?.Invoke(data); }
+    public void ModifiedDamage(DamageData data) { onModifiedDamage?.Invoke(data); }
+    public void ReceiveDamage(DamageData data) { onReceiveDamage?.Invoke(data); }
 }

@@ -14,6 +14,8 @@ public abstract class EquipmentAbility
                 _index = new Dictionary<string, EquipmentAbility>();
                 _index["NULL"] = new EA_Null();
                 _index["CHAINMAIL"] = new EA_Chainmail();
+                _index["SHORT_SWORD"] = new EA_Weapon();
+
             }
             return _index;
         }
@@ -34,6 +36,15 @@ public class EA_Null : EquipmentAbility
         return "EMPTY ABILITY";
     }
 }
+
+public class EA_Weapon : EquipmentAbility
+{
+    public override string text(Equipment source)
+    {
+        return "<i> A weapon with no special abilities </i> ";
+    }
+}
+
 public class EA_Chainmail : EquipmentAbility
 {
     public override void armor(DamageData damage)

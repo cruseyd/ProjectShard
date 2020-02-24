@@ -362,7 +362,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // EVENTS
         GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
         GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
-        card.owner.events.onStartTurn += card.ResetFlags;
+        ((ActorEvents)card.owner.events).onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
 
@@ -379,7 +379,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
-        owner.events.onStartTurn -= ResetFlags;
+        ((ActorEvents)owner.events).onStartTurn -= ResetFlags;
     }
 
     public int GetAttribute(Attribute a)
@@ -414,6 +414,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void Refresh()
     {
+
         foreach (TemplateModifier mod in Dungeon.modifiers)
         {
             if (mod != null && Compare(mod.template, owner))
@@ -521,17 +522,30 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void Damage(DamageData data)
     {
+        if (data == null) { return; }
         Debug.Assert(type == Type.THRALL);
-        //GameEvents.current.RawDamage(this, data);
-        //GameEvents.current.ModifiedDamage(this, data);
-        //GameEvents.current.ReceiveDamage(this, data);
+        events.RawDamage(data);
+        events.ModifiedDamage(data);
+        events.ReceiveDamage(data);
         allegiance.baseValue -= data.damage;
-        if (allegiance.value <= 0)
+        if (data.source is Card)
+        {
+            ((Card)data.source).events.DealDamage(data);
+        }
+        else if (data.source is Actor)
+        {
+            ((Actor)data.source).events.DealDamage(data);
+        }
+    }
+    
+    public virtual void ResolveDamage(DamageData data)
+    {
+        if (type == Card.Type.THRALL && allegiance.value <= 0 && inPlay)
         {
             owner.Discard(this);
         }
     }
-    
+
     // Motion
     public void DoubleClick()
     {
@@ -550,7 +564,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             _cardFront.SetActive(flag);
             _cardBack.SetActive(!flag);
         }
-        
         Refresh();
     }
     public IEnumerator Flip(bool faceUp)
