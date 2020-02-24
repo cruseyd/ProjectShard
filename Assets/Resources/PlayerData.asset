@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   decklist: {fileID: 11400000, guid: 1553ee566ea75f54191e3e58e11309de, type: 2}
   weapon: {fileID: 11400000, guid: 0fc9c2095ec7ec6499c854d6604befc6, type: 2}
-  armor: {fileID: 11400000, guid: 45b3149de235eb64eb78d11b08add786, type: 2}
+  armor: {fileID: 0}
   relic: {fileID: 0}

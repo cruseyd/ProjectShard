@@ -59,7 +59,7 @@ public static class Keywords
             case Keyword.ELDER:     return "Elder";
             case Keyword.DEFAULT:   return "";
             default:
-                Debug.Log("Unrecognized Keyword: " + word);
+                Debug.Log("Unrecognized Keyword: " + word.ToString());
                 return "";
         }
     }

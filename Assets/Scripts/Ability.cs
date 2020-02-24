@@ -29,21 +29,26 @@ public abstract class Ability
                 _index["ELIXIR_OF_PASSION"] = new A_Elixir();
                 _index["ELIXIR_OF_REASON"] = new A_Elixir();
 
+                // red cards
                 _index["CINDER"] = new A_Cinder();
                 _index["SINGE"] = new A_Singe();
                 _index["BLITZ"] = new A_Blitz();
                 _index["SLASH"] = new A_Slash();
+                _index["SHARPEN"] = new A_Sharpen();
+                _index["WILD_SWING"] = new A_WildSwing();
                 _index["FLASHBLADE_SKIRMISHER"] = new A_FlashbladeSkirmisher();
                 _index["INFERNO_DJINN"] = new A_InfernoDjinn();
 
+                // blue cards
                 _index["CONTINUITY"] = new A_Continuity();
                 _index["CHILL"] = new A_Chill();
                 _index["DRIFTING_VOIDLING"] = new A_DriftingVoidling();
                 _index["ICE_ELEMENTAL"] = new A_IceElemental();
                 _index["FROST_LATTICE"] = new A_FrostLattice();
-                _index["STATIC"] = new A_Static();
                 _index["RIME_SPRITE"] = new A_RimeSprite();
 
+                // multicolor cards
+                _index["STATIC"] = new A_Static();
             }
             return _index;
         }
@@ -217,7 +222,60 @@ public abstract class Ability
             data.target.ResolveDamage(data);
         }
     }
+    public void TargetAnyOpposing()
+    {
+        if (playTargets == null)
+        {
+            playTargets = new List<TargetTemplate>();
+        }
+        TargetTemplate t = new TargetTemplate();
+        t.isDamageable = true;
+        t.isOpposing = true;
+        t.inPlay = true;
+        playTargets.Add(t);
+    }
+    public static TargetTemplate RandomOpposingTarget()
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.isDamageable = true;
+        t.isOpposing = true;
+        t.inPlay = true;
+        return t;
+    }
+    public static List<ITargetable> ValidTargets(Card source, TargetTemplate template)
+    {
+        List<ITargetable> validTargets = new List<ITargetable>();
+        validTargets.Add(source.opponent);
+        foreach (Card card in source.opponent.active)
+        {
+            if (card.Compare(template, source.owner))
+            {
+                validTargets.Add(card);
+            }
+        }
+        return validTargets;
+    }
+    public static ITargetable RandomValidTarget(Card source, TargetTemplate template)
+    {
+        List < ITargetable > valid = ValidTargets(source, template);
+        return valid[Random.Range(0, valid.Count)];
+    }
 
+    public static ITargetable RandomOtherTarget(Card source, ITargetable ignore, TargetTemplate template)
+    {
+        List<ITargetable> valid = ValidTargets(source, template);
+        if (valid.Count > 1)
+        {
+            ITargetable target = null;
+            while (target == null)
+            {
+                ITargetable temp = valid[Random.Range(0, valid.Count)];
+                if (temp != ignore) { target = temp; }
+            }
+            return target;
+        }
+        return null;
+    }
 }
 
 public class A_Null : Ability
@@ -384,17 +442,27 @@ public class A_Slash : Ability
 {
     public A_Slash()
     {
+        TargetAnyOpposing();
+        /*
         playTargets = new List<TargetTemplate>();
         TargetTemplate t = new TargetTemplate();
         t.isDamageable = true;
         t.isOpposing = true;
         t.inPlay = true;
         playTargets.Add(t);
+        */
     }
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(source, targets, undo, state);
-        int damage = 2;
+        int damage = 1;
+        Equipment weapon = source.Controller().weapon;
+        if (weapon != null && weapon.HasKeyword(Keyword.SLASHING) && weapon.durability > 0)
+        {
+            damage += 1;
+            weapon.durability -= 1;
+        }
+        
         IDamageable target = (IDamageable)targets[0];
         DamageData data = new DamageData(damage, Keyword.SLASHING, source, target);
         Ability.Damage(data, undo, state);
@@ -402,7 +470,36 @@ public class A_Slash : Ability
 
     public override string Text(Card source)
     {
-        return "Slash inflicts 2 Slashing damage to any target.";
+        string txt = "Slash inflicts 1 Slashing damage to any target.";
+        txt += "<b> \nSlashing Weapon: </b> +1 damage. -1 durability.";
+        return txt;
+    }
+}
+public class A_WildSwing : Ability
+{
+    public A_WildSwing()
+    {
+        TargetAnyOpposing();
+    }
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+        int damage = 2;
+        IDamageable t1 = (IDamageable)targets[0];
+        IDamageable t2 = (IDamageable)RandomOtherTarget(source, targets[0], playTargets[0]);
+        
+        DamageData d1 = new DamageData(damage, Keyword.SLASHING, source, t1);
+        Ability.Damage(d1, undo, state);
+        if (t2 != null)
+        {
+            DamageData d2 = new DamageData(damage, Keyword.SLASHING, source, t2);
+            Ability.Damage(d2, undo, state);
+        }
+    }
+
+    public override string Text(Card source)
+    {
+        return "Wild Swing inflicts 2 Slashing damage to any target and to another random opposing target.";
     }
 }
 public class A_FlashbladeSkirmisher : Ability
@@ -420,6 +517,33 @@ public class A_InfernoDjinn : Ability
     }
 }
 
+public class A_Sharpen : Ability
+{
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+        source.Controller().events.onDealRawDamage += RawDamageHandler;
+        source.Controller().events.onEndTurn += EndTurnHandler;
+        source.Controller().Draw();
+    }
+    public override string Text(Card source)
+    {
+        return "Increase all Slashing damage you deal this turn by 1. Draw a card.";
+    }
+
+    void RawDamageHandler(DamageData data)
+    {
+        Debug.Log("Triggering Sharpen ability");
+        if (data.type == Keyword.SLASHING) { data.damage += 1; }
+    }
+
+    void EndTurnHandler(Actor actor)
+    {
+        Debug.Log("Unregistering for Sharpen's events");
+        actor.events.onDealRawDamage -= RawDamageHandler;
+        actor.events.onEndTurn -= EndTurnHandler;
+    }
+}
 // ============================================ BLUE CARDS ============================================
 
 public class A_Continuity : Ability

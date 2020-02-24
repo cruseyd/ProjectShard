@@ -9,8 +9,8 @@ public class MessageManager : MonoBehaviour
 
     private void Start()
     {
-        Player.instance.events.onReceiveDamage += OnDamage;
-        Enemy.instance.events.onReceiveDamage += OnDamage;
+        Player.instance.events.onTakeDamage += OnDamage;
+        Enemy.instance.events.onTakeDamage += OnDamage;
     }
 
     private void OnDamage(DamageData damage)

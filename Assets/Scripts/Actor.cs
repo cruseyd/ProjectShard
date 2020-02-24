@@ -180,18 +180,28 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public virtual void Damage(DamageData data)
     {
         if (data == null) { return; }
-        events.RawDamage(data);
-        events.ModifiedDamage(data);
-        events.ReceiveDamage(data);
-        health.baseValue -= data.damage;
         if (data.source is Card)
         {
-            ((Card)data.source).events.DealDamage(data);
+            Card src = ((Card)data.source);
+            src.events.DealRawDamage(data);
+            if (src.type != Card.Type.THRALL) { src.owner.events.DealRawDamage(data); }
+            src.events.DealModifiedDamage(data);
+            if (src.type != Card.Type.THRALL) { src.owner.events.DealModifiedDamage(data); }
+            src.events.DealDamage(data);
+            if (src.type != Card.Type.THRALL) { src.owner.events.DealDamage(data); }
         }
         else if (data.source is Actor)
         {
-            ((Actor)data.source).events.DealDamage(data);
+            Actor act = ((Actor)data.source);
+            act.events.DealRawDamage(data);
+            act.events.DealModifiedDamage(data);
+            act.events.DealDamage(data);
         }
+        events.TakeRawDamage(data);
+        events.TakeModifiedDamage(data);
+        events.TakeDamage(data);
+        health.baseValue -= data.damage;
+        
     }
 
     public virtual void ResolveDamage(DamageData data)

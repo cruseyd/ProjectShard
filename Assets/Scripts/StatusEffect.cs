@@ -83,20 +83,20 @@ public class StatusEffect
     }
 
 
-    private void Poison()
+    private void Poison(Actor actor)
     {
         Debug.Assert(target is IDamageable);
         ((IDamageable)target).Damage(new DamageData(1, Keyword.POISON, null, (IDamageable)target));
         stacks -= 1;
     }
-    private void Burn()
+    private void Burn(Actor actor)
     {
         Debug.Assert(target is IDamageable);
         ((IDamageable)target).Damage(new DamageData(stacks, Keyword.FIRE, null, (IDamageable)target));
         stacks -= 1;
     }
 
-    private void Stun()
+    private void Stun(Actor actor)
     {
         Debug.Assert(target is Card);
         Debug.Assert(((Card)target).type == Card.Type.THRALL);

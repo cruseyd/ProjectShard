@@ -403,7 +403,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         { attr.Add(Attribute.PERCEPTION); }
         return attr;
     }
-    public void ResetFlags()
+    public void ResetFlags(Actor actor)
     {
         // input is due to event requirement
         if (inPlay)
@@ -524,18 +524,28 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (data == null) { return; }
         Debug.Assert(type == Type.THRALL);
-        events.RawDamage(data);
-        events.ModifiedDamage(data);
-        events.ReceiveDamage(data);
-        allegiance.baseValue -= data.damage;
         if (data.source is Card)
         {
-            ((Card)data.source).events.DealDamage(data);
+            Card src = ((Card)data.source);
+            
+            src.events.DealRawDamage(data);
+            if (src.type != Type.THRALL) { src.owner.events.DealRawDamage(data); }
+            src.events.DealModifiedDamage(data);
+            if (src.type != Type.THRALL) { src.owner.events.DealModifiedDamage(data); }
+            src.events.DealDamage(data);
+            if (src.type != Type.THRALL) { src.owner.events.DealDamage(data); }
         }
         else if (data.source is Actor)
         {
-            ((Actor)data.source).events.DealDamage(data);
+            Actor act = ((Actor)data.source);
+            act.events.DealRawDamage(data);
+            act.events.DealModifiedDamage(data);
+            act.events.DealDamage(data);
         }
+        events.TakeRawDamage(data);
+        events.TakeModifiedDamage(data);
+        events.TakeDamage(data);
+        allegiance.baseValue -= data.damage;
     }
     
     public virtual void ResolveDamage(DamageData data)

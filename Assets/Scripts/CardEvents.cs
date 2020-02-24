@@ -16,10 +16,12 @@ public class CardEvents
     public event Action<Card> onDestroy;
     public event Action<StatusEffect, int> onGainStatus;
     public event Action<StatusEffect, int> onRemoveStatus;
+    public event Action<DamageData> onDealRawDamage;
+    public event Action<DamageData> onDealModifiedDamage;
     public event Action<DamageData> onDealDamage;
-    public event Action<DamageData> onRawDamage;
-    public event Action<DamageData> onModifiedDamage;
-    public event Action<DamageData> onReceiveDamage;
+    public event Action<DamageData> onTakeRawDamage;
+    public event Action<DamageData> onTakeModifiedDamage;
+    public event Action<DamageData> onTakeDamage;
 
 
     public void Draw() { onDraw?.Invoke(_source); }
@@ -27,8 +29,10 @@ public class CardEvents
     public void Destroy() { onDestroy?.Invoke(_source); }
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
+    public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
+    public void DealModifiedDamage(DamageData data) { onDealModifiedDamage?.Invoke(data); }
     public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
-    public void RawDamage(DamageData data) { onRawDamage?.Invoke(data); }
-    public void ModifiedDamage(DamageData data) { onModifiedDamage?.Invoke(data); }
-    public void ReceiveDamage(DamageData data) { onReceiveDamage?.Invoke(data); }
+    public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
+    public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
+    public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
 }

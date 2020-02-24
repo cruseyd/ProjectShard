@@ -47,10 +47,14 @@ public class PlayerTurnPhase : GamePhase
         Dungeon.EnableConfirmButton(true);
         Dungeon.SetParticleUnderlay(true);
 
+        GameEvents.current.StartTurn(Player.instance);
         ((ActorEvents)Player.instance.events).StartTurn();
+
     }
     public override void Exit()
     {
+        GameEvents.current.EndTurn(Player.instance);
+        ((ActorEvents)Player.instance.events).EndTurn();
     }
     public override void Confirm()
     {
@@ -67,6 +71,7 @@ public class EnemyTurnPhase : GamePhase
         
         Dungeon.EnableConfirmButton(true);
         Dungeon.SetParticleUnderlay(false);
+        GameEvents.current.StartTurn(Enemy.instance);
         ((ActorEvents)Enemy.instance.events).StartTurn();
 
         _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove();
@@ -82,6 +87,8 @@ public class EnemyTurnPhase : GamePhase
     }
     public override void Exit()
     {
+        GameEvents.current.EndTurn(Enemy.instance);
+        ((ActorEvents)Enemy.instance.events).EndTurn();
         // end enemy turn
         Enemy.instance.DrawRandom();
     }
