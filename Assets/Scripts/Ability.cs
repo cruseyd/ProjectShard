@@ -234,6 +234,18 @@ public abstract class Ability
         t.inPlay = true;
         playTargets.Add(t);
     }
+    public void TargetOpposingThrall()
+    {
+        if (playTargets == null)
+        {
+            playTargets = new List<TargetTemplate>();
+        }
+        TargetTemplate t = new TargetTemplate();
+        t.isOpposing = true;
+        t.inPlay = true;
+        t.cardType = Card.Type.THRALL;
+        playTargets.Add(t);
+    }
     public static TargetTemplate RandomOpposingTarget()
     {
         TargetTemplate t = new TargetTemplate();
@@ -443,14 +455,6 @@ public class A_Slash : Ability
     public A_Slash()
     {
         TargetAnyOpposing();
-        /*
-        playTargets = new List<TargetTemplate>();
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
-        playTargets.Add(t);
-        */
     }
     protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -544,6 +548,39 @@ public class A_Sharpen : Ability
         actor.events.onEndTurn -= EndTurnHandler;
     }
 }
+// ============================================ GREEN CARDS ===========================================
+
+public class A_Rend : Ability
+{
+    public A_Rend()
+    {
+        TargetOpposingThrall();
+    }
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+        int damage = 2;
+        Equipment weapon = source.Controller().weapon;
+        if (weapon != null && weapon.HasKeyword(Keyword.CRUSHING) && weapon.durability > 0)
+        {
+            Debug.Log("Daze the target!");
+            weapon.durability -= 1;
+        }
+
+        IDamageable target = (IDamageable)targets[0];
+        DamageData data = new DamageData(damage, Keyword.CRUSHING, source, target);
+        Ability.Damage(data, undo, state);
+    }
+
+    public override string Text(Card source)
+    {
+        string txt = "Rend deals 2 damage to target opposing thrall.";
+        txt += "\n<b>Crushing Weapon:</b> The target is also Dazed.";
+        return txt;
+    }
+}
+
+
 // ============================================ BLUE CARDS ============================================
 
 public class A_Continuity : Ability

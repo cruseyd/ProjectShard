@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ac7568f946f950646888dc787cd14d67, type: 3}
+  m_Name: Hatchet
+  m_EditorClassIdentifier: 
+  name: Hatchet
+  id: HATCHET
+  type: 0
+  keywords: 6600000064000000
+  durability: 5

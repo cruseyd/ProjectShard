@@ -29,6 +29,8 @@ public enum Keyword
     MYSTIC,
     ELDER,
     //===============
+    MELEE = 500,
+    RANGED, 
 
 }
 
