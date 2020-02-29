@@ -135,7 +135,6 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public virtual void PutInPlay(Card card)
     {
         Dungeon.MoveCard(card, _activeZone);
-        ((CardEvents)card.events).EnterPlay();
     }
     public virtual void Draw()
     {

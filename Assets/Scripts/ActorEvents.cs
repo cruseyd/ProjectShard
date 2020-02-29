@@ -21,6 +21,7 @@ public class ActorEvents
     public event Action<DamageData> onTakeRawDamage;
     public event Action<DamageData> onTakeModifiedDamage;
     public event Action<DamageData> onTakeDamage;
+    public event Action<ITargetable, ITargetable> onTarget;
 
     public void StartTurn() { onStartTurn?.Invoke(_source); }
     public void EndTurn() { onEndTurn?.Invoke(_source); }
@@ -34,5 +35,5 @@ public class ActorEvents
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
-
+    public void Target(ITargetable source, ITargetable target) { onTarget?.Invoke(source, target); }
 }

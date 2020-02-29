@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
+  m_Name: Daze
+  m_EditorClassIdentifier: 
+  id: 6
+  stackable: 1
+  tooltipHeader: Daze
+  tooltipContent: While dazed, if this target gains another stack of Dazed, remove
+    all stacks of Dazed and Stun this target.
+  iconColor: {r: 1, g: 0.60727984, b: 0, a: 1}
+  backgroundColor: {r: 0.5, g: 0.1485849, b: 0.38047826, a: 1}

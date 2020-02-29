@@ -10,23 +10,23 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: Rend
+  m_Name: ElixirOfPatience
   m_EditorClassIdentifier: 
-  name: Rend
-  id: REND
-  level: 2
-  color: 2
+  name: Elixir of Patience
+  id: ELIXIR_OF_PATIENCE
+  level: 3
+  color: 4
   violetAffinity: 0
-  redAffinity: 1
+  redAffinity: 0
   goldAffinity: 0
-  greenAffinity: 1
+  greenAffinity: 3
   blueAffinity: 0
   indigoAffinity: 0
-  type: 3
-  keywords: 66000000
-  strength: 2
-  perception: 1
-  finesse: 1
+  type: 5
+  keywords: 
+  strength: 0
+  perception: 0
+  finesse: 0
   power: 0
   allegiance: 0
   upkeep: 0

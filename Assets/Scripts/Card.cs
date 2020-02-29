@@ -365,6 +365,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         ((ActorEvents)card.owner.events).onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
+        card.owner.events.onTarget += card.events.OwnerTarget;
 
         card.FaceUp(false);
 
@@ -375,6 +376,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnDestroy()
     {
+        owner.events.onTarget -= events.OwnerTarget;
         GameEvents.current.onAddGlobalModifier -= AddGlobalModifier;
         GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
@@ -392,6 +394,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             default: return -1;
         }
     }
+
     public List<Attribute> maxAttributes()
     {
         List<Card.Attribute> attr = new List<Card.Attribute>();
@@ -495,12 +498,22 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (playerCard && mode == Ability.Mode.PLAY)
         {
+            owner.events.PlayCard(this);
             Player.instance.focus.baseValue -= cost.value;
             //Player.instance.addAffinity(data.color, 1);
+        }
+        if (targets != null)
+        {
+            foreach (ITargetable target in targets)
+            {
+                owner.events.Target(this, target);
+                events.Target(target);
+            }
         }
         _ability?.Use(mode, this, targets);
         if (mode == Ability.Mode.PLAY)
         {
+            
             if (type == Type.THRALL) { owner.PutInPlay(this); }
             else { owner.Discard(this); }
         }

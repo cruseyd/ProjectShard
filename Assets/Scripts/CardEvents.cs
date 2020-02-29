@@ -14,6 +14,7 @@ public class CardEvents
     public event Action<Card> onDraw;
     public event Action<Card> onEnterPlay;
     public event Action<Card> onDestroy;
+    public event Action<Card> onLeavePlay;
     public event Action<StatusEffect, int> onGainStatus;
     public event Action<StatusEffect, int> onRemoveStatus;
     public event Action<DamageData> onDealRawDamage;
@@ -22,11 +23,13 @@ public class CardEvents
     public event Action<DamageData> onTakeRawDamage;
     public event Action<DamageData> onTakeModifiedDamage;
     public event Action<DamageData> onTakeDamage;
-
+    public event Action<ITargetable> onTarget;
+    public event Action<Card, ITargetable, ITargetable> onOwnerTarget;
 
     public void Draw() { onDraw?.Invoke(_source); }
     public void EnterPlay() { onEnterPlay?.Invoke(_source); }
     public void Destroy() { onDestroy?.Invoke(_source); }
+    public void LeavePlay() { onLeavePlay?.Invoke(_source); }
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
     public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
@@ -35,4 +38,6 @@ public class CardEvents
     public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
+    public void Target(ITargetable target) { onTarget?.Invoke(target); }
+    public void OwnerTarget(ITargetable source, ITargetable target) { onOwnerTarget?.Invoke(_source, source, target); }
 }

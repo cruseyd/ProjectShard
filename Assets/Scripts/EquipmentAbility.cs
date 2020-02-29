@@ -15,6 +15,7 @@ public abstract class EquipmentAbility
                 _index["NULL"] = new EA_Null();
                 _index["CHAINMAIL"] = new EA_Chainmail();
                 _index["SHORT_SWORD"] = new EA_Weapon();
+                _index["HATCHET"] = new EA_Weapon();
 
             }
             return _index;

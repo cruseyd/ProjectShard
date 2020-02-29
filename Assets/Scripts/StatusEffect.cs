@@ -78,6 +78,16 @@ public class StatusEffect
                     ((Actor)target).events.onGainStatus -= Chill;
                 }
                 break;
+            case StatusName.DAZE:
+                if (target is Card)
+                {
+                    ((Card)target).events.onGainStatus -= Daze;
+                }
+                else if (target is Actor)
+                {
+                    ((Actor)target).events.onGainStatus -= Daze;
+                }
+                break;
             default: break;
         }
     }
@@ -98,9 +108,14 @@ public class StatusEffect
 
     private void Stun(Actor actor)
     {
-        Debug.Assert(target is Card);
-        Debug.Assert(((Card)target).type == Card.Type.THRALL);
-        ((Card)target).attackAvailable = false;
+        if (target is Card)
+        {
+            Debug.Assert(((Card)target).type == Card.Type.THRALL);
+            ((Card)target).attackAvailable = false;
+        } else if (target is Actor)
+        {
+            ((Actor)target).DiscardRandom();
+        }
         target.RemoveStatus(data.id);
     }
 
@@ -124,8 +139,15 @@ public class StatusEffect
         else if (target is Actor && status.stacks >= 3)
         {
             status.stacks -= 3;
-            ((Actor)target).DiscardRandom();
+            target.AddStatus(StatusName.STUN, 1);
         }
+    }
+
+    private void Daze(StatusEffect status, int s)
+    {
+        if (status == null || status.data.id != StatusName.DAZE) { return; }
+        target.AddStatus(StatusName.STUN, 1);
+        target.RemoveStatus(StatusName.DAZE, stacks);
     }
 }
 

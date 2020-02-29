@@ -26,8 +26,10 @@ public abstract class Ability
                 // resources
                 _index["PASSION"] = new A_Ideal();
                 _index["REASON"] = new A_Ideal();
+                _index["PATIENCE"] = new A_Ideal();
                 _index["ELIXIR_OF_PASSION"] = new A_Elixir();
                 _index["ELIXIR_OF_REASON"] = new A_Elixir();
+                _index["ELIXIR_OF_PATIENCE"] = new A_Elixir();
 
                 // red cards
                 _index["CINDER"] = new A_Cinder();
@@ -39,6 +41,10 @@ public abstract class Ability
                 _index["FLASHBLADE_SKIRMISHER"] = new A_FlashbladeSkirmisher();
                 _index["INFERNO_DJINN"] = new A_InfernoDjinn();
 
+                // green cards
+                _index["REND"] = new A_Rend();
+                _index["FERAL_WARCAT"] = new A_FeralWarcat();
+
                 // blue cards
                 _index["CONTINUITY"] = new A_Continuity();
                 _index["CHILL"] = new A_Chill();
@@ -46,6 +52,7 @@ public abstract class Ability
                 _index["ICE_ELEMENTAL"] = new A_IceElemental();
                 _index["FROST_LATTICE"] = new A_FrostLattice();
                 _index["RIME_SPRITE"] = new A_RimeSprite();
+
 
                 // multicolor cards
                 _index["STATIC"] = new A_Static();
@@ -134,6 +141,7 @@ public abstract class Ability
     }
     public void Use(Mode mode, ITargetable source, List<ITargetable> targets)
     {
+        
         switch (mode)
         {
             case Mode.PLAY: Play((Card)source, targets); break;
@@ -550,6 +558,53 @@ public class A_Sharpen : Ability
 }
 // ============================================ GREEN CARDS ===========================================
 
+public class A_FeralWarcat : Ability
+{
+    public override string Text(Card source)
+    {
+        return "When you target an enemy with an Ability, Feral Warcat deals 1 Slashing damage to that target.";
+    }
+
+    protected override void Play(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(source, targets, undo, state);
+    }
+
+    protected override void Create(Card source, List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Create(source, targets, undo, state);
+        source.events.onEnterPlay += OnEnterPlayHandler;
+        source.events.onLeavePlay += OnLeavePlayHandler;
+    }
+
+    private void OnTargetHandler(Card self, ITargetable source, ITargetable target)
+    {
+        Debug.Log(self.name + " sees " + source.name + " targeting " + target.name);
+        if (source is Card && ((Card)source).type == Card.Type.ABILITY)
+        {
+            if (target is Card && ((Card)target).type == Card.Type.THRALL)
+            {
+                DamageData data = new DamageData(1, Keyword.SLASHING, self, (IDamageable)target);
+                Ability.Damage(data, false, null);
+            } else if (target is Actor)
+            {
+                DamageData data = new DamageData(1, Keyword.SLASHING, self, (IDamageable)target);
+                Ability.Damage(data, false, null);
+            }
+        }
+    }
+
+    private void OnEnterPlayHandler(Card source)
+    {
+        source.events.onOwnerTarget += OnTargetHandler;
+    }
+
+    private void OnLeavePlayHandler(Card source)
+    {
+        source.events.onOwnerTarget -= OnTargetHandler;
+    }
+}
+
 public class A_Rend : Ability
 {
     public A_Rend()
@@ -563,7 +618,7 @@ public class A_Rend : Ability
         Equipment weapon = source.Controller().weapon;
         if (weapon != null && weapon.HasKeyword(Keyword.CRUSHING) && weapon.durability > 0)
         {
-            Debug.Log("Daze the target!");
+            targets[0].AddStatus(StatusName.STUN);
             weapon.durability -= 1;
         }
 

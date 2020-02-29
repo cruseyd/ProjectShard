@@ -196,6 +196,17 @@ public class Dungeon : MonoBehaviour
         {
             Organize(prevZone);
         }
+        if (zone != prevZone)
+        {
+            if (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE)
+            {
+                card.events.EnterPlay();
+            }
+            if (prevZone == CardZone.DUNGEON_ACTIVE || prevZone == CardZone.PLAYER_ACTIVE)
+            {
+                card.events.LeavePlay();
+            }
+        }
     }
     public static void SetParticleUnderlay(bool playerSide)
     {
