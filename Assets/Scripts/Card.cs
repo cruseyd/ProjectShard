@@ -16,7 +16,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         ABILITY,
         STRATEGY,
         ITEM,
-        THRALL
+        THRALL, 
+        CONSTANT
     }
     public enum Color
     {
@@ -72,16 +73,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public bool activationAvailable;
     public bool attackAvailable;
-    public bool playerCard;
+    private bool _playerControlled;
+    public bool playerControlled { get { return _playerControlled; } }
     public int zoneIndex;
     public CardZone zone;
 
     public CardData data { get { return _data; } }
-    public Actor owner
+    public Actor controller
     {
         get
         {
-            if (playerCard) { return Player.instance; }
+            if (playerControlled) { return Player.instance; }
             else { return Enemy.instance; }
         }
     }
@@ -89,7 +91,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         get
         {
-            if (!playerCard) { return Player.instance; }
+            if (!playerControlled) { return Player.instance; }
             else { return Enemy.instance; }
         }
     }
@@ -127,7 +129,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         get
         {
             bool flag = true;
-            if (playerCard)
+            if (playerControlled)
             {
                 flag &= (cost.value <= Player.instance.focus.value);
 
@@ -147,17 +149,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             bool flag = true;
             
-            if (playerCard && (Dungeon.phase == GamePhase.player))
+            if (playerControlled && (Dungeon.phase == GamePhase.player))
             {
                 flag &= (zone == CardZone.PLAYER_HAND);
                 flag &= resourcesAvailable;
                 
-            } else if (playerCard && (Dungeon.phase == GamePhase.enemy))
+            } else if (playerControlled && (Dungeon.phase == GamePhase.enemy))
             {
                 // reaction ability logic
                 flag = false;
             }
-            else if (!playerCard && (Dungeon.phase == GamePhase.enemy))
+            else if (!playerControlled && (Dungeon.phase == GamePhase.enemy))
             {
                 flag &= (zone == CardZone.DUNGEON_HAND);
             } else
@@ -174,7 +176,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             bool flag = true;
             flag &= activationAvailable;
             flag &= inPlay;
-            if (playerCard)
+            if (playerControlled)
             {
                 flag &= (Dungeon.phase == GamePhase.player);
             } else
@@ -191,7 +193,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             bool flag = true;
             flag &= attackAvailable;
             flag &= (type == Type.THRALL);
-            if (playerCard)
+            if (playerControlled)
             {
                 flag &= (zone == CardZone.PLAYER_ACTIVE);
                 flag &= (Dungeon.phase != GamePhase.enemy);
@@ -221,7 +223,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             flag &= resourcesAvailable;
             flag &= (zone == CardZone.PLAYER_HAND);
             flag &= (Dungeon.phase == GamePhase.enemy);
-            flag &= playerCard;
+            flag &= playerControlled;
             flag &= (attackingCard.counterable);
             return flag;
         }
@@ -250,7 +252,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-    public static Card Spawn(CardData data, bool playerCard, Vector3 spawnPoint)
+    public static Card Spawn(CardData data, bool isPlayerCard, Vector3 spawnPoint)
     {
         if (Card._cardPrefab == null)
         {
@@ -264,7 +266,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card._validTargets = new List<ITargetable>();
         card._statusEffects = new Dictionary<StatusName, StatusEffect>();
         card._events = new CardEvents(card);
-        card.playerCard = playerCard;
+        card._playerControlled = isPlayerCard;
         card.attackAvailable = false;
         card.activationAvailable = true;
         
@@ -300,7 +302,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card._border.color = Dungeon.gameParams.GetColor(data.color);
         Image[] pips = card._affinity.GetComponentsInChildren<Image>();
         int pipNum = 0;
-        if (playerCard)
+        if (isPlayerCard)
         {
             for (int ii = 0; ii < data.violetAffinity; ii++)
             {
@@ -362,10 +364,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // EVENTS
         GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
         GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
-        ((ActorEvents)card.owner.events).onStartTurn += card.ResetFlags;
+        ((ActorEvents)card.controller.events).onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
-        card.owner.events.onTarget += card.events.OwnerTarget;
 
         card.FaceUp(false);
 
@@ -376,12 +377,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnDestroy()
     {
-        owner.events.onTarget -= events.OwnerTarget;
         GameEvents.current.onAddGlobalModifier -= AddGlobalModifier;
         GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
-        ((ActorEvents)owner.events).onStartTurn -= ResetFlags;
+        ((ActorEvents)controller.events).onStartTurn -= ResetFlags;
     }
 
     public int GetAttribute(Attribute a)
@@ -420,7 +420,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         foreach (TemplateModifier mod in Dungeon.modifiers)
         {
-            if (mod != null && Compare(mod.template, owner))
+            if (mod != null && Compare(mod.template, controller))
             {
                 AddModifier(mod.modifier, mod.statName);
             }
@@ -451,7 +451,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     
     public void AddGlobalModifier(TemplateModifier mod)
     {
-        if (Compare(mod.template, owner))
+        if (Compare(mod.template, controller))
         {
             AddModifier(mod.modifier, mod.statName);
         }
@@ -496,9 +496,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             if (targets == null || targets.Count < _ability.NumTargets(mode)) { return false; }
         }
-        if (playerCard && mode == Ability.Mode.PLAY)
+        if (playerControlled && mode == Ability.Mode.PLAY)
         {
-            owner.events.PlayCard(this);
+            controller.events.PlayCard(this);
             Player.instance.focus.baseValue -= cost.value;
             //Player.instance.addAffinity(data.color, 1);
         }
@@ -506,16 +506,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             foreach (ITargetable target in targets)
             {
-                owner.events.Target(this, target);
-                events.Target(target);
+                controller.events.Target(this, target);
             }
         }
         _ability?.Use(mode, this, targets);
         if (mode == Ability.Mode.PLAY)
         {
             
-            if (type == Type.THRALL) { owner.PutInPlay(this); }
-            else { owner.Discard(this); }
+            if (type == Type.THRALL || type == Type.CONSTANT) { controller.PutInPlay(this); }
+            else { controller.Discard(this); }
         }
         Targeter.Clear();
         GameEvents.current.Refresh();
@@ -542,11 +541,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             Card src = ((Card)data.source);
             
             src.events.DealRawDamage(data);
-            if (src.type != Type.THRALL) { src.owner.events.DealRawDamage(data); }
+            if (src.type != Type.THRALL) { src.controller.events.DealRawDamage(data); }
             src.events.DealModifiedDamage(data);
-            if (src.type != Type.THRALL) { src.owner.events.DealModifiedDamage(data); }
+            if (src.type != Type.THRALL) { src.controller.events.DealModifiedDamage(data); }
             src.events.DealDamage(data);
-            if (src.type != Type.THRALL) { src.owner.events.DealDamage(data); }
+            if (src.type != Type.THRALL) { src.controller.events.DealDamage(data); }
         }
         else if (data.source is Actor)
         {
@@ -565,7 +564,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (type == Card.Type.THRALL && allegiance.value <= 0 && inPlay)
         {
-            owner.Discard(this);
+            controller.Discard(this);
         }
     }
 
@@ -708,7 +707,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (_translating || !playerCard) { return; }
+        if (_translating || !playerControlled) { return; }
         if (needsTarget)
         {
             if (playable) { Targeter.SetSource(this, Ability.Mode.PLAY); }
@@ -723,10 +722,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnEndDrag(PointerEventData eventData)
     {
-        if (!playerCard) { return; }
+        if (!playerControlled) { return; }
         if (OverZone(eventData, CardZone.BURN) && Player.instance.burnAvailable)
         {
-            owner.Discard(this);
+            controller.Discard(this);
             Player.instance.addAffinity(data.color, 1);
             Player.instance.burnAvailable = false;
             GameEvents.current.Refresh();
@@ -761,7 +760,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (_translating || !playerCard) { return; }
+        if (_translating || !playerControlled) { return; }
 
         if (needsTarget)
         {
@@ -823,7 +822,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public Actor Controller()
     {
-        return owner;
+        return controller;
     }
     public void AddTarget(ITargetable target)
     {
@@ -860,8 +859,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (query.inPlay) { flag &= (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE); }
         if (query.isDamageable) { flag &= (type == Type.THRALL); }
         if (query.isAttackable) { flag &= (type == Type.THRALL); }
-        if (query.isOpposing) { flag &= (owner != self); }
-        if (query.isSelf) { flag &= (owner == self); }
+        if (query.isOpposing) { flag &= (controller != self); }
+        if (query.isSelf) { flag &= (controller == self); }
         if (query.cardType != Type.DEFAULT) { flag &= (type == query.cardType); }
         if (query.cardColor != Color.DEFAULT) { flag &= (data.color == query.cardColor); }
         if (query.keyword != Keyword.DEFAULT)

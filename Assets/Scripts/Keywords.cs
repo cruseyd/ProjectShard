@@ -75,6 +75,7 @@ public static class Keywords
             case Card.Type.STRATEGY:    return "Strategy";
             case Card.Type.ITEM:        return "Item";
             case Card.Type.THRALL:      return "Thrall";
+            case Card.Type.CONSTANT:    return "Constant";
             case Card.Type.DEFAULT:     return "";
             default:
                 Debug.Log("Unrecognized Keyword: " + type);

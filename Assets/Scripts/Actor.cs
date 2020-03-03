@@ -7,7 +7,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     [SerializeField] protected ValueDisplay _healthDisplay;
     [SerializeField] protected GameObject _statusDisplays;
     [SerializeField] protected Deck _deck;
-    [SerializeField] protected bool _isPlayer;
+    [SerializeField] protected bool _playerControlled;
 
     [SerializeField] protected Equipment _weapon;
     [SerializeField] protected Equipment _armor;
@@ -22,8 +22,16 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     {
         get
         {
-            if (isPlayer) { return Enemy.instance; }
+            if (playerControlled) { return Enemy.instance; }
             else { return Player.instance; }
+        }
+    }
+    public Actor controller
+    {
+        get
+        {
+            if (playerControlled) { return Player.instance; }
+            else { return Enemy.instance; }
         }
     }
     public ActorEvents events;
@@ -35,14 +43,14 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
 
     public ActorParticles particles;
 
-    public bool isPlayer { get { return _isPlayer; } }
+    public bool playerControlled { get { return (this is Player); } }
 
     public Stat health;
     public Stat maxHealth;
     public Deck deck { get { return _deck; } }
     public Card[] hand {
         get {
-            if (isPlayer)
+            if (playerControlled)
             {
                 return Dungeon.GetCards(CardZone.PLAYER_HAND);
             } else
@@ -55,7 +63,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     {
         get
         {
-            if (isPlayer)
+            if (playerControlled)
             {
                 return Dungeon.GetCards(CardZone.PLAYER_ACTIVE);
             }
@@ -69,7 +77,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     {
         get
         {
-            if (isPlayer)
+            if (playerControlled)
             {
                 return Dungeon.GetCards(CardZone.PLAYER_DISCARD);
             }
@@ -86,7 +94,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
         foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
 
-        if (isPlayer)
+        if (playerControlled)
         {
             _handZone = CardZone.PLAYER_HAND;
             _activeZone = CardZone.PLAYER_ACTIVE;
@@ -139,7 +147,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     public virtual void Draw()
     {
         Card card = _deck.Draw();
-        card.FaceUp(isPlayer, true);
+        card.FaceUp(playerControlled, true);
         Dungeon.MoveCard(card, _handZone);
         card.Refresh();
         ((ActorEvents)events).DrawCard(card);

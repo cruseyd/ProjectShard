@@ -15,13 +15,17 @@ public class ActorEvents
     public event Action<Card> onPlayCard;
     public event Action<StatusEffect, int> onGainStatus;
     public event Action<StatusEffect, int> onRemoveStatus;
+
     public event Action<DamageData> onDealRawDamage;
     public event Action<DamageData> onDealModifiedDamage;
     public event Action<DamageData> onDealDamage;
+
     public event Action<DamageData> onTakeRawDamage;
     public event Action<DamageData> onTakeModifiedDamage;
     public event Action<DamageData> onTakeDamage;
+
     public event Action<ITargetable, ITargetable> onTarget;
+    public event Action<Card, ITargetable> onDeclareAttack;
 
     public void StartTurn() { onStartTurn?.Invoke(_source); }
     public void EndTurn() { onEndTurn?.Invoke(_source); }
@@ -36,4 +40,5 @@ public class ActorEvents
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
     public void Target(ITargetable source, ITargetable target) { onTarget?.Invoke(source, target); }
+    public void DeclareAttack(Card source, ITargetable target) { onDeclareAttack?.Invoke(source, target); }
 }

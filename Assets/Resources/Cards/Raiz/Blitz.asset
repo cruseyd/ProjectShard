@@ -10,23 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: ElixirOfReason
+  m_Name: Blitz
   m_EditorClassIdentifier: 
-  name: Elixir of Reason
-  id: ELIXIR_OF_REASON
-  level: 3
-  color: 5
+  name: Blitz
+  id: BLITZ
+  level: 2
+  color: 2
   violetAffinity: 0
-  redAffinity: 0
+  redAffinity: 2
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 3
-  purpleAffinity: 0
-  type: 5
-  keywords: 
-  strength: 0
-  perception: 0
-  finesse: 0
+  blueAffinity: 0
+  indigoAffinity: 0
+  type: 4
+  keywords: 07000000
+  strength: 3
+  perception: 1
+  finesse: 2
   power: 0
   allegiance: 0
+  upkeep: 0
   damageType: 0

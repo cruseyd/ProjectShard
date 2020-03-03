@@ -10,23 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: Passion
+  m_Name: ElixirOfPassion
   m_EditorClassIdentifier: 
-  name: Passion
-  id: PASSION
-  level: 2
+  name: Elixir of Passion
+  id: ELIXIR_OF_PASSION
+  level: 3
   color: 2
   violetAffinity: 0
-  redAffinity: 0
+  redAffinity: 3
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
-  purpleAffinity: 0
-  type: 4
+  indigoAffinity: 0
+  type: 5
   keywords: 
-  strength: 1
-  perception: 1
-  finesse: 1
+  strength: 0
+  perception: 0
+  finesse: 0
   power: 0
   allegiance: 0
+  upkeep: 0
   damageType: 0

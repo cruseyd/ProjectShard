@@ -27,6 +27,9 @@ public class GameEvents : MonoBehaviour
     public event Action<TargetTemplate, ITargetable, bool> onQueryTarget;
     public event Action<TemplateModifier> onAddGlobalModifier;
     public event Action<TemplateModifier> onRemoveGlobalModifier;
+
+    public event Action<ITargetable, ITargetable, ITargetable> onDeclareTarget;
+
     public void Refresh() { onRefresh?.Invoke(); }
     public void StartTurn(Actor actor) { onStartTurn?.Invoke(actor); }
     public void EndTurn(Actor actor) { onEndTurn?.Invoke(actor); }
@@ -36,4 +39,6 @@ public class GameEvents : MonoBehaviour
     }
     public void AddGlobalModifier(TemplateModifier mod) { onAddGlobalModifier?.Invoke(mod); }
     public void RemoveGlobalModifier(TemplateModifier mod) { onRemoveGlobalModifier?.Invoke(mod); }
+
+    public void SelectTarget(ITargetable observer, ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(observer, source, target); }
 }

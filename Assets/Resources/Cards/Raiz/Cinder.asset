@@ -10,23 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: ElixirOfPassion
+  m_Name: Cinder
   m_EditorClassIdentifier: 
-  name: Elixir of Passion
-  id: ELIXIR_OF_PASSION
-  level: 3
+  name: Cinder
+  id: CINDER
+  level: 1
   color: 2
   violetAffinity: 0
-  redAffinity: 3
+  redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
-  purpleAffinity: 0
-  type: 5
-  keywords: 
-  strength: 0
-  perception: 0
-  finesse: 0
+  indigoAffinity: 0
+  type: 1
+  keywords: 2c010000
+  strength: 1
+  perception: 2
+  finesse: 1
   power: 0
   allegiance: 0
+  upkeep: 0
   damageType: 0
