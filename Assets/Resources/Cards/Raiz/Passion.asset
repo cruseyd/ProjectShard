@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Passion
   id: PASSION
-  level: 2
+  level: 1
   color: 2
   violetAffinity: 0
   redAffinity: 0

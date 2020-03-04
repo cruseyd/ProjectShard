@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
+public abstract class Actor : MonoBehaviour, ITargetable
 {
     [SerializeField] protected ValueDisplay _healthDisplay;
     [SerializeField] protected GameObject _statusDisplays;
@@ -17,7 +17,8 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     protected CardZone _handZone;
     protected CardZone _activeZone;
     protected CardZone _discardZone;
-    
+    protected ActorEvents _actorEvents;
+    protected TargetEvents _targetEvents;
     public Actor opponent
     {
         get
@@ -34,7 +35,9 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
             else { return Enemy.instance; }
         }
     }
-    public ActorEvents events;
+
+    public ActorEvents actorEvents { get { return _actorEvents; } }
+    public TargetEvents targetEvents { get { return _targetEvents; } }
     public Equipment weapon { get { return _weapon; } }
     public Equipment armor { get { return _armor; } }
     public Equipment relic { get { return _relic; } }
@@ -108,7 +111,8 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         _validTargets = new List<ITargetable>();
         health = new Stat(0);
         maxHealth = new Stat(0);
-        events = new ActorEvents(this);
+        _actorEvents = new ActorEvents(this);
+        _targetEvents = new TargetEvents(this);
     }
     public virtual void Start()
     {
@@ -123,15 +127,10 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     }
     public virtual void Discard(Card card)
     {
-        if (card.inPlay)
-        {
-            ((CardEvents)card.events).Destroy();
-        }
         card.FaceUp(true, false);
         Dungeon.MoveCard(card, _discardZone);
         card.particles.Clear();
     }
-
     public virtual void DiscardRandom()
     {
         if (hand.Length > 0)
@@ -150,7 +149,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         card.FaceUp(playerControlled, true);
         Dungeon.MoveCard(card, _handZone);
         card.Refresh();
-        ((ActorEvents)events).DrawCard(card);
+        actorEvents.DrawCard(card);
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
     public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
@@ -184,33 +183,24 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     {
         health.baseValue = maxHealth.value;
     }
+
     public virtual void Damage(DamageData data)
     {
         if (data == null) { return; }
-        if (data.source is Card)
-        {
-            Card src = ((Card)data.source);
-            src.events.DealRawDamage(data);
-            if (src.type != Card.Type.THRALL) { src.owner.events.DealRawDamage(data); }
-            src.events.DealModifiedDamage(data);
-            if (src.type != Card.Type.THRALL) { src.owner.events.DealModifiedDamage(data); }
-            src.events.DealDamage(data);
-            if (src.type != Card.Type.THRALL) { src.owner.events.DealDamage(data); }
-        }
-        else if (data.source is Actor)
-        {
-            Actor act = ((Actor)data.source);
-            act.events.DealRawDamage(data);
-            act.events.DealModifiedDamage(data);
-            act.events.DealDamage(data);
-        }
-        events.TakeRawDamage(data);
-        events.TakeModifiedDamage(data);
-        events.TakeDamage(data);
-        health.baseValue -= data.damage;
-        
-    }
 
+        data.source.targetEvents.DealRawDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
+        data.source.targetEvents.DealModifiedDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
+        data.source.targetEvents.DealDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealDamage(data); }
+
+        targetEvents.TakeRawDamage(data);
+        targetEvents.TakeModifiedDamage(data);
+        targetEvents.TakeDamage(data);
+
+        health.baseValue -= data.damage;
+    }
     public virtual void ResolveDamage(DamageData data)
     {
 
@@ -228,7 +218,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
     }
     public void MarkTarget(TargetTemplate query, ITargetable source, bool show)
     {
-        if (Compare(query, source.Controller()) && this != (Object)source)
+        if (Compare(query, source.controller) && this != (Object)source)
         {
             if (show) { particles.MarkValidTarget(true); }
             source.AddTarget(this);
@@ -290,14 +280,14 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         if (_statusEffects.ContainsKey(id))
         {
             _statusEffects[id].stacks += stacks;
-            events.GainStatus(_statusEffects[id], stacks);
+            targetEvents.GainStatus(_statusEffects[id], stacks);
         } else
         {
             int n = _statusEffects.Count;
             StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
             StatusEffect s = new StatusEffect(id, this, display, stacks);
             _statusEffects[id] = s;
-            events.GainStatus(_statusEffects[id], stacks);
+            targetEvents.GainStatus(_statusEffects[id], stacks);
         }
     }
     public virtual void RemoveStatus(StatusName id, int stacks = 1)
@@ -305,7 +295,7 @@ public abstract class Actor : MonoBehaviour, ITargetable, IDamageable
         if (_statusEffects.ContainsKey(id))
         {
             StatusEffect s = _statusEffects[id];
-            events.RemoveStatus(s, stacks);
+            targetEvents.RemoveStatus(s, stacks);
             if (stacks >= s.stacks)
             {
                 _statusEffects[id].Remove();

@@ -31,16 +31,47 @@ public class TargetEvents
     public event Action<DamageData> onTakeModifiedDamage;
     public event Action<DamageData> onTakeDamage;
 
+    public event Action<ITargetable, ITargetable> onDeclareTarget;
+    public event Action<Card, ITargetable> onDeclareAttack;
 
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
+
     public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
     public void DealModifiedDamage(DamageData data) { onDealModifiedDamage?.Invoke(data); }
     public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
+
     public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
 
+    public void DeclareTarget(ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(source, target); }
+    public void DeclareAttack(Card source, ITargetable target) { onDeclareTarget?.Invoke(source, target); }
+
+}
+
+public class DamageData
+{
+    private int _damage;
+    public int damage
+    {
+        get { return _damage; }
+        set
+        {
+            _damage = value;
+        }
+    }
+    public Keyword type;
+    public ITargetable source;
+    public ITargetable target;
+
+    public DamageData(int value, Keyword key, ITargetable src, ITargetable trg)
+    {
+        _damage = value;
+        type = key;
+        source = src;
+        target = trg;
+    }
 }
 
 public interface ITargetable : IMonoBehaviour
@@ -48,7 +79,7 @@ public interface ITargetable : IMonoBehaviour
     bool playerControlled { get; }
     Actor controller { get; }
     Actor opponent { get; }
-    //TargetEvents targetEvents { get; }
+    TargetEvents targetEvents { get; }
     void AddTarget(ITargetable target);
     void FindTargets(Ability.Mode mode, int n, bool show = false);
     List<ICommand> FindMoves();
@@ -60,4 +91,7 @@ public interface ITargetable : IMonoBehaviour
     void AddStatus(StatusName id, int stacks = 1);
     void RemoveStatus(StatusName id, int stacks = 1);
     int GetStatus(StatusName id);
+
+    void Damage(DamageData data);
+    void ResolveDamage(DamageData data);
 }

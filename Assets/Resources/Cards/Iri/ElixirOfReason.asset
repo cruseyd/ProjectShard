@@ -14,13 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Elixir of Reason
   id: ELIXIR_OF_REASON
-  level: 3
+  level: 1
   color: 5
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 3
+  blueAffinity: 1
   indigoAffinity: 0
   type: 5
   keywords: 

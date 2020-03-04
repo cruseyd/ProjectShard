@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Elixir of Passion
   id: ELIXIR_OF_PASSION
-  level: 3
+  level: 1
   color: 2
   violetAffinity: 0
-  redAffinity: 3
+  redAffinity: 1
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Patience
   id: PATIENCE
-  level: 2
+  level: 1
   color: 4
   violetAffinity: 0
   redAffinity: 0

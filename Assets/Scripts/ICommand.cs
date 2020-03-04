@@ -28,21 +28,20 @@ public class AbilityCommand : ICommand
     public void Execute()
     {
         _source.Resolve(_mode, _targets);
-        //_ability.Use(_mode, _source, _targets);
     }
 
     public void Execute(GameState state)
     {
-        _ability.Try(_mode, _source, _targets, state);
+        _ability.Try(_mode,_targets, state);
     }
 
     public void Show()
     {
-        _ability.Show(_mode, _source, _targets);
+        _ability.Show(_mode, _targets);
     }
 
     public void Undo(GameState state)
     {
-        _ability.Undo(_mode, _source, _targets, state);
+        _ability.Undo(_mode, _targets, state);
     }
 }

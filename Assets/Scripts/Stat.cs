@@ -27,10 +27,10 @@ public class TemplateModifier
         statName = stat;
         template = t;
         _source = source;
-        source.events.onDestroy += Destroy;
+        source.cardEvents.onLeavePlay += LeavePlayHandler;
     }
 
-    private void Destroy(Card source)
+    private void LeavePlayHandler(Card source)
     {
         Debug.Log("Destroying a template modifier");
         Dungeon.RemoveModifier(this);

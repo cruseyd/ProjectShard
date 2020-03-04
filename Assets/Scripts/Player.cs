@@ -107,6 +107,24 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         base.StartEncounter();
         focus.baseValue = maxFocus.value;
     }
+
+    public void StartTurn()
+    {
+        StartCoroutine(DoStartTurn());
+    }
+    public IEnumerator DoStartTurn()
+    {
+        burnAvailable = true;
+        focus.baseValue = maxFocus.value;
+        yield return DoRedraw();
+
+        GameEvents.current.StartTurn(this);
+        actorEvents.StartTurn();
+
+        Dungeon.SetConfirmButtonText("End Turn");
+        Dungeon.EnableConfirmButton(true);
+        Dungeon.SetParticleUnderlay(true);
+    }
     public void Redraw()
     {
         StartCoroutine(DoRedraw());
@@ -155,7 +173,7 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public override bool Resolve(Ability.Mode mode, List<ITargetable> targets)
     {
         Debug.Assert(mode == Ability.Mode.INFUSE);
-        Ability.Infuse(this, (Card)targets[0]);
+        Ability.Infuse((Card)targets[0]);
         return true;
     }
 

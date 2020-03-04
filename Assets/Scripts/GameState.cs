@@ -91,7 +91,7 @@ public class GameState
     {
         if (GetCardState(card) == null)
         {
-            if (card.owner == pov)
+            if (card.controller == pov)
             {
                 friendlyCards.Add(new CardState(card));
             } else
@@ -106,7 +106,7 @@ public class GameState
         CardState state = GetCardState(card);
         if (state != null)
         {
-            if (card.owner == pov) { friendlyCards.Remove(state); }
+            if (card.controller == pov) { friendlyCards.Remove(state); }
             else { opposingCards.Remove(state); }
         }
     }

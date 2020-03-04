@@ -196,15 +196,21 @@ public class Dungeon : MonoBehaviour
         {
             Organize(prevZone);
         }
+        // all zone transition events
         if (zone != prevZone)
         {
             if (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE)
             {
-                card.events.EnterPlay();
+                //TODO deal with case where card switches owner
+                card.cardEvents.EnterPlay();
             }
             if (prevZone == CardZone.DUNGEON_ACTIVE || prevZone == CardZone.PLAYER_ACTIVE)
             {
-                card.events.LeavePlay();
+                card.cardEvents.LeavePlay();
+                if (zone == CardZone.DUNGEON_DISCARD || zone == CardZone.PLAYER_DISCARD)
+                {
+                    card.cardEvents.Destroy();
+                }
             }
         }
     }

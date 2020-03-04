@@ -6,7 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
-    IBeginDragHandler, IEndDragHandler, IDragHandler, ITargetable, IDamageable
+    IBeginDragHandler, IEndDragHandler, IDragHandler, ITargetable
 {
     public enum Type
     {
@@ -63,7 +63,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     private CardData _data;
     private Ability _ability;
-    private CardEvents _events;
+    private CardEvents _cardEvents;
+    private TargetEvents _targetEvents;
     private Dictionary<StatusName, StatusEffect> _statusEffects;
     private List<ITargetable> _validTargets;
 
@@ -102,7 +103,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             return _ability;
         }
     }
-    public CardEvents events { get { return _events; } }
+    public TargetEvents targetEvents { get { return _targetEvents; } }
+    public CardEvents cardEvents { get { return _cardEvents; } }
     public new string name { get { return _data.name; } }
     //public int focus { get { return _data.level; } }
     public Card.Type type { get { return data.type; } }
@@ -265,16 +267,14 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card._data = data;
         card._validTargets = new List<ITargetable>();
         card._statusEffects = new Dictionary<StatusName, StatusEffect>();
-        card._events = new CardEvents(card);
+        card._cardEvents = new CardEvents(card);
+        card._targetEvents = new TargetEvents(card);
         card._playerControlled = isPlayerCard;
         card.attackAvailable = false;
         card.activationAvailable = true;
-        
-        if (Ability.index.ContainsKey(data.id))
-        {
-            card._ability = Ability.index[data.id];
-            card._abilityText.text = card._ability.Text(card);
-        }
+
+
+
         // STAT BASE VALUES
         card.cost = new Stat(data.level);
         card.strength = new Stat(data.strength);
@@ -364,14 +364,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // EVENTS
         GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
         GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
-        ((ActorEvents)card.controller.events).onStartTurn += card.ResetFlags;
+        card.controller.actorEvents.onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
 
-        card.FaceUp(false);
+        // ABILITY
+        card._ability = AbilityIndex.Get(data.id, card);
+        card._abilityText.text = card._ability.Text();
 
-        // CREATION ABILITY
-        card.ability.Use(Ability.Mode.CREATE, card, null);
+        card.FaceUp(false);
 
         return card;
     }
@@ -381,7 +382,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
-        ((ActorEvents)controller.events).onStartTurn -= ResetFlags;
+        controller.actorEvents.onStartTurn -= ResetFlags;
     }
 
     public int GetAttribute(Attribute a)
@@ -498,7 +499,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (playerControlled && mode == Ability.Mode.PLAY)
         {
-            controller.events.PlayCard(this);
+            controller.actorEvents.PlayCard(this);
             Player.instance.focus.baseValue -= cost.value;
             //Player.instance.addAffinity(data.color, 1);
         }
@@ -506,10 +507,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             foreach (ITargetable target in targets)
             {
-                controller.events.Target(this, target);
+                controller.targetEvents.DeclareTarget(this, target);
+                targetEvents.DeclareTarget(this, target);
             }
         }
-        _ability?.Use(mode, this, targets);
+        _ability?.Use(mode, targets);
         if (mode == Ability.Mode.PLAY)
         {
             
@@ -529,34 +531,25 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void TriggerPassive()
     {
-        _ability.Use(Ability.Mode.PASSIVE, this, null);
+        _ability.Use(Ability.Mode.PASSIVE, null);
     }
 
     public void Damage(DamageData data)
     {
         if (data == null) { return; }
         Debug.Assert(type == Type.THRALL);
-        if (data.source is Card)
-        {
-            Card src = ((Card)data.source);
-            
-            src.events.DealRawDamage(data);
-            if (src.type != Type.THRALL) { src.controller.events.DealRawDamage(data); }
-            src.events.DealModifiedDamage(data);
-            if (src.type != Type.THRALL) { src.controller.events.DealModifiedDamage(data); }
-            src.events.DealDamage(data);
-            if (src.type != Type.THRALL) { src.controller.events.DealDamage(data); }
-        }
-        else if (data.source is Actor)
-        {
-            Actor act = ((Actor)data.source);
-            act.events.DealRawDamage(data);
-            act.events.DealModifiedDamage(data);
-            act.events.DealDamage(data);
-        }
-        events.TakeRawDamage(data);
-        events.TakeModifiedDamage(data);
-        events.TakeDamage(data);
+
+        data.source.targetEvents.DealRawDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
+        data.source.targetEvents.DealModifiedDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
+        data.source.targetEvents.DealDamage(data);
+        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealDamage(data); }
+
+        targetEvents.TakeRawDamage(data);
+        targetEvents.TakeModifiedDamage(data);
+        targetEvents.TakeDamage(data);
+
         allegiance.baseValue -= data.damage;
     }
     
@@ -747,7 +740,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             bool valid = false;
             if (hovered != null)
             {
-                valid = hovered.Compare(Targeter.currentQuery, Targeter.source.Controller());
+                valid = hovered.Compare(Targeter.currentQuery, Targeter.source.controller);
             }
             if (valid)
             {
@@ -820,10 +813,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         return false;
     }
-    public Actor Controller()
-    {
-        return controller;
-    }
     public void AddTarget(ITargetable target)
     {
         _validTargets.Add(target);
@@ -839,7 +828,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void MarkTarget(TargetTemplate query, ITargetable source, bool show)
     {
-        if (Compare(query, source.Controller()) && this != (Object)source)
+        if (Compare(query, source.controller) && this != (Object)source)
         {
             if (show) { particles.MarkValidTarget(); }
             source.AddTarget(this);
@@ -924,7 +913,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (_statusEffects.ContainsKey(id))
         {
             _statusEffects[id].stacks += stacks;
-            events.GainStatus(_statusEffects[id], stacks);
+            targetEvents.GainStatus(_statusEffects[id], stacks);
         }
         else
         {
@@ -932,7 +921,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
             StatusEffect s = new StatusEffect(id, this, display, stacks);
             _statusEffects[id] = s;
-            events.GainStatus(_statusEffects[id], stacks);
+            targetEvents.GainStatus(_statusEffects[id], stacks);
         }
     }
     public virtual void RemoveStatus(StatusName id, int stacks = 1)
@@ -940,7 +929,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (_statusEffects.ContainsKey(id))
         {
             StatusEffect s = _statusEffects[id];
-            events.RemoveStatus(s, stacks);
+            targetEvents.RemoveStatus(s, stacks);
             if (stacks >= s.stacks)
             {
                 _statusEffects[id].Remove();

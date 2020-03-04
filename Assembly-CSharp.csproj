@@ -63,7 +63,6 @@
     <Compile Include="Assets\EffectExamples\Misc Effects\Scripts\SpawnEffect.cs" />
     <Compile Include="Assets\Scripts\AIModule.cs" />
     <Compile Include="Assets\Scripts\Ability.cs" />
-    <Compile Include="Assets\Scripts\Ability2.cs" />
     <Compile Include="Assets\Scripts\Actor.cs" />
     <Compile Include="Assets\Scripts\ActorEvents.cs" />
     <Compile Include="Assets\Scripts\ActorParticles.cs" />
@@ -89,7 +88,6 @@
     <Compile Include="Assets\Scripts\GamePhase.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\ICommand.cs" />
-    <Compile Include="Assets\Scripts\IDamageable.cs" />
     <Compile Include="Assets\Scripts\ITargetable.cs" />
     <Compile Include="Assets\Scripts\Icons.cs" />
     <Compile Include="Assets\Scripts\Keywords.cs" />

@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Elixir of Patience
   id: ELIXIR_OF_PATIENCE
-  level: 3
+  level: 1
   color: 4
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
-  greenAffinity: 3
+  greenAffinity: 1
   blueAffinity: 0
   indigoAffinity: 0
   type: 5

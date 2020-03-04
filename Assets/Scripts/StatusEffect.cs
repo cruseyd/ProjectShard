@@ -33,23 +33,17 @@ public class StatusEffect
         switch (id)
         {
             case StatusName.POISON:
-                target.Controller().events.onStartTurn += Poison; break;
+                target.controller.actorEvents.onStartTurn += Poison; break;
             case StatusName.BURN:
-                target.Controller().events.onStartTurn += Burn; break;
+                target.controller.actorEvents.onStartTurn += Burn; break;
             case StatusName.STUN:
-                target.Controller().events.onStartTurn += Stun; break;
+                target.controller.actorEvents.onStartTurn += Stun; break;
             case StatusName.ELDER_KNOWLEDGE:
-                target.Controller().events.onDrawCard += ElderKnowledge; break;
+                target.controller.actorEvents.onDrawCard += ElderKnowledge; break;
             case StatusName.CHILL:
-                if (target is Card)
-                {
-                    ((Card)target).events.onGainStatus += Chill;
-                }
-                else if (target is Actor)
-                {
-                    ((Actor)target).events.onGainStatus += Chill;
-                }
-                break;
+                target.targetEvents.onGainStatus += Chill; break;
+            case StatusName.DAZE:
+                target.targetEvents.onGainStatus += Daze; break;
             default: break;
         }
         display.SetStatus(this);
@@ -61,33 +55,17 @@ public class StatusEffect
         switch (data.id)
         {
             case StatusName.POISON:
-                target.Controller().events.onStartTurn -= Poison; break;
+                target.controller.actorEvents.onStartTurn -= Poison; break;
             case StatusName.BURN:
-                target.Controller().events.onStartTurn -= Burn; break;
+                target.controller.actorEvents.onStartTurn -= Burn; break;
             case StatusName.STUN:
-                target.Controller().events.onStartTurn -= Stun; break;
+                target.controller.actorEvents.onStartTurn -= Stun; break;
             case StatusName.ELDER_KNOWLEDGE:
-                target.Controller().events.onDrawCard -= ElderKnowledge; break;
+                target.controller.actorEvents.onDrawCard -= ElderKnowledge; break;
             case StatusName.CHILL:
-                if (target is Card)
-                {
-                    ((Card)target).events.onGainStatus -= Chill;
-                }
-                else if (target is Actor)
-                {
-                    ((Actor)target).events.onGainStatus -= Chill;
-                }
-                break;
+                target.targetEvents.onGainStatus += Chill; break;
             case StatusName.DAZE:
-                if (target is Card)
-                {
-                    ((Card)target).events.onGainStatus -= Daze;
-                }
-                else if (target is Actor)
-                {
-                    ((Actor)target).events.onGainStatus -= Daze;
-                }
-                break;
+                target.targetEvents.onGainStatus -= Daze; break;
             default: break;
         }
     }
@@ -95,14 +73,12 @@ public class StatusEffect
 
     private void Poison(Actor actor)
     {
-        Debug.Assert(target is IDamageable);
-        ((IDamageable)target).Damage(new DamageData(1, Keyword.POISON, null, (IDamageable)target));
+        target.Damage(new DamageData(1, Keyword.POISON, null, target));
         stacks -= 1;
     }
     private void Burn(Actor actor)
     {
-        Debug.Assert(target is IDamageable);
-        ((IDamageable)target).Damage(new DamageData(stacks, Keyword.FIRE, null, (IDamageable)target));
+        target.Damage(new DamageData(stacks, Keyword.FIRE, null, target));
         stacks -= 1;
     }
 

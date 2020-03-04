@@ -6788,7 +6788,7 @@ MonoBehaviour:
   _healthDisplay: {fileID: 1291384305}
   _statusDisplays: {fileID: 99168763}
   _deck: {fileID: 1572721163}
-  _isPlayer: 1
+  _playerControlled: 0
   _weapon: {fileID: 5640967435918511136}
   _armor: {fileID: 1948706794}
   _relic: {fileID: 1354430325}
@@ -9832,7 +9832,7 @@ MonoBehaviour:
   _healthDisplay: {fileID: 989139107}
   _statusDisplays: {fileID: 1934015790}
   _deck: {fileID: 510905430}
-  _isPlayer: 0
+  _playerControlled: 0
   _weapon: {fileID: 1338237967}
   _armor: {fileID: 1977768927}
   _relic: {fileID: 0}

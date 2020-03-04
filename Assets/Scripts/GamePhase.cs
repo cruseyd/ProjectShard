@@ -39,22 +39,12 @@ public class PlayerTurnPhase : GamePhase
 {
     public override void Enter()
     {
-        Player.instance.burnAvailable = true;
-        Player.instance.focus.baseValue = Player.instance.maxFocus.value;
-        Player.instance.Redraw();
-
-        Dungeon.SetConfirmButtonText("End Turn");
-        Dungeon.EnableConfirmButton(true);
-        Dungeon.SetParticleUnderlay(true);
-
-        GameEvents.current.StartTurn(Player.instance);
-        ((ActorEvents)Player.instance.events).StartTurn();
-
+        Player.instance.StartTurn();
     }
     public override void Exit()
     {
         GameEvents.current.EndTurn(Player.instance);
-        ((ActorEvents)Player.instance.events).EndTurn();
+        Player.instance.actorEvents.EndTurn();
     }
     public override void Confirm()
     {
@@ -72,7 +62,7 @@ public class EnemyTurnPhase : GamePhase
         Dungeon.EnableConfirmButton(true);
         Dungeon.SetParticleUnderlay(false);
         GameEvents.current.StartTurn(Enemy.instance);
-        ((ActorEvents)Enemy.instance.events).StartTurn();
+        Enemy.instance.actorEvents.StartTurn();
 
         _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove();
         if (_currentMove == null)
@@ -88,7 +78,7 @@ public class EnemyTurnPhase : GamePhase
     public override void Exit()
     {
         GameEvents.current.EndTurn(Enemy.instance);
-        ((ActorEvents)Enemy.instance.events).EndTurn();
+        Enemy.instance.actorEvents.EndTurn();
         // end enemy turn
         Enemy.instance.DrawRandom();
     }

@@ -53,7 +53,7 @@ public class Equipment : MonoBehaviour
         if (_data == null) { return; }
         switch (_data.type)
         {
-            case Type.ARMOR: owner.events.onTakeModifiedDamage -= _ability.armor; break;
+            case Type.ARMOR: owner.targetEvents.onTakeModifiedDamage -= _ability.armor; break;
             case Type.WEAPON: break;
             case Type.RELIC: break;
             default: return;
@@ -80,7 +80,7 @@ public class Equipment : MonoBehaviour
         GetComponent<Tooltip>().content += ("\n\n" + _ability.text(this));
         switch (_data.type)
         {
-            case Type.ARMOR: owner.events.onTakeModifiedDamage += _ability.armor; break;
+            case Type.ARMOR: owner.targetEvents.onTakeModifiedDamage += _ability.armor; break;
             case Type.WEAPON: break;
             case Type.RELIC: break;
             default: return;

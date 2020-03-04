@@ -55,8 +55,7 @@ public abstract class Ability
         PLAY,
         PASSIVE,
         ATTACK,
-        INFUSE,
-        CREATE
+        INFUSE
     }
     
     public List<TargetTemplate> activateTargets;
@@ -80,8 +79,7 @@ public abstract class Ability
         }
     }
     protected virtual void Passive(List<ITargetable> targets, bool undo = false, GameState state = null) { }
-    protected virtual void Create(List<ITargetable> targets, bool undo = false, GameState state = null) { }
-    protected void Attack(IDamageable target, bool undo = false, GameState state = null)
+    protected void Attack(ITargetable target, bool undo = false, GameState state = null)
     {
         Debug.Assert(_user is Card);
         Card user = (Card)_user;
@@ -150,9 +148,8 @@ public abstract class Ability
         {
             case Mode.PLAY: Play(targets); break;
             case Mode.ACTIVATE: Activate(targets); break;
-            case Mode.ATTACK: Attack((IDamageable)targets[0]); break;
+            case Mode.ATTACK: Attack((ITargetable)targets[0]); break;
             case Mode.PASSIVE: Passive(targets); break;
-            case Mode.CREATE: Create(targets); break;
             default: break;
         }
     }
@@ -162,7 +159,7 @@ public abstract class Ability
         {
             case Mode.PLAY: Play(targets, false, state); break;
             case Mode.ACTIVATE: Activate(targets, false, state); break;
-            case Mode.ATTACK: Attack((IDamageable)targets[0], false, state); break;
+            case Mode.ATTACK: Attack((ITargetable)targets[0], false, state); break;
             case Mode.PASSIVE: Passive(targets, false, state); break;
             default: break;
         }
@@ -173,7 +170,7 @@ public abstract class Ability
         {
             case Mode.PLAY: Play(targets, true, state); break;
             case Mode.ACTIVATE: Activate(targets, true, state); break;
-            case Mode.ATTACK: Attack((IDamageable)targets[0], true, state); break;
+            case Mode.ATTACK: Attack((ITargetable)targets[0], true, state); break;
             case Mode.PASSIVE: Passive(targets, true, state); break;
             default: break;
         }
@@ -331,14 +328,14 @@ public class A_Elixir : Ability
         {
             if (user.controller is Player)
             {
-                ((Player)user.controller).focus.baseValue += 2;
+                ((Player)user.controller).focus.baseValue += 1;
                 ((Player)user.controller).maxFocus.baseValue += 1;
             }
         }
     }
     public override string Text()
     {
-        return "Gain 2/1 Focus.";
+        return "Gain 1/1 Focus.";
     }
 }
 public class A_Ideal : Ability
@@ -365,13 +362,13 @@ public class A_Ideal : Ability
             user.controller.Draw();
             if (user.controller is Player)
             {
-                ((Player)user.controller).focus.baseValue += 1;
+                ((Player)user.controller).maxFocus.baseValue += 1;
             }
         }
     }
     public override string Text()
     {
-        return "Draw a card. Gain 1/0 Focus.";
+        return "Gain 0/1 Focus. Draw a card. ";
     }
 }
 
@@ -393,7 +390,7 @@ public class A_Cinder : Ability
         Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 2;
-        IDamageable target = (IDamageable)targets[0];
+        ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.FIRE, _user, target);
         Ability.Damage(data, undo, state);
     }
@@ -401,6 +398,7 @@ public class A_Cinder : Ability
     public override string Text()
     {
         return "Cinder inflicts 2 Fire damage to any target.";
+    }
     }
 }
 public class A_Singe : Ability
@@ -496,7 +494,7 @@ public class A_Slash : Ability
             weapon.durability -= 1;
         }
         
-        IDamageable target = (IDamageable)targets[0];
+        ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.SLASHING, _user, target);
         Ability.Damage(data, undo, state);
     }
@@ -520,8 +518,8 @@ public class A_WildSwing : Ability
         Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 2;
-        IDamageable t1 = (IDamageable)targets[0];
-        IDamageable t2 = (IDamageable)RandomOtherTarget(user, targets[0], playTargets[0]);
+        ITargetable t1 = (ITargetable)targets[0];
+        ITargetable t2 = (ITargetable)RandomOtherTarget(user, targets[0], playTargets[0]);
         
         DamageData d1 = new DamageData(damage, Keyword.SLASHING, _user, t1);
         Ability.Damage(d1, undo, state);
@@ -560,8 +558,8 @@ public class A_Sharpen : Ability
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        _user.controller.events.onDealRawDamage += RawDamageHandler;
-        _user.controller.events.onEndTurn += EndTurnHandler;
+        _user.controller.targetEvents.onDealRawDamage += RawDamageHandler;
+        _user.controller.actorEvents.onEndTurn += EndTurnHandler;
         _user.controller.Draw();
     }
     public override string Text()
@@ -578,8 +576,8 @@ public class A_Sharpen : Ability
     void EndTurnHandler(Actor actor)
     {
         Debug.Log("Unregistering for Sharpen's events");
-        actor.events.onDealRawDamage -= RawDamageHandler;
-        actor.events.onEndTurn -= EndTurnHandler;
+        actor.targetEvents.onDealRawDamage -= RawDamageHandler;
+        actor.actorEvents.onEndTurn -= EndTurnHandler;
     }
 }
 // ============================================ GREEN CARDS ===========================================
@@ -590,11 +588,6 @@ public class A_TerritorialBriar : Ability
     public override string Text()
     {
         return "IMPLEMENT ME";
-    }
-
-    protected override void Create(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Create(targets, undo, state);
     }
 
     private void OnLeavePlayHandler(Card _user)
@@ -679,7 +672,7 @@ public class A_Chill : Ability
         base.Play(targets, undo, state);
         int damage = 1;
         Keyword damageType = Keyword.ICE;
-        IDamageable target = (IDamageable)targets[0];
+        ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, damageType, _user, target);
         Ability.Damage(data, undo, state);
 
@@ -694,7 +687,10 @@ public class A_Chill : Ability
 
 public class A_DriftingVoidling : Ability
 {
-    public A_DriftingVoidling(ITargetable user) : base(user) { }
+    public A_DriftingVoidling(ITargetable user) : base(user)
+    {
+        ((Card)_user).cardEvents.onLeavePlay += LeavePlayHandler;
+    }
     public override string Text()
     {
         return "When Drifting Voidling is destroyed, its controller gains a stack of Elder Knowledge.";
@@ -705,16 +701,9 @@ public class A_DriftingVoidling : Ability
         base.Play(targets, undo, state);
     }
 
-    protected override void Create(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Create(targets, undo, state);
-        ((Card)_user).events.onLeavePlay += OnLeavePlay;
-    }
-
-    private void OnLeavePlay(Card card)
+    private void LeavePlayHandler(Card card)
     {
         card.controller.AddStatus(StatusName.ELDER_KNOWLEDGE);
-        Debug.Log("Called destroy ability");
     }
 }
 public class A_IceElemental : Ability
@@ -784,22 +773,22 @@ public class A_FrostLattice : Ability
 
 public class A_RimeSprite : Ability
 {
-    public A_RimeSprite(ITargetable user) : base(user) { }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    public A_RimeSprite(ITargetable user) : base(user)
     {
-        base.Play(targets, undo, state);
-        ((Card)_user).events.onDealDamage += DamageHandler;
+        _user.targetEvents.onDealDamage += DealDamageHandler;
     }
     public override string Text()
     {
         return "When Rime Sprite deals damage to a target, add a Chill counter to that target.";
     }
-
-    public void DamageHandler(DamageData data)
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        ((Card)data.source).events.onDealDamage -= DamageHandler;
+        base.Play(targets, undo, state);
+    }
+
+    public void DealDamageHandler(DamageData data)
+    {
         ((ITargetable)data.target).AddStatus(StatusName.CHILL, 1);
-        
         data.source.controller.Discard(((Card)data.source));
     }
 }
@@ -825,9 +814,9 @@ public class A_Static : Ability
         }
 
         ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
-        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (IDamageable)target), undo, state);
+        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (ITargetable)target), undo, state);
         target = validTargets[Random.Range(0, validTargets.Count)];
-        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (IDamageable)target), undo, state);
+        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (ITargetable)target), undo, state);
     }
 
     public override string Text()
@@ -838,7 +827,10 @@ public class A_Static : Ability
 
 public class A_FeralWarcat : Ability
 {
-    public A_FeralWarcat(ITargetable user) : base(user) { }
+    public A_FeralWarcat(ITargetable user) : base(user)
+    {
+        user.controller.targetEvents.onDeclareTarget += DeclareTargetHandler;
+    }
     public override string Text()
     {
         return "When you target an enemy with an Ability, Feral Warcat deals 1 Slashing damage to that target.";
@@ -847,6 +839,18 @@ public class A_FeralWarcat : Ability
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
+    }
+
+    private void DeclareTargetHandler(ITargetable source, ITargetable target)
+    {
+        if (source is Card && ((Card)_user).inPlay)
+        {
+            Card src = (Card)source;
+            if (src.type == Card.Type.ABILITY)
+            {
+                Ability.Damage(new DamageData(1, Keyword.SLASHING, _user, target), false, null);
+            }
+        }
     }
 
 }
@@ -868,7 +872,7 @@ public class A_Rend : Ability
             weapon.durability -= 1;
         }
 
-        IDamageable target = (IDamageable)targets[0];
+        ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.CRUSHING, _user, target);
         Ability.Damage(data, undo, state);
     }

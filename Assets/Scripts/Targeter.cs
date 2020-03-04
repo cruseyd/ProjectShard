@@ -40,7 +40,7 @@ public class Targeter : MonoBehaviour
     }
     public static int AddTarget(ITargetable node)
     {
-        if (node.Compare(currentQuery, source.Controller()))
+        if (node.Compare(currentQuery, source.controller))
         {
             _targets.Add(node);
             Resolve();
