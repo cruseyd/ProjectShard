@@ -31,6 +31,23 @@ public enum Keyword
     //===============
     MELEE = 500,
     RANGED, 
+    //===============
+    WARRIOR=600,
+    CLERIC,
+    MAGE,
+    ROGUE,
+    RANGER,
+    SORCERER,
+    //===============
+    BEAST=700,
+    SCALE,
+    SHELL,
+    PLANT,
+    SPIRIT,
+    UNDEAD,
+    //===============
+    NIMBLE=800,
+
 
 }
 
@@ -38,6 +55,8 @@ public static class Keywords
 {
     public static string Parse(Keyword word)
     {
+        return word.ToString("g");
+        /*
         switch (word)
         {
             case Keyword.SLASHING:  return "Slashing";
@@ -64,9 +83,12 @@ public static class Keywords
                 Debug.Log("Unrecognized Keyword: " + word.ToString());
                 return "";
         }
+        */
     }
     public static string Parse(Card.Type type)
     {
+        return type.ToString("g");
+        /*
         switch(type)
         {
             case Card.Type.SPELL:       return "Spell";
@@ -81,9 +103,12 @@ public static class Keywords
                 Debug.Log("Unrecognized Keyword: " + type);
                 return "";
         }
+        */
     }
     public static string Parse(Equipment.Type type)
     {
+        return type.ToString("g");
+        /*
         switch(type)
         {
             case Equipment.Type.ARMOR:  return "Armor";
@@ -93,5 +118,6 @@ public static class Keywords
                 Debug.Log("Unrecognized Keyword: " + type);
                 return "";
         }
+        */
     }
 }

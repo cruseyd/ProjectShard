@@ -66,10 +66,7 @@ public class Dungeon : MonoBehaviour
         }
         set
         {
-            instance._phase?.Exit();
-            instance._phase = value;
-            instance._phase.Enter();
-            GameEvents.current.Refresh();
+            instance.StartCoroutine(instance.DoSwitchPhase(value));
         }
     }
     public static GameObject tooltipWindow
@@ -250,5 +247,15 @@ public class Dungeon : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
         yield return Enemy.instance.DoDrawRandom();
         Dungeon.phase = GamePhase.player;
+    }
+    private IEnumerator DoSwitchPhase(GamePhase newPhase)
+    {
+        instance._phase?.Exit();
+        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        instance._phase = newPhase;
+        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        instance._phase.Enter();
+        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        GameEvents.current.Refresh();
     }
 }

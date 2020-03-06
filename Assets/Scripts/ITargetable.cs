@@ -31,6 +31,9 @@ public class TargetEvents
     public event Action<DamageData> onTakeModifiedDamage;
     public event Action<DamageData> onTakeDamage;
 
+    public event Action<int> onGainHealth;
+    public event Action<int> onLoseHealth;
+
     public event Action<ITargetable, ITargetable> onDeclareTarget;
     public event Action<Card, ITargetable> onDeclareAttack;
 
@@ -45,8 +48,11 @@ public class TargetEvents
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
 
+    public void GainHealth(int value) { onGainHealth?.Invoke(value); }
+    public void LoseHealth(int value) { onLoseHealth?.Invoke(value); }
+
     public void DeclareTarget(ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(source, target); }
-    public void DeclareAttack(Card source, ITargetable target) { onDeclareTarget?.Invoke(source, target); }
+    public void DeclareAttack(Card source, ITargetable target) { onDeclareAttack?.Invoke(source, target); }
 
 }
 
@@ -80,6 +86,8 @@ public interface ITargetable : IMonoBehaviour
     Actor controller { get; }
     Actor opponent { get; }
     TargetEvents targetEvents { get; }
+
+    bool inPlay { get; }
     void AddTarget(ITargetable target);
     void FindTargets(Ability.Mode mode, int n, bool show = false);
     List<ICommand> FindMoves();
@@ -94,4 +102,6 @@ public interface ITargetable : IMonoBehaviour
 
     void Damage(DamageData data);
     void ResolveDamage(DamageData data);
+
+    void IncrementHealth(int value);
 }

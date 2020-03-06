@@ -14,11 +14,13 @@ public abstract class Actor : MonoBehaviour, ITargetable
     [SerializeField] protected Equipment _relic;
 
     protected List<ITargetable> _validTargets;
-    protected CardZone _handZone;
-    protected CardZone _activeZone;
-    protected CardZone _discardZone;
     protected ActorEvents _actorEvents;
     protected TargetEvents _targetEvents;
+
+    public CardZone handZone;
+    public CardZone activeZone;
+    public CardZone discardZone;
+    
     public Actor opponent
     {
         get
@@ -35,7 +37,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
             else { return Enemy.instance; }
         }
     }
-
+    public bool inPlay { get { return true; } }
     public ActorEvents actorEvents { get { return _actorEvents; } }
     public TargetEvents targetEvents { get { return _targetEvents; } }
     public Equipment weapon { get { return _weapon; } }
@@ -99,14 +101,14 @@ public abstract class Actor : MonoBehaviour, ITargetable
 
         if (playerControlled)
         {
-            _handZone = CardZone.PLAYER_HAND;
-            _activeZone = CardZone.PLAYER_ACTIVE;
-            _discardZone = CardZone.PLAYER_DISCARD;
+            handZone = CardZone.PLAYER_HAND;
+            activeZone = CardZone.PLAYER_ACTIVE;
+            discardZone = CardZone.PLAYER_DISCARD;
         } else
         {
-            _handZone = CardZone.DUNGEON_HAND;
-            _activeZone = CardZone.DUNGEON_ACTIVE;
-            _discardZone = CardZone.DUNGEON_DISCARD;
+            handZone = CardZone.DUNGEON_HAND;
+            activeZone = CardZone.DUNGEON_ACTIVE;
+            discardZone = CardZone.DUNGEON_DISCARD;
         }
         _validTargets = new List<ITargetable>();
         health = new Stat(0);
@@ -128,7 +130,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public virtual void Discard(Card card)
     {
         card.FaceUp(true, false);
-        Dungeon.MoveCard(card, _discardZone);
+        Dungeon.MoveCard(card, discardZone);
         card.particles.Clear();
     }
     public virtual void DiscardRandom()
@@ -139,17 +141,23 @@ public abstract class Actor : MonoBehaviour, ITargetable
             Discard(hand[choice]);
         }
     }
-    public virtual void PutInPlay(Card card)
+    public virtual void PutInPlay(Card card, bool selfControl = true)
     {
-        Dungeon.MoveCard(card, _activeZone);
+        card.FaceUp(true, true);
+        if (selfControl) { Dungeon.MoveCard(card, activeZone); }
+        else {
+            Dungeon.MoveCard(card, opponent.activeZone);
+            card.SwitchController();
+        }
     }
     public virtual void Draw()
     {
         Card card = _deck.Draw();
         card.FaceUp(playerControlled, true);
-        Dungeon.MoveCard(card, _handZone);
+        Dungeon.MoveCard(card, handZone);
         card.Refresh();
         actorEvents.DrawCard(card);
+        card.cardEvents.Draw();
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
     public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
@@ -184,6 +192,17 @@ public abstract class Actor : MonoBehaviour, ITargetable
         health.baseValue = maxHealth.value;
     }
 
+    public virtual void IncrementHealth(int value)
+    {
+        health.baseValue += value;
+        if (value > 0)
+        {
+            targetEvents.GainHealth(value);
+        } else if (value < 0)
+        {
+            targetEvents.LoseHealth(-value);
+        }
+    }
     public virtual void Damage(DamageData data)
     {
         if (data == null) { return; }
@@ -197,9 +216,13 @@ public abstract class Actor : MonoBehaviour, ITargetable
 
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
+        health.baseValue -= data.damage;
         targetEvents.TakeDamage(data);
 
-        health.baseValue -= data.damage;
+        if (data.damage > 0)
+        {
+            targetEvents.LoseHealth(data.damage);
+        }
     }
     public virtual void ResolveDamage(DamageData data)
     {

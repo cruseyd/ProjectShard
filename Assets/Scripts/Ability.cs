@@ -29,6 +29,12 @@ public static class AbilityIndex
             case "FLASHBLADE_SKIRMISHER": return new A_FlashbladeSkirmisher(user);
             case "INFERNO_DJINN": return new A_InfernoDjinn(user);
 
+            // green cards
+            case "TERRITORIAL_BRIAR": return new A_TerritorialBriar(user);
+            case "CARNIVOROUS_PITFALL": return new A_CarnivorousPitfall(user);
+            case "PITFALL_VINE": return new A_PitfallVine(user);
+            case "BLOSSOMING_IVYPRONG": return new A_BlossomingIvyProng(user);
+
             // blue cards
             case "CONTINUITY": return new A_Continuity(user);
             case "CHILL":   return new A_Chill(user);
@@ -63,7 +69,12 @@ public abstract class Ability
     protected ITargetable _user;
 
     public Ability(ITargetable user) { _user = user; }
-    protected virtual void Activate(List<ITargetable> targets, bool undo = false, GameState state = null) { }
+    public virtual bool ActivationAvailable() { return false; }
+    protected virtual void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        Debug.Assert(_user is Card);
+        ((Card)_user).activationAvailable = false;
+    }
     protected virtual void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         // at the bare minimum, all thralls are put into play, changing the boardstate
@@ -83,6 +94,11 @@ public abstract class Ability
     {
         Debug.Assert(_user is Card);
         Card user = (Card)_user;
+        user.controller.targetEvents.DeclareAttack(user, target);
+        user.targetEvents.DeclareAttack(user, target);
+
+        if (!user.inPlay || user.allegiance.value <= 0) { return; }
+
         DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
         DamageData targetDamage = null;
         if (target is Card)
@@ -362,13 +378,18 @@ public class A_Ideal : Ability
             user.controller.Draw();
             if (user.controller is Player)
             {
-                ((Player)user.controller).maxFocus.baseValue += 1;
+                TargetTemplate t = new TargetTemplate();
+                t.cardType = Card.Type.IDEAL;
+                if (((Player)user.controller).NumPlayedThisTurn(t) == 0)
+                {
+                    ((Player)user.controller).maxFocus.baseValue += 1;
+                }
             }
         }
     }
     public override string Text()
     {
-        return "Gain 0/1 Focus. Draw a card. ";
+        return "If you have not played an Ideal this turn, gain 0/1 Focus. \nDraw a card. ";
     }
 }
 
@@ -398,7 +419,6 @@ public class A_Cinder : Ability
     public override string Text()
     {
         return "Cinder inflicts 2 Fire damage to any target.";
-    }
     }
 }
 public class A_Singe : Ability
@@ -584,24 +604,94 @@ public class A_Sharpen : Ability
 
 public class A_TerritorialBriar : Ability
 {
-    public A_TerritorialBriar(ITargetable user) : base(user) { }
+    public A_TerritorialBriar(ITargetable user) : base(user)
+    {
+        user.opponent.actorEvents.onPlayCard += OnPlayCardHandler;
+        user.opponent.targetEvents.onDeclareAttack += OnDeclareAttackHandler;
+    }
     public override string Text()
     {
-        return "IMPLEMENT ME";
+        string txt = "";
+        txt += "When an opposing thrall attacks, it first takes 1 Piercing damage.";
+        txt += "When your opponent uses an Ability, they first take 1 Piercing damage.";
+        return txt;
     }
 
-    private void OnLeavePlayHandler(Card _user)
+    private void OnDeclareAttackHandler(Card source, ITargetable target)
     {
-
+        if (_user.inPlay)
+        {
+            Ability.Damage(new DamageData(1, Keyword.PIERCING, _user, source), false, null);
+        }
     }
 
-    private void OnEnterPlayHandler(Card _user)
+    private void OnPlayCardHandler(Card source)
     {
-        
+        if (_user.inPlay && source.type == Card.Type.ABILITY)
+        {
+            source.controller.Damage(new DamageData(1, Keyword.PIERCING, _user, source.controller));
+        }
     }
-
 }
 
+public class A_CarnivorousPitfall : Ability
+{
+    public A_CarnivorousPitfall(ITargetable user) : base(user) { }
+
+    public override string Text()
+    {
+        return "<b>Activate: </b> Add 2 <b>Pitfall Vine </b> to opponent's deck.";
+    }
+
+    public override bool ActivationAvailable()
+    {
+        return true;
+    }
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Activate(targets, undo, state);
+        CardData data = Resources.Load("Cards/Fen/PitfallVine") as CardData;
+        _user.opponent.deck.Shuffle(data);
+        _user.opponent.deck.Shuffle(data);
+    }
+}
+
+public class A_PitfallVine : Ability
+{
+    public override string Text()
+    {
+        return "When you draw this, take 2 Crushing damage. Then, put this into play under your opponent's control. Draw a card.";
+    }
+    public A_PitfallVine(ITargetable user) : base(user)
+    {
+        ((Card)user).cardEvents.onDraw += OnDrawHandler;
+    }
+
+    private void OnDrawHandler(Card card)
+    {
+        Actor owner = card.controller;
+        Ability.Damage(new DamageData(2, Keyword.CRUSHING, card, card.controller), false, null);
+        owner.PutInPlay(card, false);
+        owner.Draw();
+    }
+}
+
+public class A_BlossomingIvyProng : Ability
+{
+    public A_BlossomingIvyProng(ITargetable user) : base(user)
+    {
+        ((Card)user).cardEvents.onEnterPlay += EnterPlayHandler;
+    }
+    public override string Text()
+    {
+        return "When this enters play, gain 1 health.";
+    }
+
+    void EnterPlayHandler(Card card)
+    {
+        _user.controller.IncrementHealth(1);
+    }
+}
 // ============================================ BLUE CARDS ============================================
 
 public class A_Continuity : Ability

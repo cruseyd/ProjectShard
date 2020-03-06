@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
+  m_Name: Ranger
+  m_EditorClassIdentifier: 
+  list:
+  - card: {fileID: 11400000, guid: 13694c6836649504e85f36b414c0529d, type: 2}
+    quantity: 4
+  - card: {fileID: 11400000, guid: 6d9eb9c200279e6468adb5e0c6de80cf, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: fd3673bcb06df8b4daa6b6e00d6004b1, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: d5b11598c2ed94e478eb2922e5571aab, type: 2}
+    quantity: 3

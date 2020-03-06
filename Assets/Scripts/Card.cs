@@ -17,7 +17,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         STRATEGY,
         ITEM,
         THRALL, 
-        CONSTANT
+        CONSTANT,
+        IDEAL
     }
     public enum Color
     {
@@ -72,9 +73,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private bool _followingCursor = false;
     private bool _faceUp;
 
+    public bool _needsUpkeep;
     public bool activationAvailable;
     public bool attackAvailable;
-    private bool _playerControlled;
+    [SerializeField] private bool _playerControlled;
     public bool playerControlled { get { return _playerControlled; } }
     public int zoneIndex;
     public CardZone zone;
@@ -106,7 +108,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public TargetEvents targetEvents { get { return _targetEvents; } }
     public CardEvents cardEvents { get { return _cardEvents; } }
     public new string name { get { return _data.name; } }
-    //public int focus { get { return _data.level; } }
     public Card.Type type { get { return data.type; } }
 
 
@@ -176,8 +177,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         get
         {
             bool flag = true;
+            flag &= (!needsUpkeep);
             flag &= activationAvailable;
             flag &= inPlay;
+            flag &= ability.ActivationAvailable();
             if (playerControlled)
             {
                 flag &= (Dungeon.phase == GamePhase.player);
@@ -193,6 +196,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         get
         {
             bool flag = true;
+            flag &= (!needsUpkeep);
             flag &= attackAvailable;
             flag &= (type == Type.THRALL);
             if (playerControlled)
@@ -253,7 +257,18 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             return (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE);
         }
     }
-
+    public bool needsUpkeep
+    {
+        get
+        {
+            bool flag = true;
+            flag &= (playerControlled);
+            flag &= (type == Card.Type.THRALL);
+            flag &= (data.upkeep > 0);
+            flag &= (_needsUpkeep);
+            return flag;
+        }
+    }
     public static Card Spawn(CardData data, bool isPlayerCard, Vector3 spawnPoint)
     {
         if (Card._cardPrefab == null)
@@ -272,8 +287,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card._playerControlled = isPlayerCard;
         card.attackAvailable = false;
         card.activationAvailable = true;
-
-
+        card._needsUpkeep = false;
 
         // STAT BASE VALUES
         card.cost = new Stat(data.level);
@@ -384,7 +398,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         GameEvents.current.onQueryTarget -= MarkTarget;
         controller.actorEvents.onStartTurn -= ResetFlags;
     }
-
     public int GetAttribute(Attribute a)
     {
         switch (a)
@@ -395,7 +408,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             default: return -1;
         }
     }
-
     public List<Attribute> maxAttributes()
     {
         List<Card.Attribute> attr = new List<Card.Attribute>();
@@ -412,8 +424,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // input is due to event requirement
         if (inPlay)
         {
-            attackAvailable = true;
+            _needsUpkeep = true;
             activationAvailable = true;
+            attackAvailable = true;
         }
     }
     public void Refresh()
@@ -438,12 +451,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             _allegianceDisplay.value = allegiance.value;
         }
 
-        if (playable || canAttack)
+        if (playable || canAttack || activatable)
         {
             particles.MarkActive();
         } else if (canDefend)
         {
             particles.MarkValidTarget();
+        } else if (needsUpkeep)
+        {
+            particles.MarkNeedsUpkeep();
         } else
         {
             particles.Clear();
@@ -499,9 +515,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (playerControlled && mode == Ability.Mode.PLAY)
         {
-            controller.actorEvents.PlayCard(this);
             Player.instance.focus.baseValue -= cost.value;
-            //Player.instance.addAffinity(data.color, 1);
         }
         if (targets != null)
         {
@@ -514,9 +528,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         _ability?.Use(mode, targets);
         if (mode == Ability.Mode.PLAY)
         {
-            
+            controller.actorEvents.PlayCard(this);
             if (type == Type.THRALL || type == Type.CONSTANT) { controller.PutInPlay(this); }
             else { controller.Discard(this); }
+        } else if (mode == Ability.Mode.ACTIVATE)
+        {
+            controller.actorEvents.ActivateCard(this);
+            activationAvailable = false;
         }
         Targeter.Clear();
         GameEvents.current.Refresh();
@@ -533,7 +551,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         _ability.Use(Ability.Mode.PASSIVE, null);
     }
-
     public void Damage(DamageData data)
     {
         if (data == null) { return; }
@@ -548,11 +565,23 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
+        allegiance.baseValue -= data.damage;
         targetEvents.TakeDamage(data);
 
-        allegiance.baseValue -= data.damage;
+        if (data.damage > 0)
+        {
+            targetEvents.LoseHealth(data.damage);
+        }
     }
-    
+    public bool Upkeep()
+    {
+        if (!needsUpkeep) { return false; }
+        if (((Player)controller).focus.value < data.upkeep) { return false; }
+        ((Player)controller).focus.baseValue -= data.upkeep;
+        _needsUpkeep = false;
+        GameEvents.current.Refresh();
+        return true;
+    }
     public virtual void ResolveDamage(DamageData data)
     {
         if (type == Card.Type.THRALL && allegiance.value <= 0 && inPlay)
@@ -560,11 +589,31 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             controller.Discard(this);
         }
     }
-
+    public virtual void IncrementHealth(int value)
+    {
+        allegiance.baseValue += value;
+        if (value > 0)
+        {
+            targetEvents.GainHealth(value);
+        }
+        else if (value < 0)
+        {
+            targetEvents.LoseHealth(-value);
+        }
+    }
     // Motion
     public void DoubleClick()
     {
         if (canDefend) { Defend(); }
+        else if (needsUpkeep)
+        {
+            Upkeep();
+        }
+        else if (activatable)
+        {
+            ability?.Use(Ability.Mode.ACTIVATE, null);
+            GameEvents.current.Refresh();
+        }
     }
     public void FaceUp(bool flag, bool animate = false)
     {
@@ -580,6 +629,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             _cardBack.SetActive(!flag);
         }
         Refresh();
+    }
+
+    public void SwitchController()
+    {
+        _playerControlled = !_playerControlled;
     }
     public IEnumerator Flip(bool faceUp)
     {
@@ -951,5 +1005,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             return 0;
         }
+    }
+
+    public void Delete()
+    {
+        Destroy(this.gameObject);
     }
 }

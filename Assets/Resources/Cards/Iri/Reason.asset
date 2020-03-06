@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Reason
   id: REASON
-  level: 1
+  level: 3
   color: 5
   violetAffinity: 0
   redAffinity: 0
@@ -22,7 +22,7 @@ MonoBehaviour:
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
-  type: 2
+  type: 8
   keywords: 
   strength: 1
   perception: 1

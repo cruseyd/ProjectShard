@@ -18,4 +18,4 @@ MonoBehaviour:
   armor: {fileID: 0}
   cardPool:
     pool: []
-  decklist: {fileID: 11400000, guid: 1553ee566ea75f54191e3e58e11309de, type: 2}
+  decklist: {fileID: 11400000, guid: 8ba129db4456dee4dacf2142b4120d71, type: 2}

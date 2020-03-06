@@ -13,9 +13,12 @@ public class ActorEvents
     public event Action<Actor> onEndTurn;
     public event Action<Card> onDrawCard;
     public event Action<Card> onPlayCard;
+    public event Action<Card> onActivateCard;
 
     public void StartTurn() { onStartTurn?.Invoke(_source); }
     public void EndTurn() { onEndTurn?.Invoke(_source); }
     public void DrawCard(Card card) { onDrawCard?.Invoke(card); }
     public void PlayCard(Card card) { onPlayCard?.Invoke(card); }
+    public void ActivateCard(Card card) { onActivateCard?.Invoke(card); }
+    
 }

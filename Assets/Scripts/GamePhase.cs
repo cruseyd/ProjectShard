@@ -37,12 +37,14 @@ public abstract class GamePhase
 
 public class PlayerTurnPhase : GamePhase
 {
+    public List<Card> playedCards;
     public override void Enter()
     {
         Player.instance.StartTurn();
     }
     public override void Exit()
     {
+        Player.instance.EndTurn();
         GameEvents.current.EndTurn(Player.instance);
         Player.instance.actorEvents.EndTurn();
     }
@@ -73,7 +75,6 @@ public class EnemyTurnPhase : GamePhase
             _currentMove.Show();
             Dungeon.SetConfirmButtonText("Accept");
         }
-
     }
     public override void Exit()
     {

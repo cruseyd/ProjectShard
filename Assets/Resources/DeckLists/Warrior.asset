@@ -16,7 +16,7 @@ MonoBehaviour:
   - card: {fileID: 11400000, guid: 6d18d8408011cf140a16a30373439ec6, type: 2}
     quantity: 3
   - card: {fileID: 11400000, guid: b6848aadc5f4a324e8b71bca8da8aafc, type: 2}
-    quantity: 8
+    quantity: 5
   - card: {fileID: 11400000, guid: 631cbda8ae84c694bbb3cf26c46306e6, type: 2}
     quantity: 3
   - card: {fileID: 11400000, guid: 5945c31faf7c633468ea59ad2879b8d8, type: 2}
@@ -24,4 +24,6 @@ MonoBehaviour:
   - card: {fileID: 11400000, guid: 9548ac64be6876e468dd297eed2a60c9, type: 2}
     quantity: 3
   - card: {fileID: 11400000, guid: 13694c6836649504e85f36b414c0529d, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: 2f82ab6ae21cd6a46ae276036f3e599e, type: 2}
     quantity: 3

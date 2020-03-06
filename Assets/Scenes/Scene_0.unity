@@ -6792,6 +6792,9 @@ MonoBehaviour:
   _weapon: {fileID: 5640967435918511136}
   _armor: {fileID: 1948706794}
   _relic: {fileID: 1354430325}
+  handZone: 0
+  activeZone: 0
+  discardZone: 0
   particles: {fileID: 351928083}
   _enduranceDisplay: {fileID: 1176262992}
   _focusDisplay: {fileID: 1375944080}
@@ -9836,6 +9839,9 @@ MonoBehaviour:
   _weapon: {fileID: 1338237967}
   _armor: {fileID: 1977768927}
   _relic: {fileID: 0}
+  handZone: 0
+  activeZone: 0
+  discardZone: 0
   particles: {fileID: 995121944}
   _data: {fileID: 11400000, guid: 2c1f3d08dd691d940bf213bd9db37a4c, type: 2}
   _nameText: {fileID: 1515202006}
