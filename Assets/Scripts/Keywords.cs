@@ -44,11 +44,7 @@ public enum Keyword
     SHELL,
     PLANT,
     SPIRIT,
-    UNDEAD,
-    //===============
-    NIMBLE=800,
-
-
+    UNDEAD
 }
 
 public static class Keywords

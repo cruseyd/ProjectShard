@@ -59,6 +59,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [SerializeField] private ValueDisplay _strengthDisplay;
     [SerializeField] private ValueDisplay _powerDisplay;
     [SerializeField] private ValueDisplay _allegianceDisplay;
+    [SerializeField] private ValueDisplay _upkeepDisplay;
 
     public CardParticles particles;
 
@@ -117,6 +118,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Stat perception;
     public Stat power;
     public Stat allegiance;
+    public Stat upkeep;
 
     public int violetAffinity { get { return _data.violetAffinity; } }
     public int redAffinity    { get { return _data.redAffinity; } }
@@ -246,6 +248,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         get
         {
             if (playable && _ability.NumTargets(Ability.Mode.PLAY) > 0) { return true; }
+            else if (activatable && _ability.NumTargets(Ability.Mode.ACTIVATE) > 0) { return true; }
             else if (canAttack) { return true; }
             else { return false; }
         }
@@ -298,6 +301,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             card.power = new Stat(data.power);
             card.allegiance = new Stat(data.allegiance);
+            card.upkeep = new Stat(data.upkeep);
         }
 
         // TEXT
@@ -366,10 +370,18 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             card._allegianceDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
             card._powerDisplay.gameObject.SetActive(true);
             card._powerDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
+            card._upkeepDisplay.gameObject.SetActive(true);
+            card._upkeepDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
+
+            card._strengthDisplay.gameObject.SetActive(false);
+            card._finesseDisplay.gameObject.SetActive(false);
+            card._perceptionDisplay.gameObject.SetActive(false);
+
         } else
         {
             card._allegianceDisplay.gameObject.SetActive(false);
             card._powerDisplay.gameObject.SetActive(false);
+            card._upkeepDisplay.gameObject.SetActive(false);
         }
         StatusDisplay[] displays = card._statusDisplays.GetComponentsInChildren<StatusDisplay>();
         foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
@@ -441,14 +453,18 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
 
         _costDisplay.value = cost.value;
-        _finesseDisplay.value = finesse.value;
-        _perceptionDisplay.value = perception.value;
-        _strengthDisplay.value = strength.value;
+        
 
         if (type == Type.THRALL)
         {
             _powerDisplay.value = power.value;
             _allegianceDisplay.value = allegiance.value;
+            _upkeepDisplay.value = upkeep.value;
+        } else
+        {
+            _finesseDisplay.value = finesse.value;
+            _perceptionDisplay.value = perception.value;
+            _strengthDisplay.value = strength.value;
         }
 
         if (playable || canAttack || activatable)
@@ -605,14 +621,29 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void DoubleClick()
     {
         if (canDefend) { Defend(); }
+        else if (Targeter.active)
+        {
+            bool valid = Compare(Targeter.currentQuery, Targeter.source.controller);
+            if (valid)
+            {
+                Targeter.AddTarget(this);
+            }
+            Targeter.Clear();
+        }
         else if (needsUpkeep)
         {
             Upkeep();
         }
         else if (activatable)
         {
-            ability?.Use(Ability.Mode.ACTIVATE, null);
-            GameEvents.current.Refresh();
+            if (needsTarget)
+            {
+                Targeter.SetSource(this, Ability.Mode.ACTIVATE);
+            } else
+            {
+                ability?.Use(Ability.Mode.ACTIVATE, null);
+                GameEvents.current.Refresh();
+            }
         }
     }
     public void FaceUp(bool flag, bool animate = false)

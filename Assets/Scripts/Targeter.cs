@@ -31,11 +31,19 @@ public class Targeter : MonoBehaviour
         }
         else { Destroy(this.gameObject); }
     }
+    public void Update()
+    {
+        if (active)
+        {
+            ShowTarget(_source.transform.position, Input.mousePosition);
+        }
+    }
     public static void SetSource(ITargetable src, Ability.Mode mode)
     {
         active = true;
         _source = src;
         _abilityMode = mode;
+        current._targetBeam.gameObject.SetActive(true);
         src.FindTargets(_abilityMode, 0, true);
     }
     public static int AddTarget(ITargetable node)

@@ -34,6 +34,7 @@ public static class AbilityIndex
             case "CARNIVOROUS_PITFALL": return new A_CarnivorousPitfall(user);
             case "PITFALL_VINE": return new A_PitfallVine(user);
             case "BLOSSOMING_IVYPRONG": return new A_BlossomingIvyProng(user);
+            case "RAMPAGING_SWORDTUSK": return new A_RampagingSwordtusk(user);
 
             // blue cards
             case "CONTINUITY": return new A_Continuity(user);
@@ -119,6 +120,30 @@ public abstract class Ability
         }
         else { user.attackAvailable = false; }
     }
+
+    protected void Fight(Card target, bool undo = false, GameState state = null)
+    {
+        Debug.Assert(_user is Card);
+        Card user = (Card)_user;
+        //user.controller.targetEvents.DeclareAttack(user, target);
+        //user.targetEvents.DeclareAttack(user, target);
+
+        if (!user.inPlay || user.allegiance.value <= 0) { return; }
+
+        DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
+        DamageData targetDamage = null;
+        if (target is Card)
+        {
+            Card targetCard = (Card)target;
+            targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, user);
+        }
+
+        target.Damage(_userDamage);
+        user.Damage(targetDamage);
+        target.ResolveDamage(_userDamage);
+        user.ResolveDamage(targetDamage);
+    }
+
     public static void Infuse(Card target, bool undo = false, GameState state = null)
     {
         if (target == null) { return; }
@@ -692,6 +717,35 @@ public class A_BlossomingIvyProng : Ability
         _user.controller.IncrementHealth(1);
     }
 }
+
+public class A_RampagingSwordtusk : Ability
+{
+    public A_RampagingSwordtusk(ITargetable user) : base(user)
+    {
+        activateTargets = new List<TargetTemplate>();
+        TargetTemplate t = new TargetTemplate();
+        t.cardType = Card.Type.THRALL;
+        t.isOpposing = true;
+        t.inPlay = true;
+        activateTargets.Add(t);
+    }
+
+    public override string Text()
+    {
+        return "<b>Activate:</b> Rampaging Swordtusk fights target opposing thrall.";
+    }
+
+    public override bool ActivationAvailable()
+    {
+        return true;
+    }
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Activate(targets, undo, state);
+        Fight((Card)targets[0], undo, state);
+    }
+}
+
 // ============================================ BLUE CARDS ============================================
 
 public class A_Continuity : Ability
