@@ -35,6 +35,7 @@ public static class AbilityIndex
             case "PITFALL_VINE": return new A_PitfallVine(user);
             case "BLOSSOMING_IVYPRONG": return new A_BlossomingIvyProng(user);
             case "RAMPAGING_SWORDTUSK": return new A_RampagingSwordtusk(user);
+            case "KYRNANOS": return new A_KyrnanosLordOfTheWild(user);
 
             // blue cards
             case "CONTINUITY": return new A_Continuity(user);
@@ -345,7 +346,7 @@ public class A_Null : Ability
     public A_Null(ITargetable user) : base(user) { }
     public override string Text()
     {
-        return "EMPTY ABILITY";
+        return "";
     }
 }
 public class A_Elixir : Ability
@@ -746,6 +747,40 @@ public class A_RampagingSwordtusk : Ability
     }
 }
 
+public class A_KyrnanosLordOfTheWild : Ability
+{
+    public A_KyrnanosLordOfTheWild(ITargetable user) : base(user)
+    {
+        ((Card)_user).cardEvents.onEnterPlay += EnterPlayHandler;
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(targets, undo, state);
+    }
+
+    public override string Text()
+    {
+        if (_user.playerControlled)
+        {
+            return "While Kyrnanos Lord of the Wild is in play, beasts you control have -1 upkeep";
+        }
+        else
+        {
+            return "";
+        }
+    }
+
+    public void EnterPlayHandler(Card self)
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.inPlay = true;
+        t.isSelf = true;
+        t.keyword = Keyword.BEAST;
+        t.cardType = Card.Type.THRALL;
+        TemplateModifier mod = new TemplateModifier(-1, Stat.Name.UPKEEP, t, (Card)_user);
+        Dungeon.AddModifier(mod);
+    }
+}
 // ============================================ BLUE CARDS ============================================
 
 public class A_Continuity : Ability

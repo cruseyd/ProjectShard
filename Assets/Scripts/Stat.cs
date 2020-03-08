@@ -54,7 +54,8 @@ public class Stat
         FINESSE,
         PERCEPTION,
         POWER,
-        ALLEGIANCE
+        ALLEGIANCE,
+        UPKEEP
     }
     private float _baseValue;
     private readonly List<StatModifier> _modifiers;
@@ -89,7 +90,6 @@ public class Stat
         if (_modifiers.Contains(mod)) { return false; }
         else
         {
-            Debug.Log("Adding modifier");
             _modifiers.Add(mod);
             return true;
         }
@@ -98,7 +98,6 @@ public class Stat
     {
         if (_modifiers.Contains(mod))
         {
-            Debug.Log("Removing modifier");
             _modifiers.Remove(mod);
             return true;
         }

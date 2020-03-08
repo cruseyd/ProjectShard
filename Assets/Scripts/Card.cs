@@ -505,6 +505,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             case Stat.Name.STRENGTH: return strength.AddModifier(mod);
             case Stat.Name.PERCEPTION: return perception.AddModifier(mod);
             case Stat.Name.FINESSE: return finesse.AddModifier(mod);
+            case Stat.Name.UPKEEP: return upkeep.AddModifier(mod);
             default: return false;
         }
     }
@@ -519,6 +520,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             case Stat.Name.STRENGTH: return strength.RemoveModifier(mod);
             case Stat.Name.PERCEPTION: return perception.RemoveModifier(mod);
             case Stat.Name.FINESSE: return finesse.RemoveModifier(mod);
+            case Stat.Name.UPKEEP: return upkeep.RemoveModifier(mod);
             default: return false;
         }
     }

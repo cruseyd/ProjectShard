@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: BlossomingIvyprong
+  m_Name: LoyalPackWolf
   m_EditorClassIdentifier: 
-  name: Blossoming Ivyprong
-  id: BLOSSOMING_IVYPRONG
-  level: 2
+  name: Loyal Pack Wolf
+  id: LOYAL_PACK_WOLF
+  level: 1
   color: 4
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
-  greenAffinity: 1
+  greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
   type: 6
-  keywords: bf020000bc020000
+  keywords: bc020000
   strength: 0
   perception: 0
   finesse: 0
   power: 1
-  allegiance: 1
-  upkeep: 1
+  allegiance: 2
+  upkeep: 0
   damageType: 102
