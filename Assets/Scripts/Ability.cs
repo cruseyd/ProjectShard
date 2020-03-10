@@ -46,9 +46,12 @@ public static class AbilityIndex
             case "RIME_SPRITE": return new A_RimeSprite(user);
 
             // multicolor cards
+            case "RIDE_THE_LIGHTNING": return new A_RideTheLightning(user);
+            case "CHAIN_LIGHTNING": return new A_ChainLightning(user);
             case "STATIC": return new A_Static(user);
             case "REND": return new A_Rend(user);
             case "FERAL_WARCAT": return new A_FeralWarcat(user);
+            case "CRYOFALL": return new A_Cryofall(user);
             // null ability
             default: return new A_Null(user);
         }
@@ -66,8 +69,30 @@ public abstract class Ability
         INFUSE
     }
     
-    public List<TargetTemplate> activateTargets;
-    public List<TargetTemplate> playTargets;
+    private List<TargetTemplate> _activateTargets;
+    private List<TargetTemplate> _playTargets;
+    public List<TargetTemplate> activateTargets
+    {
+        get
+        {
+            if (_activateTargets == null)
+            {
+                _activateTargets = new List<TargetTemplate>();
+            }
+            return _activateTargets;
+        }
+    }
+    public List<TargetTemplate> playTargets
+    {
+        get
+        {
+            if (_playTargets == null)
+            {
+                _playTargets = new List<TargetTemplate>();
+            }
+            return _playTargets;
+        }
+    }
     protected ITargetable _user;
 
     public Ability(ITargetable user) { _user = user; }
@@ -76,6 +101,7 @@ public abstract class Ability
     {
         Debug.Assert(_user is Card);
         ((Card)_user).activationAvailable = false;
+        ((Card)_user).attackAvailable = false;
     }
     protected virtual void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -99,7 +125,7 @@ public abstract class Ability
         user.controller.targetEvents.DeclareAttack(user, target);
         user.targetEvents.DeclareAttack(user, target);
 
-        if (!user.inPlay || user.allegiance.value <= 0) { return; }
+        if (!user.inPlay || user.health.value <= 0) { return; }
 
         DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
         DamageData targetDamage = null;
@@ -129,7 +155,7 @@ public abstract class Ability
         //user.controller.targetEvents.DeclareAttack(user, target);
         //user.targetEvents.DeclareAttack(user, target);
 
-        if (!user.inPlay || user.allegiance.value <= 0) { return; }
+        if (!user.inPlay || user.health.value <= 0) { return; }
 
         DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
         DamageData targetDamage = null;
@@ -152,7 +178,7 @@ public abstract class Ability
         if (target.type == Card.Type.THRALL && Player.instance.focus.value > 0)
         {
             Player.instance.focus.baseValue -= 1;
-            target.allegiance.baseValue += 1;
+            target.health.baseValue += 1;
         }
     }
 
@@ -273,36 +299,24 @@ public abstract class Ability
             data.target.ResolveDamage(data);
         }
     }
-    public void TargetAnyOpposing()
+    public TargetTemplate TargetAnyOpposing(ITargetable ignore = null)
     {
-        if (playTargets == null)
-        {
-            playTargets = new List<TargetTemplate>();
-        }
         TargetTemplate t = new TargetTemplate();
         t.isDamageable = true;
         t.isOpposing = true;
         t.inPlay = true;
-        playTargets.Add(t);
-    }
-    public void TargetOpposingThrall()
-    {
-        if (playTargets == null)
+        if (ignore != null)
         {
-            playTargets = new List<TargetTemplate>();
+            t.isNot = ignore;
         }
+        return t;
+    }
+    public TargetTemplate TargetOpposingThrall()
+    {
         TargetTemplate t = new TargetTemplate();
         t.isOpposing = true;
         t.inPlay = true;
         t.cardType = Card.Type.THRALL;
-        playTargets.Add(t);
-    }
-    public static TargetTemplate RandomOpposingTarget()
-    {
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
         return t;
     }
     public static List<ITargetable> ValidTargets(Card _user, TargetTemplate template)
@@ -322,22 +336,6 @@ public abstract class Ability
     {
         List < ITargetable > valid = ValidTargets(_user, template);
         return valid[Random.Range(0, valid.Count)];
-    }
-
-    public static ITargetable RandomOtherTarget(Card _user, ITargetable ignore, TargetTemplate template)
-    {
-        List<ITargetable> valid = ValidTargets(_user, template);
-        if (valid.Count > 1)
-        {
-            ITargetable target = null;
-            while (target == null)
-            {
-                ITargetable temp = valid[Random.Range(0, valid.Count)];
-                if (temp != ignore) { target = temp; }
-            }
-            return target;
-        }
-        return null;
     }
 }
 
@@ -424,12 +422,7 @@ public class A_Cinder : Ability
 {
     public A_Cinder(ITargetable user) : base(user)
     {
-        playTargets = new List<TargetTemplate>();
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
-        playTargets.Add(t);
+        playTargets.Add(TargetAnyOpposing());
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -525,7 +518,7 @@ public class A_Slash : Ability
 {
     public A_Slash(ITargetable user) : base(user)
     {
-        TargetAnyOpposing();
+        playTargets.Add(TargetAnyOpposing());
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -556,7 +549,7 @@ public class A_WildSwing : Ability
 {
     public A_WildSwing(ITargetable user) : base(user)
     {
-        TargetAnyOpposing();
+        playTargets.Add(TargetAnyOpposing());
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -565,7 +558,7 @@ public class A_WildSwing : Ability
         base.Play(targets, undo, state);
         int damage = 2;
         ITargetable t1 = (ITargetable)targets[0];
-        ITargetable t2 = (ITargetable)RandomOtherTarget(user, targets[0], playTargets[0]);
+        ITargetable t2 = RandomValidTarget(user, TargetAnyOpposing(t1));
         
         DamageData d1 = new DamageData(damage, Keyword.SLASHING, _user, t1);
         Ability.Damage(d1, undo, state);
@@ -624,6 +617,29 @@ public class A_Sharpen : Ability
         Debug.Log("Unregistering for Sharpen's events");
         actor.targetEvents.onDealRawDamage -= RawDamageHandler;
         actor.actorEvents.onEndTurn -= EndTurnHandler;
+    }
+}
+
+public class A_Spinetail : Ability
+{
+    public A_Spinetail(ITargetable user) : base(user)
+    {
+        activateTargets.Add(TargetOpposingThrall());
+    }
+    public override string Text()
+    {
+        return "<b>Activate: </b> Impale target opposing thrall.";
+    }
+
+    public override bool ActivationAvailable()
+    {
+        return true;
+    }
+
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Activate(targets, undo, state);
+        targets[0].AddStatus(StatusName.IMPALE, 1);
     }
 }
 // ============================================ GREEN CARDS ===========================================
@@ -723,12 +739,7 @@ public class A_RampagingSwordtusk : Ability
 {
     public A_RampagingSwordtusk(ITargetable user) : base(user)
     {
-        activateTargets = new List<TargetTemplate>();
-        TargetTemplate t = new TargetTemplate();
-        t.cardType = Card.Type.THRALL;
-        t.isOpposing = true;
-        t.inPlay = true;
-        activateTargets.Add(t);
+        activateTargets.Add(TargetOpposingThrall());
     }
 
     public override string Text()
@@ -839,12 +850,7 @@ public class A_Chill : Ability
 {
     public A_Chill(ITargetable user) : base(user)
     {
-        playTargets = new List<TargetTemplate>();
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
-        playTargets.Add(t);
+        playTargets.Add(TargetAnyOpposing());
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
@@ -887,33 +893,33 @@ public class A_DriftingVoidling : Ability
 }
 public class A_IceElemental : Ability
 {
-    public A_IceElemental(ITargetable user) : base(user) { }
+    TargetTemplate _template;
+    public A_IceElemental(ITargetable user) : base(user)
+    {
+        user.controller.actorEvents.onPlayCard += PlayCardHandler;
+        TargetTemplate t = new TargetTemplate();
+        t.isSelf = true;
+        t.keyword = Keyword.ICE;
+        t.cardType = Card.Type.SPELL;
+        _template = t;
+    }
+    public override string Text()
+    {
+        return "When you play an Ice Spell, Ice Elemental gains 1 health.";
+    }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        if (_user.playerControlled)
-        {
-            TargetTemplate t = new TargetTemplate();
-            t.inHand = true;
-            t.isSelf = true;
-            t.keyword = Keyword.ICE;
-            t.cardType = Card.Type.SPELL;
-            TemplateModifier mod = new TemplateModifier(-1, Stat.Name.COST, t, (Card)_user);
-            Dungeon.AddModifier(mod);
-        }
     }
 
-    public override string Text()
+    public void PlayCardHandler(Card card)
     {
-        if (_user.playerControlled)
+        if (_user.inPlay && card.Compare(_template, _user.controller))
         {
-            return "While Ice Elemental is in play, ice Spells have Cost - 1";
-        } else
-        {
-            return "";
+            _user.IncrementHealth(1);
         }
-        
     }
+    
 }
 
 public class A_FrostLattice : Ability
@@ -922,10 +928,7 @@ public class A_FrostLattice : Ability
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
+        TargetTemplate t = TargetAnyOpposing();
         List < ITargetable > validTargets = new List<ITargetable>();
         validTargets.Add(_user.opponent);
         foreach (Card card in _user.opponent.active)
@@ -971,17 +974,117 @@ public class A_RimeSprite : Ability
         data.source.controller.Discard(((Card)data.source));
     }
 }
+
+public class A_Cryofall : Ability
+{
+    private TargetTemplate _template;
+    public A_Cryofall(ITargetable user) : base(user)
+    {
+        user.controller.actorEvents.onPlayCard += PlayCardHandler;
+        TargetTemplate t = new TargetTemplate();
+        t.isSelf = true;
+        t.keyword = Keyword.ICE;
+        t.cardType = Card.Type.SPELL;
+        _template = t;
+    }
+
+    public override string Text()
+    {
+        return "When you play an Ice Spell, a random opposing target is Impaled.";
+    }
+    private void PlayCardHandler(Card card)
+    {
+        if (_user.inPlay && card.Compare(_template, _user.controller))
+        {
+            ITargetable target = RandomValidTarget((Card)_user, TargetAnyOpposing());
+            target.AddStatus(StatusName.IMPALE, 1);
+        }
+    }
+}
 // ============================================ MULTICOLOR CARDS ============================================
+
+public class A_RideTheLightning : Ability
+{
+    private TargetTemplate _template;
+    public A_RideTheLightning(ITargetable user) : base(user)
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.isSelf = true;
+        t.cardType = Card.Type.SPELL;
+        _template = t;
+    }
+
+    public override string Text()
+    {
+        return "When you play a Spell this turn, draw a card, gain 1 focus, and take 1 damage.";
+    }
+
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(targets, undo, state);
+        _user.controller.actorEvents.onPlayCard += PlayCardHandler;
+        _user.controller.actorEvents.onEndTurn += EndTurnHandler;
+    }
+
+    private void PlayCardHandler(Card card)
+    {
+        if (card.Compare(_template, _user.controller))
+        {
+            _user.controller.Draw();
+            if (_user.controller is Player)
+            {
+                ((Player)_user.controller).focus.baseValue += 1;
+            }
+            Damage(new DamageData(1, Keyword.LIGHTNING, _user, _user.controller), false, null);
+        }
+    }
+
+    private void EndTurnHandler(Actor actor)
+    {
+        _user.controller.actorEvents.onPlayCard -= PlayCardHandler;
+        _user.controller.actorEvents.onEndTurn -= EndTurnHandler;
+    }
+}
+
+public class A_ChainLightning : Ability
+{
+    public A_ChainLightning(ITargetable user) : base(user)
+    {
+        playTargets.Add(TargetAnyOpposing());
+    }
+
+    public override string Text()
+    {
+        return "Chain Lightning deals 3 Lightning damage to any opposing target," +
+            " 2 damage to a another random opposing target," +
+            " and 1 damage to another random opposing target";
+    }
+
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(targets, undo, state);
+        Damage(new DamageData(3, Keyword.LIGHTNING, _user, targets[0]), undo, state);
+        TargetTemplate t = TargetAnyOpposing(targets[0]);
+        List<ITargetable> valid = ValidTargets((Card)_user, t);
+        if (valid.Count == 0) { Debug.Log("Nothing to chain to."); return; }
+        else
+        {
+            ITargetable t2 = RandomValidTarget((Card)_user, t);
+            ITargetable t3 = RandomValidTarget((Card)_user, TargetAnyOpposing(t2));
+            Damage(new DamageData(2, Keyword.LIGHTNING, _user, t2), undo, state);
+            Damage(new DamageData(1, Keyword.LIGHTNING, _user, t3), undo, state);
+        }
+        
+    }
+}
+
 public class A_Static : Ability
 {
     public A_Static(ITargetable user) : base(user) { }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        TargetTemplate t = new TargetTemplate();
-        t.isDamageable = true;
-        t.isOpposing = true;
-        t.inPlay = true;
+        TargetTemplate t = TargetAnyOpposing();
         List<ITargetable> validTargets = new List<ITargetable>();
         validTargets.Add(_user.opponent);
         foreach (Card card in _user.opponent.active)

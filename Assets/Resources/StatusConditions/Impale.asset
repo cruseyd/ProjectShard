@@ -10,11 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
-  m_Name: Stun
+  m_Name: Impale
   m_EditorClassIdentifier: 
-  id: 3
+  id: 7
   stackable: 0
-  tooltipHeader: Stun
-  tooltipContent: 'This card cannot attack or use abilities next turn. '
-  iconColor: {r: 0, g: 0.57601166, b: 1, a: 1}
-  backgroundColor: {r: 0.6839622, g: 0.9110265, b: 1, a: 1}
+  tooltipHeader: 
+  tooltipContent: "Takes +1 damage from Lightning.\nThis card cannot attack or use
+    abilities next turn. \n\n"
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  backgroundColor: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}

@@ -10,24 +10,24 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: Kyrnanos
+  m_Name: RideTheLightning
   m_EditorClassIdentifier: 
-  name: 'Kyrnanos: Lord of the Wild'
-  id: KYRNANOS
-  level: 5
-  color: 4
+  name: Ride the Lightning
+  id: RIDE_THE_LIGHTNING
+  level: 2
+  color: 2
   violetAffinity: 0
-  redAffinity: 0
+  redAffinity: 2
   goldAffinity: 0
-  greenAffinity: 6
-  blueAffinity: 0
+  greenAffinity: 0
+  blueAffinity: 1
   indigoAffinity: 0
-  type: 6
-  keywords: bc02000058020000
-  strength: 0
-  perception: 0
-  finesse: 0
-  power: 4
-  health: 4
-  upkeep: 4
+  type: 2
+  keywords: c800000032010000
+  strength: 1
+  perception: 2
+  finesse: 3
+  power: 0
+  health: 0
+  upkeep: 0
   damageType: 0

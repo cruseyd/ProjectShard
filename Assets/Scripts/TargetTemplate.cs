@@ -34,6 +34,7 @@ public class TargetTemplate
     public bool inPlay;
     public bool isSelf;
     public bool isAttackable;
+    public ITargetable isNot;
     public Keyword keyword;
     public Actor actor;
     public Actor owner;
@@ -56,6 +57,7 @@ public class TargetTemplate
         cardType = Card.Type.DEFAULT;
         cardColor = Card.Color.DEFAULT;
         templateParams = new List<TemplateParam>();
+        isNot = null;
     }
 
     public void AddParam(Param p, Op op, int val)

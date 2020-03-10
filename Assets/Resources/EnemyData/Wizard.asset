@@ -9,10 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cd7159eeb9b096f4fa6230607e63e354, type: 3}
-  m_Name: PlayerData
+  m_Script: {fileID: 11500000, guid: 3d0505e19a7b8e4428aa6b16e5f27fc6, type: 3}
+  m_Name: Wizard
   m_EditorClassIdentifier: 
-  decklist: {fileID: 11400000, guid: 7e18640e236b35549ba247a8f530c8ab, type: 2}
-  weapon: {fileID: 11400000, guid: 5caaa8de44f25fb4eada349ed63ff63e, type: 2}
+  name: Wizard
+  maxHealth: 20
+  weapon: {fileID: 0}
   armor: {fileID: 0}
-  relic: {fileID: 0}
+  cardPool:
+    pool: []
+  decklist: {fileID: 11400000, guid: b22b29e8172fe4144888db79397e1d14, type: 2}

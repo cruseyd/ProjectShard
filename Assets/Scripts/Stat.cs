@@ -54,7 +54,6 @@ public class Stat
         FINESSE,
         PERCEPTION,
         POWER,
-        ALLEGIANCE,
         UPKEEP
     }
     private float _baseValue;

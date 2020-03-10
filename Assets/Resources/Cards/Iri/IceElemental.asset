@@ -28,6 +28,6 @@ MonoBehaviour:
   perception: 0
   finesse: 0
   power: 1
-  allegiance: 5
+  health: 4
   upkeep: 0
   damageType: 307

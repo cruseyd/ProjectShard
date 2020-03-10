@@ -799,12 +799,13 @@ MonoBehaviour:
   _finesseDisplay: {fileID: 6790236187406323324}
   _strengthDisplay: {fileID: 6790236187805515140}
   _powerDisplay: {fileID: 1281056342340217568}
-  _allegianceDisplay: {fileID: 6769184182786807662}
+  _healthDisplay: {fileID: 6769184182786807662}
   _upkeepDisplay: {fileID: 2389259614246542920}
   particles: {fileID: 4542801754545349877}
   _needsUpkeep: 0
   activationAvailable: 0
   attackAvailable: 0
+  blockAvailable: 0
   _playerControlled: 0
   zoneIndex: 0
   zone: 0

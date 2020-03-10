@@ -6,22 +6,22 @@ public class CardState
 {
     public Card source;
     public int power;
-    public int allegiance;
+    public int health;
     public bool active = true;
 
     public CardState(Card card)
     {
         source = card;
         power = card.power.value;
-        allegiance = card.allegiance.value;
+        health = card.health.value;
         active = true;
     }
     public void Damage(int damage)
     {
         if (source.type == Card.Type.THRALL && active)
         {
-            allegiance -= damage;
-            if (allegiance <= 0) { active = false; }
+            health -= damage;
+            if (health <= 0) { active = false; }
             else { active = true; }
         }
     }

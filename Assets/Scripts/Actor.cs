@@ -257,6 +257,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     {
         bool flag = true;
         // automatic disqualifiers
+        if ((Object)query.isNot == this) { return false; }
         if (query.cardColor != Card.Color.DEFAULT) { return false; }
         if (query.cardType != Card.Type.DEFAULT) { return false; }
         if (query.templateParams.Count > 0) { return false; }
@@ -274,7 +275,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
         {
             foreach (Card card in active)
             {
-                if (card.type == Card.Type.THRALL) { return false; }
+                if (card.type == Card.Type.THRALL && card.canBlock) { return false; }
             }
         }
         return flag;

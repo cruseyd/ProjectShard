@@ -10,7 +10,8 @@ public enum StatusName
     STUN,
     ELDER_KNOWLEDGE,
     CHILL,
-    DAZE
+    DAZE,
+    IMPALE
 }
 
 [CreateAssetMenu(fileName = "NewStatusData", menuName = "StatusData")]

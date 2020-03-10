@@ -37,7 +37,13 @@ public class StatusEffect
             case StatusName.BURN:
                 target.controller.actorEvents.onStartTurn += Burn; break;
             case StatusName.STUN:
+                if (target is Card) { ((Card)target).blockAvailable = false; }
                 target.controller.actorEvents.onStartTurn += Stun; break;
+            case StatusName.IMPALE:
+                if (target is Card) { ((Card)target).blockAvailable = false; }
+                target.controller.actorEvents.onStartTurn += Stun;
+                target.targetEvents.onTakeRawDamage += Impale;
+                break;
             case StatusName.ELDER_KNOWLEDGE:
                 target.controller.actorEvents.onDrawCard += ElderKnowledge; break;
             case StatusName.CHILL:
@@ -60,6 +66,11 @@ public class StatusEffect
                 target.controller.actorEvents.onStartTurn -= Burn; break;
             case StatusName.STUN:
                 target.controller.actorEvents.onStartTurn -= Stun; break;
+            case StatusName.IMPALE:
+                if (target is Card) { ((Card)target).blockAvailable = false; }
+                target.controller.actorEvents.onStartTurn -= Stun;
+                target.targetEvents.onTakeRawDamage -= Impale;
+                break;
             case StatusName.ELDER_KNOWLEDGE:
                 target.controller.actorEvents.onDrawCard -= ElderKnowledge; break;
             case StatusName.CHILL:
@@ -124,6 +135,15 @@ public class StatusEffect
         if (status == null || status.data.id != StatusName.DAZE) { return; }
         target.AddStatus(StatusName.STUN, 1);
         target.RemoveStatus(StatusName.DAZE, stacks);
+    }
+
+    private void Impale(DamageData data)
+    {
+        Debug.Assert(data.target == target);
+        if (data.type == Keyword.LIGHTNING)
+        {
+            data.damage += 1;
+        }
     }
 }
 

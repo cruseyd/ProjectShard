@@ -58,7 +58,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [SerializeField] private ValueDisplay _finesseDisplay;
     [SerializeField] private ValueDisplay _strengthDisplay;
     [SerializeField] private ValueDisplay _powerDisplay;
-    [SerializeField] private ValueDisplay _allegianceDisplay;
+    [SerializeField] private ValueDisplay _healthDisplay;
     [SerializeField] private ValueDisplay _upkeepDisplay;
 
     public CardParticles particles;
@@ -77,6 +77,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public bool _needsUpkeep;
     public bool activationAvailable;
     public bool attackAvailable;
+    public bool blockAvailable;
     [SerializeField] private bool _playerControlled;
     public bool playerControlled { get { return _playerControlled; } }
     public int zoneIndex;
@@ -117,7 +118,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Stat finesse;
     public Stat perception;
     public Stat power;
-    public Stat allegiance;
+    public Stat health;
     public Stat upkeep;
 
     public int violetAffinity { get { return _data.violetAffinity; } }
@@ -236,6 +237,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             return flag;
         }
     }
+    public bool canBlock
+    {
+        get
+        {
+            bool flag = true;
+            flag &= inPlay;
+            flag &= (type == Card.Type.THRALL);
+            flag &= blockAvailable;
+            return flag;
+        }
+    }
     public bool counterable
     {
         get
@@ -272,6 +284,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             return flag;
         }
     }
+
     public static Card Spawn(CardData data, bool isPlayerCard, Vector3 spawnPoint)
     {
         if (Card._cardPrefab == null)
@@ -291,6 +304,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card.attackAvailable = false;
         card.activationAvailable = true;
         card._needsUpkeep = false;
+        card.blockAvailable = true;
 
         // STAT BASE VALUES
         card.cost = new Stat(data.level);
@@ -300,7 +314,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (data.type == Type.THRALL)
         {
             card.power = new Stat(data.power);
-            card.allegiance = new Stat(data.allegiance);
+            card.health = new Stat(data.health);
             card.upkeep = new Stat(data.upkeep);
         }
 
@@ -311,7 +325,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             card._keywordText.text += (Keywords.Parse(word) + " ");
         }
-        card._keywordText.text += Keywords.Parse(data.type);
+        if (data.type != Card.Type.THRALL)
+        {
+            card._keywordText.text += Keywords.Parse(data.type);
+        }
 
         // DISPLAYS AND VISUALS
         card._strengthDisplay.valueName = Icons.strength;
@@ -366,8 +383,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         if (card.data.type == Type.THRALL)
         {
-            card._allegianceDisplay.gameObject.SetActive(true);
-            card._allegianceDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
+            card._healthDisplay.gameObject.SetActive(true);
+            card._healthDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
             card._powerDisplay.gameObject.SetActive(true);
             card._powerDisplay.GetComponent<Image>().color = Dungeon.gameParams.GetColor(data.color);
             card._upkeepDisplay.gameObject.SetActive(true);
@@ -379,7 +396,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         } else
         {
-            card._allegianceDisplay.gameObject.SetActive(false);
+            card._healthDisplay.gameObject.SetActive(false);
             card._powerDisplay.gameObject.SetActive(false);
             card._upkeepDisplay.gameObject.SetActive(false);
         }
@@ -436,6 +453,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         // input is due to event requirement
         if (inPlay)
         {
+            blockAvailable = true;
             _needsUpkeep = true;
             activationAvailable = true;
             attackAvailable = true;
@@ -458,7 +476,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (type == Type.THRALL)
         {
             _powerDisplay.value = power.value;
-            _allegianceDisplay.value = allegiance.value;
+            _healthDisplay.value = health.value;
             _upkeepDisplay.value = upkeep.value;
         } else
         {
@@ -501,7 +519,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             case Stat.Name.COST: return cost.AddModifier(mod);
             case Stat.Name.POWER: return power.AddModifier(mod);
-            case Stat.Name.ALLEGIANCE: return allegiance.AddModifier(mod);
+            case Stat.Name.HEALTH: return health.AddModifier(mod);
             case Stat.Name.STRENGTH: return strength.AddModifier(mod);
             case Stat.Name.PERCEPTION: return perception.AddModifier(mod);
             case Stat.Name.FINESSE: return finesse.AddModifier(mod);
@@ -516,7 +534,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             case Stat.Name.COST: return cost.RemoveModifier(mod);
             case Stat.Name.POWER: return power.RemoveModifier(mod);
-            case Stat.Name.ALLEGIANCE: return allegiance.RemoveModifier(mod);
+            case Stat.Name.HEALTH: return health.RemoveModifier(mod);
             case Stat.Name.STRENGTH: return strength.RemoveModifier(mod);
             case Stat.Name.PERCEPTION: return perception.RemoveModifier(mod);
             case Stat.Name.FINESSE: return finesse.RemoveModifier(mod);
@@ -583,7 +601,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
-        allegiance.baseValue -= data.damage;
+        health.baseValue -= data.damage;
         targetEvents.TakeDamage(data);
 
         if (data.damage > 0)
@@ -602,19 +620,20 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public virtual void ResolveDamage(DamageData data)
     {
-        if (type == Card.Type.THRALL && allegiance.value <= 0 && inPlay)
+        if (type == Card.Type.THRALL && health.value <= 0 && inPlay)
         {
             controller.Discard(this);
         }
     }
     public virtual void IncrementHealth(int value)
     {
-        allegiance.baseValue += value;
-        if (value > 0)
+        int prev = health.value;
+        health.baseValue = Mathf.Clamp(health.baseValue + value, 0, data.health);
+        if (health.value > prev)
         {
             targetEvents.GainHealth(value);
         }
-        else if (value < 0)
+        else if (health.value < prev)
         {
             targetEvents.LoseHealth(-value);
         }
@@ -930,6 +949,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public bool Compare(TargetTemplate query, Actor self)
     {
         bool flag = true;
+        if ((Object)query.isNot == this) { return false; }
         if (query.isActor) { return false; }
         if (query.inHand) { flag &= (zone == CardZone.DUNGEON_HAND || zone == CardZone.PLAYER_HAND); }
         if (query.inPlay) { flag &= (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE); }
@@ -957,7 +977,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 case TargetTemplate.Param.POWER:
                     flag &= TargetTemplate.EvalOp(_param.op, power.value, _param.value); break;
                 case TargetTemplate.Param.ALLEGIANCE:
-                    flag &= TargetTemplate.EvalOp(_param.op, allegiance.value, _param.value); break;
+                    flag &= TargetTemplate.EvalOp(_param.op, health.value, _param.value); break;
             }
         }
         return flag;
