@@ -229,7 +229,6 @@ public abstract class Actor : MonoBehaviour, ITargetable
 
     }
     // ITargetable Interface
-    public Actor Controller() { return this; }
     public void AddTarget(ITargetable target)
     {
         _validTargets.Add(target);
@@ -257,7 +256,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     {
         bool flag = true;
         // automatic disqualifiers
-        if ((Object)query.isNot == this) { return false; }
+        if (query.isNot != null && query.isNot.gameObject.GetInstanceID() == this.gameObject.GetInstanceID()) { return false; }
         if (query.cardColor != Card.Color.DEFAULT) { return false; }
         if (query.cardType != Card.Type.DEFAULT) { return false; }
         if (query.templateParams.Count > 0) { return false; }

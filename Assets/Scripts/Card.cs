@@ -949,7 +949,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public bool Compare(TargetTemplate query, Actor self)
     {
         bool flag = true;
-        if ((Object)query.isNot == this) { return false; }
+        if (query.isNot != null && query.isNot.gameObject.GetInstanceID() == this.gameObject.GetInstanceID()) { return false; }
         if (query.isActor) { return false; }
         if (query.inHand) { flag &= (zone == CardZone.DUNGEON_HAND || zone == CardZone.PLAYER_HAND); }
         if (query.inPlay) { flag &= (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE); }

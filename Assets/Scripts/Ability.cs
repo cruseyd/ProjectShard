@@ -26,7 +26,6 @@ public static class AbilityIndex
             case "SLASH": return new A_Slash(user);
             case "SHARPEN": return new A_Sharpen(user);
             case "WILD_SWING": return new A_WildSwing(user);
-            case "FLASHBLADE_SKIRMISHER": return new A_FlashbladeSkirmisher(user);
             case "INFERNO_DJINN": return new A_InfernoDjinn(user);
 
             // green cards
@@ -68,9 +67,10 @@ public abstract class Ability
         ATTACK,
         INFUSE
     }
-    
-    private List<TargetTemplate> _activateTargets;
-    private List<TargetTemplate> _playTargets;
+
+    protected ITargetable _user;
+    protected List<TargetTemplate> _activateTargets;
+    protected List<TargetTemplate> _playTargets;
     public List<TargetTemplate> activateTargets
     {
         get
@@ -93,8 +93,6 @@ public abstract class Ability
             return _playTargets;
         }
     }
-    protected ITargetable _user;
-
     public Ability(ITargetable user) { _user = user; }
     public virtual bool ActivationAvailable() { return false; }
     protected virtual void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
@@ -572,14 +570,6 @@ public class A_WildSwing : Ability
     public override string Text()
     {
         return "Wild Swing inflicts 2 Slashing damage to any target and to another random opposing target.";
-    }
-}
-public class A_FlashbladeSkirmisher : Ability
-{
-    public A_FlashbladeSkirmisher(ITargetable user) : base(user) { }
-    public override string Text()
-    {
-        return "<i>Flavor text</i>";
     }
 }
 public class A_InfernoDjinn : Ability
@@ -1066,6 +1056,10 @@ public class A_ChainLightning : Ability
         Damage(new DamageData(3, Keyword.LIGHTNING, _user, targets[0]), undo, state);
         TargetTemplate t = TargetAnyOpposing(targets[0]);
         List<ITargetable> valid = ValidTargets((Card)_user, t);
+        foreach (ITargetable option in valid)
+        {
+            Debug.Log("Valid Chain Target: " + option.name);
+        }
         if (valid.Count == 0) { Debug.Log("Nothing to chain to."); return; }
         else
         {
