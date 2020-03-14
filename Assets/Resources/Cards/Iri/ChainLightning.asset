@@ -17,10 +17,10 @@ MonoBehaviour:
   level: 2
   color: 5
   violetAffinity: 0
-  redAffinity: 2
+  redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 2
+  blueAffinity: 0
   indigoAffinity: 0
   type: 1
   keywords: 32010000

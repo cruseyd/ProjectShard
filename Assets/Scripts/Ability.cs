@@ -297,16 +297,22 @@ public abstract class Ability
             data.target.ResolveDamage(data);
         }
     }
+
+    public void BloodLust(Card playedCard)
+    {
+        Debug.Assert(((Card)_user).type == Card.Type.THRALL);
+        if (playedCard.type == Card.Type.ABILITY)
+        {
+            ((Card)_user).power.baseValue += 1;
+        }
+    }
     public TargetTemplate TargetAnyOpposing(ITargetable ignore = null)
     {
         TargetTemplate t = new TargetTemplate();
         t.isDamageable = true;
         t.isOpposing = true;
         t.inPlay = true;
-        if (ignore != null)
-        {
-            t.isNot = ignore;
-        }
+        t.isNot = ignore;
         return t;
     }
     public TargetTemplate TargetOpposingThrall()
@@ -317,10 +323,11 @@ public abstract class Ability
         t.cardType = Card.Type.THRALL;
         return t;
     }
-    public static List<ITargetable> ValidTargets(Card _user, TargetTemplate template)
+    public static List<ITargetable> ValidOpposingTargets(Card _user, TargetTemplate template)
     {
         List<ITargetable> validTargets = new List<ITargetable>();
-        validTargets.Add(_user.opponent);
+        
+        if (_user.opponent.Compare(template, _user.controller)) { validTargets.Add(_user.opponent); }
         foreach (Card card in _user.opponent.active)
         {
             if (card.Compare(template, _user.controller))
@@ -330,9 +337,10 @@ public abstract class Ability
         }
         return validTargets;
     }
-    public static ITargetable RandomValidTarget(Card _user, TargetTemplate template)
+    public static ITargetable RandomOpposing(Card _user, TargetTemplate template)
     {
-        List < ITargetable > valid = ValidTargets(_user, template);
+        List < ITargetable > valid = ValidOpposingTargets(_user, template);
+        if (valid.Count == 0) { return null; }
         return valid[Random.Range(0, valid.Count)];
     }
 }
@@ -556,7 +564,7 @@ public class A_WildSwing : Ability
         base.Play(targets, undo, state);
         int damage = 2;
         ITargetable t1 = (ITargetable)targets[0];
-        ITargetable t2 = RandomValidTarget(user, TargetAnyOpposing(t1));
+        ITargetable t2 = RandomOpposing(user, TargetAnyOpposing(t1));
         
         DamageData d1 = new DamageData(damage, Keyword.SLASHING, _user, t1);
         Ability.Damage(d1, undo, state);
@@ -919,21 +927,10 @@ public class A_FrostLattice : Ability
     {
         base.Play(targets, undo, state);
         TargetTemplate t = TargetAnyOpposing();
-        List < ITargetable > validTargets = new List<ITargetable>();
-        validTargets.Add(_user.opponent);
-        foreach (Card card in _user.opponent.active)
-        {
-            if (card.Compare(t, _user.controller))
-            {
-                validTargets.Add(card);
-            }
-        }
-        Debug.Log("Frost Lattice has " + validTargets.Count + " valid targets");
-
-        ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
-        target.AddStatus(StatusName.CHILL, 1);
-        target = validTargets[Random.Range(0, validTargets.Count)];
-        target.AddStatus(StatusName.CHILL, 1);
+        ITargetable t1 = RandomOpposing((Card)_user, t);
+        ITargetable t2 = RandomOpposing((Card)_user, t);
+        t1?.AddStatus(StatusName.CHILL, 1);
+        t2?.AddStatus(StatusName.CHILL, 1);
         _user.controller.Draw();
     }
 
@@ -986,7 +983,7 @@ public class A_Cryofall : Ability
     {
         if (_user.inPlay && card.Compare(_template, _user.controller))
         {
-            ITargetable target = RandomValidTarget((Card)_user, TargetAnyOpposing());
+            ITargetable target = RandomOpposing((Card)_user, TargetAnyOpposing());
             target.AddStatus(StatusName.IMPALE, 1);
         }
     }
@@ -1054,21 +1051,12 @@ public class A_ChainLightning : Ability
     {
         base.Play(targets, undo, state);
         Damage(new DamageData(3, Keyword.LIGHTNING, _user, targets[0]), undo, state);
-        TargetTemplate t = TargetAnyOpposing(targets[0]);
-        List<ITargetable> valid = ValidTargets((Card)_user, t);
-        foreach (ITargetable option in valid)
-        {
-            Debug.Log("Valid Chain Target: " + option.name);
-        }
-        if (valid.Count == 0) { Debug.Log("Nothing to chain to."); return; }
-        else
-        {
-            ITargetable t2 = RandomValidTarget((Card)_user, t);
-            ITargetable t3 = RandomValidTarget((Card)_user, TargetAnyOpposing(t2));
-            Damage(new DamageData(2, Keyword.LIGHTNING, _user, t2), undo, state);
-            Damage(new DamageData(1, Keyword.LIGHTNING, _user, t3), undo, state);
-        }
-        
+
+        ITargetable t2 = RandomOpposing((Card)_user, TargetAnyOpposing(targets[0]));
+        ITargetable t3 = RandomOpposing((Card)_user, TargetAnyOpposing(t2));
+        if (t2 == null) { return; }
+        Damage(new DamageData(2, Keyword.LIGHTNING, _user, t2), undo, state);
+        Damage(new DamageData(1, Keyword.LIGHTNING, _user, t3), undo, state);
     }
 }
 
