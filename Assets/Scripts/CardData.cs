@@ -21,6 +21,7 @@ public class CardData : ScriptableObject
 
     public Card.Type type;
     public Keyword[] keywords;
+    public KeywordAbility.Key[] abilityKeywords;
 
     public int strength;
     public int perception;

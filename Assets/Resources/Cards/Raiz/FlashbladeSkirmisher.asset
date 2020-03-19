@@ -23,7 +23,8 @@ MonoBehaviour:
   blueAffinity: 0
   indigoAffinity: 0
   type: 6
-  keywords: 
+  keywords: 58020000
+  abilityKeywords: 01000000
   strength: 0
   perception: 0
   finesse: 0

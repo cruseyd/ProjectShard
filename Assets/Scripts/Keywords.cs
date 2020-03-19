@@ -47,21 +47,9 @@ public enum Keyword
     UNDEAD
 }
 
-public enum AbilityKeyword
-{
-    DEFAULT,
-    SWIFT,
-    NIMBLE,
-    PASSIVE
-}
-
 public static class Keywords
 {
     public static string Parse(Keyword word)
-    {
-        return word.ToString("g");
-    }
-    public static string Parse(AbilityKeyword word)
     {
         return word.ToString("g");
     }
@@ -74,5 +62,71 @@ public static class Keywords
     {
         return type.ToString("g");
     }
+}
 
+public abstract class KeywordAbility
+{
+    private static Dictionary<Key, KeywordAbility> _index;
+    public enum Key
+    {
+        DEFAULT = 0,
+        SWIFT,
+        NIMBLE,
+        BLOODLUST_1 = 100,
+        BLOODLUST_2,
+        BLOODLUST_3,
+        BLOODLUST_4,
+        BLOODLUST_5,
+        RAGE_1 = 110,
+        RAGE_2,
+        RAGE_3,
+        RAGE_4,
+        RAGE_5
+    }
+    public static void Parse(Key key, Card card)
+    {
+        if (_index == null)
+        {
+            _index = new Dictionary<Key, KeywordAbility>();
+            _index[Key.SWIFT] = new KA_Swift();
+        }
+        if (_index.ContainsKey(key))
+        {
+            _index[key].Set(card);
+        }
+    }
+    protected abstract void Set(Card card, int level = 0);
+}
+
+public class KA_Swift : KeywordAbility
+{
+    protected override void Set(Card card, int level)
+    {
+        card.cardEvents.onEnterPlay += EnterPlayHandler;
+    }
+    private void EnterPlayHandler(Card card)
+    {
+        card.attackAvailable = true;
+    }
+}
+
+public class KA_Bloodlust : KeywordAbility
+{
+    private int _level;
+    public KA_Bloodlust(int level)
+    {
+        _level = level;
+    }
+
+    protected override void Set(Card card, int level = 0)
+    {
+        Debug.Assert(card.type == Card.Type.THRALL);
+        card.controller.actorEvents.onStartTurn += StartTurnHandler;
+
+    }
+
+    private void StartTurnHandler(Actor actor)
+    {
+
+    }
 }

@@ -48,7 +48,6 @@ public static class AbilityIndex
             case "RIDE_THE_LIGHTNING": return new A_RideTheLightning(user);
             case "CHAIN_LIGHTNING": return new A_ChainLightning(user);
             case "STATIC": return new A_Static(user);
-            case "REND": return new A_Rend(user);
             case "FERAL_WARCAT": return new A_FeralWarcat(user);
             case "CRYOFALL": return new A_Cryofall(user);
             // null ability
@@ -1117,34 +1116,4 @@ public class A_FeralWarcat : Ability
         }
     }
 
-}
-
-public class A_Rend : Ability
-{
-    public A_Rend(ITargetable user) : base(user)
-    {
-        TargetOpposingThrall();
-    }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
-        int damage = 2;
-        Equipment weapon = _user.controller.weapon;
-        if (weapon != null && weapon.HasKeyword(Keyword.CRUSHING) && weapon.durability > 0)
-        {
-            targets[0].AddStatus(StatusName.STUN);
-            weapon.durability -= 1;
-        }
-
-        ITargetable target = (ITargetable)targets[0];
-        DamageData data = new DamageData(damage, Keyword.CRUSHING, _user, target);
-        Ability.Damage(data, undo, state);
-    }
-
-    public override string Text()
-    {
-        string txt = "Rend deals 2 damage to target opposing thrall.";
-        txt += "\n<b>Crushing Weapon:</b> The target is also Dazed.";
-        return txt;
-    }
 }

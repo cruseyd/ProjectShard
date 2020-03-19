@@ -412,8 +412,16 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         GameEvents.current.onRefresh += card.Refresh;
 
         // ABILITY
+        card._abilityText.text = "";
+        foreach (KeywordAbility.Key key in data.abilityKeywords)
+        {
+            KeywordAbility.Parse(key, card);
+            card._abilityText.text += key.ToString() + "\n";
+        }
         card._ability = AbilityIndex.Get(data.id, card);
-        card._abilityText.text = card._ability.Text();
+        card._abilityText.text += card._ability.Text();
+
+        
 
         card.FaceUp(false);
 
