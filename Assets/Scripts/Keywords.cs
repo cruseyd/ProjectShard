@@ -83,27 +83,32 @@ public abstract class KeywordAbility
         RAGE_4,
         RAGE_5
     }
-    public static void Parse(Key key, Card card)
+
+    protected Card _user;
+    protected int _level;
+
+    public static KeywordAbility Get(Key key, int level, Card user)
     {
-        if (_index == null)
+        switch (key)
         {
-            _index = new Dictionary<Key, KeywordAbility>();
-            _index[Key.SWIFT] = new KA_Swift();
-        }
-        if (_index.ContainsKey(key))
-        {
-            _index[key].Set(card);
+            default: return null;
         }
     }
-    protected abstract void Set(Card card, int level = 0);
+    public KeywordAbility(int level, Card card)
+    {
+        _user = card;
+        _level = level;
+        Set();
+    }
 }
 
 public class KA_Swift : KeywordAbility
 {
-    protected override void Set(Card card, int level)
+    public KA_Swift(int level, Card card) : base(level, card)
     {
-        card.cardEvents.onEnterPlay += EnterPlayHandler;
+        _user.cardEvents.onEnterPlay += EnterPlayHandler;
     }
+
     private void EnterPlayHandler(Card card)
     {
         card.attackAvailable = true;
@@ -112,21 +117,28 @@ public class KA_Swift : KeywordAbility
 
 public class KA_Bloodlust : KeywordAbility
 {
-    private int _level;
-    public KA_Bloodlust(int level)
+    public KA_Bloodlust(int level, Card card) : base(level, card)
     {
-        _level = level;
-    }
-
-    protected override void Set(Card card, int level = 0)
-    {
-        Debug.Assert(card.type == Card.Type.THRALL);
-        card.controller.actorEvents.onStartTurn += StartTurnHandler;
-
+        Debug.Assert(_user.type == Card.Type.THRALL);
+        _user.controller.actorEvents.onStartTurn += StartTurnHandler;
     }
 
     private void StartTurnHandler(Actor actor)
     {
+        _user.controller.actorEvents.onPlayCard += PlayCardHandler;
+    }
 
+    private void PlayCardHandler(Card card)
+    {
+        if (card.type == Card.Type.ABILITY)
+        {
+            _user.power.baseValue += 1;
+            _user.controller.actorEvents.onEndTurn += EndTurnHandler;
+            _user.controller.
+
+        }
+    }
+    private void EndTurnHandler(Actor actor)
+    {
     }
 }
