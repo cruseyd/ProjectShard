@@ -785,7 +785,7 @@ public class A_KyrnanosLordOfTheWild : Ability
         t.isSelf = true;
         t.keyword = Keyword.BEAST;
         t.cardType = Card.Type.THRALL;
-        TemplateModifier mod = new TemplateModifier(-1, Stat.Name.UPKEEP, t, (Card)_user);
+        TemplateModifier mod = new TemplateModifier(-1, Stat.Name.UPKEEP, t, StatModifier.Duration.SOURCE, (Card)_user);
         Dungeon.AddModifier(mod);
     }
 }

@@ -145,7 +145,8 @@ public class Dungeon : MonoBehaviour
         if (modifiers.Contains(mod))
         {
             modifiers.Remove(mod);
-            GameEvents.current.RemoveGlobalModifier(mod);
+            mod.mod.Remove();
+            //GameEvents.current.RemoveGlobalModifier(mod);
             return true;
         } else
         {

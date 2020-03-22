@@ -4,38 +4,116 @@ using UnityEngine;
 
 public class StatModifier
 {
-    public readonly float value;
-    public readonly object source;
+    public enum Duration
+    {
+        DEFAULT,
+        PERMANENT,
+        SOURCE,
+        END_OF_TURN,
+        START_OF_TURN
+    }
 
-    public StatModifier(float _value, object _source)
+    public readonly float value;
+    public readonly Card source;
+    public readonly Duration duration;
+    private List<Stat> _targets;
+
+    public StatModifier(float _value, Card _source, Duration dur = Duration.PERMANENT)
     {
         value = _value;
         source = _source;
+        duration = dur;
+        switch (duration)
+        {
+            case Duration.SOURCE: source.cardEvents.onLeavePlay += LeavePlayHandler; break;
+            case Duration.END_OF_TURN: source.controller.actorEvents.onEndTurn += EndTurnHandler; break;
+            case Duration.START_OF_TURN: source.controller.actorEvents.onStartTurn += StartTurnHandler; break;
+            case Duration.PERMANENT:
+            default:
+                break;
+        }
+        _targets = new List<Stat>();
+    }
+
+    public void AddTarget(Stat stat)
+    {
+        stat.AddModifier(this);
+        _targets.Add(stat);
+    }
+
+    public void Remove()
+    {
+        foreach (Stat stat in _targets)
+        {
+            stat.RemoveModifier(this);
+        }
+    }
+
+    private void LeavePlayHandler(Card source)
+    {
+        Remove();
+    }
+    private void StartTurnHandler(Actor actor)
+    {
+        Remove();
+    }
+    private void EndTurnHandler(Actor actor)
+    {
+        Remove();
     }
 }
 
 public class TemplateModifier
 {
-    public readonly StatModifier modifier;
+    public readonly StatModifier.Duration duration;
     public readonly Stat.Name statName;
     public readonly TargetTemplate template;
+    public readonly int value;
+    public StatModifier mod;
     private Card _source;
 
-    public TemplateModifier(int mod, Stat.Name stat, TargetTemplate t, Card source)
+
+    public TemplateModifier(int _value, Stat.Name stat, TargetTemplate t, StatModifier.Duration _dur, Card source)
     {
-        modifier = new StatModifier(mod, this);
+        value = _value;
+        duration = _dur;
         statName = stat;
         template = t;
         _source = source;
-        source.cardEvents.onLeavePlay += LeavePlayHandler;
+        mod = new StatModifier(_value, _source);
+        switch (duration)
+        {
+            case StatModifier.Duration.SOURCE: source.cardEvents.onLeavePlay += LeavePlayHandler; break;
+            case StatModifier.Duration.END_OF_TURN: source.controller.actorEvents.onEndTurn += EndTurnHandler; break;
+            case StatModifier.Duration.START_OF_TURN: source.controller.actorEvents.onStartTurn += StartTurnHandler; break;
+            case StatModifier.Duration.PERMANENT:
+            default:
+                break;
+        }
+    }
+
+    public void Compare(Card target)
+    {
+        if (target.Compare(template, _source.controller))
+        {
+            target.AddModifier(mod, statName);
+        }
     }
 
     private void LeavePlayHandler(Card source)
     {
-        Debug.Log("Destroying a template modifier");
+        Dungeon.RemoveModifier(this);
+    }
+    private void StartTurnHandler(Actor actor)
+    {
+        Dungeon.RemoveModifier(this);
+    }
+    private void EndTurnHandler(Actor actor)
+    {
         Dungeon.RemoveModifier(this);
     }
 }
+
 
 public class Stat
 {

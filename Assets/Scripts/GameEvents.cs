@@ -21,6 +21,7 @@ public class GameEvents : MonoBehaviour
 
     // Game Phase Events
 
+    public event Action<Card> onSpawnCard;
     public event Action onRefresh;
     public event Action<Actor> onStartTurn;
     public event Action<Actor> onEndTurn;
@@ -30,6 +31,7 @@ public class GameEvents : MonoBehaviour
 
     public event Action<ITargetable, ITargetable, ITargetable> onDeclareTarget;
 
+    public void SpawnCard(Card card) { onSpawnCard?.Invoke(card); }
     public void Refresh() { onRefresh?.Invoke(); }
     public void StartTurn(Actor actor) { onStartTurn?.Invoke(actor); }
     public void EndTurn(Actor actor) { onEndTurn?.Invoke(actor); }
@@ -39,6 +41,5 @@ public class GameEvents : MonoBehaviour
     }
     public void AddGlobalModifier(TemplateModifier mod) { onAddGlobalModifier?.Invoke(mod); }
     public void RemoveGlobalModifier(TemplateModifier mod) { onRemoveGlobalModifier?.Invoke(mod); }
-
     public void SelectTarget(ITargetable observer, ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(observer, source, target); }
 }

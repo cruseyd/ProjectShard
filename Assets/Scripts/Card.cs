@@ -65,6 +65,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
     private CardData _data;
     private Ability _ability;
+    private List<KeywordAbility> _kAbilities;
     private CardEvents _cardEvents;
     private TargetEvents _targetEvents;
     private Dictionary<StatusName, StatusEffect> _statusEffects;
@@ -406,31 +407,31 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         // EVENTS
         GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
-        GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
+        //GameEvents.current.onRemoveGlobalModifier += card.RemoveGlobalModifier;
         card.controller.actorEvents.onStartTurn += card.ResetFlags;
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
 
         // ABILITY
         card._abilityText.text = "";
+        card._kAbilities = new List<KeywordAbility>();
         foreach (KeywordAbility.Key key in data.abilityKeywords)
         {
-            KeywordAbility.Parse(key, card);
+            card._kAbilities.Add(KeywordAbility.Get(key, card));
             card._abilityText.text += key.ToString() + "\n";
         }
         card._ability = AbilityIndex.Get(data.id, card);
         card._abilityText.text += card._ability.Text();
 
-        
 
         card.FaceUp(false);
-
+        GameEvents.current.SpawnCard(card);
         return card;
     }
     public void OnDestroy()
     {
         GameEvents.current.onAddGlobalModifier -= AddGlobalModifier;
-        GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
+        //GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
         controller.actorEvents.onStartTurn -= ResetFlags;
@@ -472,10 +473,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
         foreach (TemplateModifier mod in Dungeon.modifiers)
         {
-            if (mod != null && Compare(mod.template, controller))
-            {
-                AddModifier(mod.modifier, mod.statName);
-            }
+            mod.Compare(this);
         }
 
         _costDisplay.value = cost.value;
@@ -510,29 +508,32 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     
     public void AddGlobalModifier(TemplateModifier mod)
     {
+        //mod.Compare(this);
+        /*
         if (Compare(mod.template, controller))
         {
             AddModifier(mod.modifier, mod.statName);
         }
+        */
     }
-
+    /*
     public void RemoveGlobalModifier(TemplateModifier mod)
     {
         RemoveModifier(mod.modifier, mod.statName);
     }
-
-    public bool AddModifier(StatModifier mod, Stat.Name stat)
+    */
+    public void AddModifier(StatModifier mod, Stat.Name stat)
     {
         switch (stat)
         {
-            case Stat.Name.COST: return cost.AddModifier(mod);
-            case Stat.Name.POWER: return power.AddModifier(mod);
-            case Stat.Name.HEALTH: return health.AddModifier(mod);
-            case Stat.Name.STRENGTH: return strength.AddModifier(mod);
-            case Stat.Name.PERCEPTION: return perception.AddModifier(mod);
-            case Stat.Name.FINESSE: return finesse.AddModifier(mod);
-            case Stat.Name.UPKEEP: return upkeep.AddModifier(mod);
-            default: return false;
+            case Stat.Name.COST: mod.AddTarget(cost); break;
+            case Stat.Name.POWER: mod.AddTarget(power); break;
+            case Stat.Name.HEALTH: mod.AddTarget(health); break;
+            case Stat.Name.STRENGTH: mod.AddTarget(strength); break;
+            case Stat.Name.PERCEPTION: mod.AddTarget(perception); break;
+            case Stat.Name.FINESSE: mod.AddTarget(finesse); break;
+            case Stat.Name.UPKEEP: mod.AddTarget(upkeep); break;
+            default: break;
         }
     }
 

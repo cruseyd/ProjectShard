@@ -87,10 +87,16 @@ public abstract class KeywordAbility
     protected Card _user;
     protected int _level;
 
-    public static KeywordAbility Get(Key key, int level, Card user)
+    public static KeywordAbility Get(Key key, Card user)
     {
         switch (key)
         {
+            case Key.SWIFT: return new KA_Swift(0, user);
+            case Key.BLOODLUST_1: return new KA_Bloodlust(1, user);
+            case Key.BLOODLUST_2: return new KA_Bloodlust(2, user);
+            case Key.BLOODLUST_3: return new KA_Bloodlust(3, user);
+            case Key.BLOODLUST_4: return new KA_Bloodlust(4, user);
+            case Key.BLOODLUST_5: return new KA_Bloodlust(5, user);
             default: return null;
         }
     }
@@ -98,7 +104,6 @@ public abstract class KeywordAbility
     {
         _user = card;
         _level = level;
-        Set();
     }
 }
 
@@ -132,13 +137,7 @@ public class KA_Bloodlust : KeywordAbility
     {
         if (card.type == Card.Type.ABILITY)
         {
-            _user.power.baseValue += 1;
-            _user.controller.actorEvents.onEndTurn += EndTurnHandler;
-            _user.controller.
-
+            _user.controller.actorEvents.onPlayCard -= PlayCardHandler;
         }
-    }
-    private void EndTurnHandler(Actor actor)
-    {
     }
 }
