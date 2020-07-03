@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Loyal Pack Wolf
   id: LOYAL_PACK_WOLF
   level: 1
-  color: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 0
+  type: 3
   keywords: bc020000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 1
-  health: 1
+  endurance: 1
   upkeep: 0
   damageType: 102

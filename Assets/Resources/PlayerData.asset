@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cd7159eeb9b096f4fa6230607e63e354, type: 3}
   m_Name: PlayerData
   m_EditorClassIdentifier: 
-  decklist: {fileID: 11400000, guid: 3a1845d69d9ed9948a110a8889331551, type: 2}
+  decklist: {fileID: 11400000, guid: 8ba129db4456dee4dacf2142b4120d71, type: 2}
   weapon: {fileID: 11400000, guid: 5caaa8de44f25fb4eada349ed63ff63e, type: 2}
   armor: {fileID: 0}
   relic: {fileID: 0}

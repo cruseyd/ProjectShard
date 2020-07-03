@@ -18,7 +18,7 @@ MonoBehaviour:
   GREEN: {r: 0.04658278, g: 0.6981132, b: 0, a: 1}
   BLUE: {r: 0, g: 0.5929899, b: 1, a: 1}
   INDIGO: {r: 0.2056394, g: 0, b: 0.7075472, a: 1}
-  TAN: {r: 0.8962264, g: 0.57696563, b: 0.32551616, a: 1}
+  TAN: {r: 0.46226418, g: 0.2976006, b: 0.102483094, a: 1}
   playerHandSize: 3
   enemyDrawMin: 1
   enemyDrawMax: 3

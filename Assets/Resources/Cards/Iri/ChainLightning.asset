@@ -15,15 +15,17 @@ MonoBehaviour:
   name: Chain Lightning
   id: CHAIN_LIGHTNING
   level: 2
-  color: 5
+  color: 4
   violetAffinity: 0
   redAffinity: 2
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 2
   indigoAffinity: 0
+  rarity: 1
   type: 1
   keywords: 32010000
+  abilityKeywords: 
   strength: 1
   perception: 4
   finesse: 2

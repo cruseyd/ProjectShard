@@ -21,7 +21,6 @@ public class Enemy : Actor
     }
     public IEnumerator DoDrawRandom()
     {
-        //int n = Random.Range(Dungeon.gameParams.enemyDrawMin, Dungeon.gameParams.enemyDrawMax + 1);
         int n = Random.Range(1, 7);
         n = (int)((float)n / 2.0f);
         n = Mathf.Max(n, 1);
@@ -37,6 +36,8 @@ public class Enemy : Actor
     public override void Start()
     {
         base.Start();
+        _data = GameData.enemy;
+        Debug.Log("Initializing enemy as: " + GameData.enemy.name);
         Init(_data);
     }
     public void Init(EnemyData data)
@@ -44,16 +45,16 @@ public class Enemy : Actor
         //set enemy UI to be active
         _data = data;
         _nameText.text = data.name;
-        StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
-        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
-        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+        //StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
+        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
 
         health.baseValue = data.maxHealth;
         maxHealth.baseValue = health.value;
 
-        _weapon.Equip(data.weapon, this);
-        _armor.Equip(data.armor, this);
-        _relic = null;
+        //_weapon.Equip(data.weapon, this);
+        //_armor.Equip(data.armor, this);
+        //_relic = null;
 
         if (_data.cardPool != null && _data.cardPool.pool.Count > 0)
         {

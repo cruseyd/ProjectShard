@@ -12,6 +12,12 @@ public interface IMonoBehaviour
 
 }
 
+public class Attempt
+{
+    public Attempt() { success = true; }
+    public bool success;
+}
+
 public class TargetEvents
 {
     private ITargetable _source;
@@ -20,6 +26,7 @@ public class TargetEvents
         _source = source;
     }
 
+    public event Action<StatusEffect.ID, int, Attempt> onTryGainStatus;
     public event Action<StatusEffect, int> onGainStatus;
     public event Action<StatusEffect, int> onRemoveStatus;
 
@@ -37,6 +44,9 @@ public class TargetEvents
     public event Action<ITargetable, ITargetable> onDeclareTarget;
     public event Action<Card, ITargetable> onDeclareAttack;
 
+    public event Action onRefresh;
+
+    public void TryGainStatus(StatusEffect.ID status, int stacks, Attempt attempt) { onTryGainStatus?.Invoke(status, stacks, attempt); }
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
 
@@ -53,6 +63,8 @@ public class TargetEvents
 
     public void DeclareTarget(ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(source, target); }
     public void DeclareAttack(Card source, ITargetable target) { onDeclareAttack?.Invoke(source, target); }
+
+    public void Refresh() { onRefresh?.Invoke(); }
 
 }
 
@@ -96,9 +108,10 @@ public interface ITargetable : IMonoBehaviour
     TargetTemplate GetQuery(Ability.Mode mode, int n);
     bool Resolve(Ability.Mode mode, List<ITargetable> targets);
 
-    void AddStatus(StatusName id, int stacks = 1);
-    void RemoveStatus(StatusName id, int stacks = 1);
-    int GetStatus(StatusName id);
+    void AddStatus(StatusEffect.ID id, int stacks = 1);
+    void RemoveStatus(StatusEffect.ID id, int stacks = 9999);
+
+    int GetStatus(StatusEffect.ID id);
 
     void Damage(DamageData data);
     void ResolveDamage(DamageData data);

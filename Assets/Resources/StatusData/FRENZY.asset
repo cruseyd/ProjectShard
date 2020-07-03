@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
+  m_Name: FRENZY
+  m_EditorClassIdentifier: 
+  id: 10
+  stackable: 1
+  tooltipHeader: Frenzy
+  tooltipContent: 'When you play a Technique, draw a card, gain 1/0 FOCUS, and take
+    1 damage. Then remove a stack of Frenzy. '
+  iconColor: {r: 0.9529412, g: 0.32917076, b: 0, a: 1}
+  backgroundColor: {r: 0, g: 0.3207547, b: 0.015317107, a: 1}

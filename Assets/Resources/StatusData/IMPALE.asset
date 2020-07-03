@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
+  m_Name: IMPALE
+  m_EditorClassIdentifier: 
+  id: 5
+  stackable: 0
+  tooltipHeader: Impale
+  tooltipContent: "Impaled Thralls cannot block, attack, or use abilities until the
+    end of their controller's next turn. \n\nAn Impaled Player must discard a card
+    at random at the start of their next turn.\n\nImpaled targets take +1 damage
+    from LIGHTNING.\n\n"
+  iconColor: {r: 1, g: 0, b: 0, a: 1}
+  backgroundColor: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}

@@ -22,6 +22,11 @@ public class ValueDisplay : Display
 
     public override void Refresh()
     {
+        if (!_active)
+        {
+            text.text = "";
+            return;
+        }
         if (_valueName != "")
         {
             text.text = _valueName + " ";

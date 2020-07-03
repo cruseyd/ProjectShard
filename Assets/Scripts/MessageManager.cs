@@ -11,43 +11,87 @@ public class MessageManager : MonoBehaviour
     {
         Player.instance.targetEvents.onTakeDamage += OnDamage;
         Enemy.instance.targetEvents.onTakeDamage += OnDamage;
+        Player.instance.actorEvents.onTryPlayCard += OnPlayCard;
+        Enemy.instance.actorEvents.onTryPlayCard += OnPlayCard;
+        Player.instance.actorEvents.onCardDamaged += OnDamage;
+        Enemy.instance.actorEvents.onCardDamaged += OnDamage;
+        Player.instance.actorEvents.onPlayCard += OnCardPlayed;
+        Enemy.instance.actorEvents.onPlayCard += OnCardPlayed;
+        Player.instance.targetEvents.onGainStatus += OnGainStatus;
+        Enemy.instance.targetEvents.onGainStatus += OnGainStatus;
+        Player.instance.actorEvents.onCardGainedStatus += OnGainStatus;
+        Enemy.instance.actorEvents.onCardGainedStatus += OnGainStatus;
+
+        GameEvents.current.onCardDestroyed += OnCardDestroyed;
+
         GameEvents.current.onStartTurn += OnStartTurn;
     }
 
+    private void OnCardPlayed(Card card)
+    {
+        _window.Add("\n");
+    }
     private void OnDamage(DamageData damage)
     {
         
         if (damage.damage > 0)
         {
+            string txt = "";
+            if (damage.target is Player)
             {
-                if (damage.target is Actor)
-                {
-                    string txt = " took " + damage.damage + " " + Keywords.Parse(damage.type) + " damage from " + damage.source.name;
-                    if (damage.target.playerControlled)
-                    {
-                        _window.Add("You" + txt);
-                    }
-                    else
-                    {
-                        _window.Add(Enemy.instance.name + txt);
-                    }
-                } else if (damage.target is Card)
-                {
-
-                }
+                txt += "You";
+            } else {
+                txt += damage.target.name;
             }
+            
+            txt += " took " + damage.damage + " " + Icons.Get(damage.type) + " damage";
+            if (damage.source != null)
+            {
+                txt += " from" + damage.source.name;
+            } else
+            {
+                txt += ".";
+            }
+            _window.Add(txt);
         }
+    }
+    private void OnPlayCard(Card card, Attempt attempt)
+    {
+        string txt = "";
+        if (card.playerControlled)
+        {
+            txt += "You played " + card.name + ".";
+        } else
+        {
+            txt += Enemy.instance.name + " played " + card.name + ".";
+        }
+        _window.Add(txt);
     }
     private void OnStartTurn(Actor actor)
     {
-        string txt = "__________________________________\n";
+        string txt = "___________________________________________\n";
         if (actor is Player)
         {
-            txt += "Start Player Turn.";
+            txt += "<b>Start Player Turn.</b>";
         } else
         {
-            txt += "Start " + actor.name + " Turn.";
+            txt += "<b>Start " + actor.name + " Turn.</b>";
         }
         _window.Add(txt);
+    }
+    private void OnCardDestroyed(Card card)
+    {
+        _window.Add(card.name + " was destroyed.");
+    }
+
+    private void OnGainStatus(StatusEffect status, int stacks)
+    {
+        if (status.target is Player)
+        {
+            _window.Add("You gained " + stacks + " of " + status.id);
+        } else
+        {
+            _window.Add(status.target.name + " gained " + stacks + " of " + status.id);
+        }
     }
 }

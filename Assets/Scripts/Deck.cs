@@ -15,6 +15,19 @@ public class Deck : MonoBehaviour
     {
         _counter.text = cards.Count.ToString();
     }
+
+    public void Init(List<CardData> list)
+    {
+        if (cards == null)
+        {
+            cards = new List<CardData>();
+        }
+        cards.Clear();
+        foreach (CardData data in list)
+        {
+            cards.Add(data);
+        }
+    }
     public void Init(Decklist list)
     {
         if (cards == null)
@@ -42,21 +55,18 @@ public class Deck : MonoBehaviour
         cards.Clear();
         foreach (CardPoolEntry entry in pool.pool)
         {
-            float roll = Random.Range(bias, 1);
-            bool done = false;
-            int index = 0;
-            while (!done)
+            for (int ii = 0; ii < entry.quantity; ii++)
             {
-                CardRate item = entry.rates[index];
-                if (item.rate >= roll || index == (entry.rates.Count - 1))
+                float roll = Random.Range(bias, 1);
+                int index = entry.rates.Count-1;
+                while (index >= 0)
                 {
-                    for (int ii = 0; ii < entry.quantity; ii++)
+                    if (entry.rates[index].rate <= roll)
                     {
-                        cards.Add(item.card);
+                        cards.Add(entry.rates[index].card);
                     }
-                    done = true;
+                    index--;
                 }
-                index++;
             }
         }
         Shuffle();
@@ -100,7 +110,13 @@ public class Deck : MonoBehaviour
     {
         if (cards.Count == 0)
         {
+            if (playerDeck)
+            {
+                Player.instance.maxFocus.baseValue++;
+                Player.instance.focus.baseValue++;
+            }
             Shuffle(_discard.GetComponentsInChildren<Card>());
+            if (cards.Count == 0) { return null; }
         }
         CardData data = cards[0];
         cards.RemoveAt(0);

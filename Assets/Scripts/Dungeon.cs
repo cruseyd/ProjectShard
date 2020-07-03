@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
+/*
 public enum CardZone
 {
     DEFAULT,
@@ -17,47 +19,55 @@ public enum CardZone
     DROP,
     BURN,
 }
-
+*/
 public class Dungeon : MonoBehaviour
 {
     public static Dungeon instance;
 
     private GameParams _params;
+    [SerializeField] private GameObject _targeterPrefab;
     //[SerializeField] private Enemy _enemy;
     [SerializeField] private GamePhase _phase;
 
-    [SerializeField] private RectTransform _dropZone;
-    [SerializeField] private RectTransform _burnZone;
+    [SerializeField] private Canvas _mainCanvas;
+
+    [SerializeField] private GameObject _combatUI;
+    [SerializeField] private GameObject _draftUI;
+    
+    // General UI Handles
     [SerializeField] private GameObject _confirmButton;
     [SerializeField] private TextMeshProUGUI _confirmButtonText;
-    [SerializeField] private RectTransform _playerHandZone;
-    [SerializeField] private RectTransform _dungeonHandZone;
-    [SerializeField] private RectTransform _playerActiveZone;
-    [SerializeField] private RectTransform _dungeonActiveZone;
-    [SerializeField] private RectTransform _playerDiscardZone;
-    [SerializeField] private RectTransform _dungeonDiscardZone;
-    [SerializeField] private RectTransform _playerDeckZone;
-    [SerializeField] private RectTransform _dungeonDeckZone;
-    [SerializeField] private RectTransform _magnifyWindow;
     [SerializeField] private GameObject _tooltipWindow;
+    [SerializeField] private GameObject _endgameWindow;
+    [SerializeField] private TextMeshProUGUI _endgameHeader;
+    [SerializeField] private GameObject _endgameContinueButton;
+
+    // Draft UI Handles
+    [SerializeField] private CardZone _draftZone;
+    [SerializeField] private CardZone _deckbuilderZone;
+    [SerializeField] private CardZone _previewZone;
+
+    // Combat UI Handles
+    [SerializeField] private CardZone _playerHandZone;
+    [SerializeField] private CardZone _enemyHandZone;
+    [SerializeField] private CardZone _playerActiveZone;
+    [SerializeField] private CardZone _enemyActiveZone;
+    [SerializeField] private CardZone _playerDiscardZone;
+    [SerializeField] private CardZone _enemyDiscardZone;
+    [SerializeField] private CardZone _magnifyZone;
+    [SerializeField] private CardZone _tributeZone;
+    [SerializeField] private CardZone _playZone;
+
+    [SerializeField] private RectTransform _playerDeckZone;
+    [SerializeField] private RectTransform _enemyDeckZone;
 
     [SerializeField] private ParticleSystem _playerParticleUnderlay;
     [SerializeField] private ParticleSystem _enemyParticleUnderlay;
 
+    [SerializeField] private Stack<Targeter> _targeters;
+    
     public static List<TemplateModifier> modifiers;
 
-    public static int combatTurn;
-    public static GameParams gameParams
-    {
-        get
-        {
-            if (instance._params == null)
-            {
-                instance._params = Resources.Load("GameParams") as GameParams;
-            }
-            return instance._params;
-        }
-    }
     public static GamePhase phase
     {
         get
@@ -80,11 +90,51 @@ public class Dungeon : MonoBehaviour
     {
         get
         {
-            Card[] cards = GetCards(CardZone.MAGNIFY);
-            if (cards.Length == 1) { return cards[0]; }
-            else if (cards.Length == 0) { return null; }
+            List<Card> cards = instance._magnifyZone.Cards();
+            if (cards.Count == 1) { return cards[0]; }
+            else if (cards.Count == 0) { return null; }
             else { Debug.Log("There should not be more than 1 card magnified"); }
             return null;
+        }
+    }
+    public static bool priority
+    {
+        get
+        {
+            if (phase != null)
+            {
+                return phase.priority;
+            }
+            else
+            {
+                return false;
+            }
+
+        }
+    }
+    public static Targeter targeter
+    {
+        get
+        {
+            if (instance._targeters.Count <= 0)
+            { return null; }
+            else
+            {
+                return instance._targeters.Peek();
+            }
+        }
+    }
+    public static bool targeting
+    {
+        get
+        {
+            if (targeter != null && targeter.interactive)
+            {
+                return true;
+            } else
+            {
+                return false;
+            }
         }
     }
 
@@ -93,39 +143,55 @@ public class Dungeon : MonoBehaviour
         if (instance == null) { instance = this; }
         else { Destroy(this); }
         modifiers = new List<TemplateModifier>();
+        _targeters = new Stack<Targeter>();
+        _endgameWindow.SetActive(false);
     }
     public void Start()
     {
-        StartEncounter();
+        if (GameData.instance.startEncounter)
+        {
+            StartEncounter();
+        } else if (GameData.instance.startDraft)
+        {
+            StartDraft();
+        }
     }
     public void Update()
     {
+
         if (Input.GetMouseButtonDown(1) || Input.GetKeyDown(KeyCode.Escape))
         {
-            Targeter.Clear();
+            if (targeting) { ClearTargeter(); }
         }
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Confirm();
         }
     }
-    public static Card[] GetCards(CardZone zone)
+    
+    public static List<Card> GetCards(CardZone.Type zone, bool player = true)
     {
-        return GetZone(zone).GetComponentsInChildren<Card>();
+        return GetZone(zone, player).Cards();
     }
-    public static RectTransform GetZone(CardZone zone)
+    public static CardZone GetZone(CardZone.Type zone, bool player = true)
     {
         switch (zone)
         {
-            case CardZone.PLAYER_HAND: return instance._playerHandZone;
-            case CardZone.PLAYER_ACTIVE: return instance._playerActiveZone;
-            case CardZone.PLAYER_DISCARD: return instance._playerDiscardZone;
-            case CardZone.DUNGEON_ACTIVE: return instance._dungeonActiveZone;
-            case CardZone.DUNGEON_DISCARD: return instance._dungeonDiscardZone;
-            case CardZone.DUNGEON_HAND: return instance._dungeonHandZone;
-            case CardZone.MAGNIFY: return instance._magnifyWindow;
-            case CardZone.DROP: return instance._dropZone;
-            case CardZone.BURN: return instance._burnZone;
+            case CardZone.Type.HAND:
+                if (player) { return instance._playerHandZone; }
+                else { return instance._enemyHandZone; }
+            case CardZone.Type.ACTIVE:
+                if (player) { return instance._playerActiveZone; }
+                else { return instance._enemyActiveZone; }
+            case CardZone.Type.DISCARD:
+                if (player) { return instance._playerDiscardZone; }
+                else { return instance._enemyDiscardZone; }
+            case CardZone.Type.MAGNIFY: return instance._magnifyZone;
+            case CardZone.Type.TRIBUTE: return instance._tributeZone;
+            case CardZone.Type.PLAY: return instance._playZone;
+            case CardZone.Type.DRAFT: return instance._draftZone;
+            case CardZone.Type.DECKBUILDER: return instance._deckbuilderZone;
+            case CardZone.Type.PREVIEW: return instance._previewZone;
             default: return null;
         }
     }
@@ -148,68 +214,10 @@ public class Dungeon : MonoBehaviour
             mod.mod.Remove();
             //GameEvents.current.RemoveGlobalModifier(mod);
             return true;
-        } else
+        }
+        else
         {
             return false;
-        }
-    }
-    public static void Organize(CardZone zone)
-    {
-        Card[] cards = GetCards(zone);
-        RectTransform tf = GetZone(zone);
-        for (int ii = 0; ii < cards.Length; ii++)
-        {
-            cards[ii].zoneIndex = ii;
-        }
-        if (tf.rect.width < 200)
-        {
-            foreach (Card card in cards)
-            {
-                Vector2 dest = tf.TransformPoint(0, 0, 0);
-                card.StartCoroutine(card.Translate(dest));
-            }
-        } else
-        {
-            float width = tf.rect.width;
-            float spacing = width / (1.0f * cards.Length);
-            float xpos = -width / 2.0f + spacing / 2.0f;
-            foreach (Card card in cards)
-            {
-                Vector2 dest = tf.TransformPoint(xpos + card.zoneIndex * spacing, 0, 0);
-                card.StartCoroutine(card.Translate(dest));
-                card.transform.SetSiblingIndex(card.zoneIndex);
-            }
-        }
-    }
-    public static void MoveCard(Card card, CardZone zone)
-    {
-        if (card == null) { return; }
-        CardZone prevZone = card.zone;
-        card.zone = zone;
-        card.transform.SetParent(GetZone(zone));
-        RectTransform cardTF = card.GetComponent<RectTransform>();
-        card.transform.localScale = Vector3.one * GetZone(zone).rect.height / card.GetComponent<RectTransform>().rect.height;
-        Organize(zone);
-        if (prevZone != CardZone.DEFAULT)
-        {
-            Organize(prevZone);
-        }
-        // all zone transition events
-        if (zone != prevZone)
-        {
-            if (zone == CardZone.DUNGEON_ACTIVE || zone == CardZone.PLAYER_ACTIVE)
-            {
-                //TODO deal with case where card switches owner
-                card.cardEvents.EnterPlay();
-            }
-            if (prevZone == CardZone.DUNGEON_ACTIVE || prevZone == CardZone.PLAYER_ACTIVE)
-            {
-                card.cardEvents.LeavePlay();
-                if (zone == CardZone.DUNGEON_DISCARD || zone == CardZone.PLAYER_DISCARD)
-                {
-                    card.cardEvents.Destroy();
-                }
-            }
         }
     }
     public static void SetParticleUnderlay(bool playerSide)
@@ -218,7 +226,8 @@ public class Dungeon : MonoBehaviour
         {
             instance._playerParticleUnderlay.Play();
             instance._enemyParticleUnderlay.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        } else
+        }
+        else
         {
             instance._enemyParticleUnderlay.Play();
             instance._playerParticleUnderlay.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
@@ -226,10 +235,17 @@ public class Dungeon : MonoBehaviour
     }
     public static void FixLayering()
     {
-        instance._magnifyWindow.transform.SetAsLastSibling();
+        instance._magnifyZone.transform.SetAsLastSibling();
         instance._tooltipWindow.transform.SetAsLastSibling();
     }
 
+    public static void EnableDropZones(bool flag)
+    {
+        instance._deckbuilderZone.gameObject?.SetActive(flag);
+        instance._playZone.gameObject?.SetActive(flag);
+        instance._tributeZone.gameObject?.SetActive(flag);
+        DecklistDisplay.transferZone?.SetActive(flag);
+    }
     public void Confirm() { _phase.Confirm(); }
     public static void SetConfirmButtonText(string text)
     {
@@ -240,7 +256,12 @@ public class Dungeon : MonoBehaviour
         instance._confirmButton.GetComponent<Button>().enabled = flag;
     }
 
-    public void StartEncounter() { StartCoroutine(DoStartEncounter()); }
+    public void StartEncounter()
+    {
+        _combatUI.SetActive(true);
+        _draftUI.SetActive(false);
+        StartCoroutine(DoStartEncounter());
+    }
     private IEnumerator DoStartEncounter()
     {
         Player.instance.StartEncounter();
@@ -252,11 +273,74 @@ public class Dungeon : MonoBehaviour
     private IEnumerator DoSwitchPhase(GamePhase newPhase)
     {
         instance._phase?.Exit();
-        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        yield return new WaitForSeconds(GameData.instance.cardAnimationRate);
         instance._phase = newPhase;
-        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        yield return new WaitForSeconds(GameData.instance.cardAnimationRate);
         instance._phase.Enter();
-        yield return new WaitForSeconds(gameParams.cardAnimationRate);
+        yield return new WaitForSeconds(GameData.instance.cardAnimationRate);
         GameEvents.current.Refresh();
     }
+
+    public void Victory()
+    {
+        _endgameHeader.text = "Victory!";
+        _endgameContinueButton.SetActive(true);
+        _endgameWindow.SetActive(true);
+    }
+
+    public void Defeat()
+    {
+        _endgameHeader.text = "Defeat...";
+        _endgameContinueButton.SetActive(false);
+        _endgameWindow.SetActive(true);
+    }
+
+    public void ToMainMenu()
+    {
+        SceneManager.LoadScene(0);
+    }
+    public void StartDraft()
+    {
+        _combatUI.SetActive(false);
+        _draftUI.SetActive(true);
+        Drafter.instance.StartDraft();
+    }
+
+    // Targeting
+    public static void ClearTargeter()
+    {
+        if (instance._targeters.Count > 0)
+        {
+            Targeter t = instance._targeters.Pop();
+            Destroy(t.gameObject);
+        }
+    }
+
+    public static void SetTargeter(ITargetable src, Ability.Mode mode)
+    {
+        Targeter t = AddTargeter();
+        t.Set(src, mode);
+        Debug.Log(instance._targeters.Count + " targeters.");
+    }
+    public static void ShowTargeter(ITargetable src, ITargetable trg)
+    {
+        Targeter t = AddTargeter();
+        t.Show(src, trg);
+    }
+
+    public static void ShowTargeter(Transform src, Transform trg)
+    {
+        Targeter t = AddTargeter();
+        t.Show(src, trg);
+    }
+
+    private static Targeter AddTargeter()
+    {
+        Targeter t = Instantiate(instance._targeterPrefab).GetComponent<Targeter>();
+        t.transform.parent = instance._mainCanvas.transform;
+        instance._targeters.Push(t);
+        return t;
+    }
+
+
 }

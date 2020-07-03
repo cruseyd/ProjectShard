@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
+  m_Name: BerzerkerEnemy
+  m_EditorClassIdentifier: 
+  name: Berzerker
+  list:
+  - card: {fileID: 11400000, guid: 233c3e070892b8441bebd9965783cfa5, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: b6848aadc5f4a324e8b71bca8da8aafc, type: 2}
+    quantity: 5
+  - card: {fileID: 11400000, guid: f8c26e9bf3ce7ee438295f5069162df8, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 92149e2b47b4d054f9193c2b2dadd62c, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: 631cbda8ae84c694bbb3cf26c46306e6, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 2f82ab6ae21cd6a46ae276036f3e599e, type: 2}
+    quantity: 2

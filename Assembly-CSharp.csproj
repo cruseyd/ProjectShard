@@ -68,24 +68,36 @@
     <Compile Include="Assets\Scripts\ActorParticles.cs" />
     <Compile Include="Assets\Scripts\BarDisplay.cs" />
     <Compile Include="Assets\Scripts\Card.cs" />
+    <Compile Include="Assets\Scripts\CardAbilities_Fen.cs" />
+    <Compile Include="Assets\Scripts\CardAbilities_Iri.cs" />
+    <Compile Include="Assets\Scripts\CardAbilities_Raiz.cs" />
     <Compile Include="Assets\Scripts\CardData.cs" />
+    <Compile Include="Assets\Scripts\CardEngine.cs" />
     <Compile Include="Assets\Scripts\CardEvents.cs" />
+    <Compile Include="Assets\Scripts\CardHeader.cs" />
     <Compile Include="Assets\Scripts\CardParticles.cs" />
     <Compile Include="Assets\Scripts\CardPool.cs" />
     <Compile Include="Assets\Scripts\CardState.cs" />
+    <Compile Include="Assets\Scripts\CardZone.cs" />
+    <Compile Include="Assets\Scripts\ColumnDisplay.cs" />
     <Compile Include="Assets\Scripts\Deck.cs" />
     <Compile Include="Assets\Scripts\Decklist.cs" />
+    <Compile Include="Assets\Scripts\DecklistDisplay.cs" />
     <Compile Include="Assets\Scripts\Display.cs" />
     <Compile Include="Assets\Scripts\DoubleClickable.cs" />
+    <Compile Include="Assets\Scripts\DraftPack.cs" />
+    <Compile Include="Assets\Scripts\Drafter.cs" />
     <Compile Include="Assets\Scripts\Dungeon.cs" />
     <Compile Include="Assets\Scripts\Enemy.cs" />
     <Compile Include="Assets\Scripts\EnemyData.cs" />
     <Compile Include="Assets\Scripts\Equipment.cs" />
     <Compile Include="Assets\Scripts\EquipmentAbility.cs" />
     <Compile Include="Assets\Scripts\EquipmentData.cs" />
+    <Compile Include="Assets\Scripts\GameData.cs" />
     <Compile Include="Assets\Scripts\GameEvents.cs" />
     <Compile Include="Assets\Scripts\GameParams.cs" />
     <Compile Include="Assets\Scripts\GamePhase.cs" />
+    <Compile Include="Assets\Scripts\GameStartMenu.cs" />
     <Compile Include="Assets\Scripts\GameState.cs" />
     <Compile Include="Assets\Scripts\ICommand.cs" />
     <Compile Include="Assets\Scripts\ITargetable.cs" />
@@ -93,14 +105,16 @@
     <Compile Include="Assets\Scripts\Keywords.cs" />
     <Compile Include="Assets\Scripts\MessageManager.cs" />
     <Compile Include="Assets\Scripts\MessageWindow.cs" />
+    <Compile Include="Assets\Scripts\Modifier.cs" />
     <Compile Include="Assets\Scripts\ParticleLineRenderer.cs" />
+    <Compile Include="Assets\Scripts\PauseMenu.cs" />
     <Compile Include="Assets\Scripts\Player.cs" />
     <Compile Include="Assets\Scripts\PlayerData.cs" />
     <Compile Include="Assets\Scripts\SimpleCameraController.cs" />
     <Compile Include="Assets\Scripts\Stat.cs" />
     <Compile Include="Assets\Scripts\StatDisplay.cs" />
+    <Compile Include="Assets\Scripts\StatusAbility.cs" />
     <Compile Include="Assets\Scripts\StatusData.cs" />
-    <Compile Include="Assets\Scripts\StatusDisplay.cs" />
     <Compile Include="Assets\Scripts\StatusEffect.cs" />
     <Compile Include="Assets\Scripts\TargetNode.cs" />
     <Compile Include="Assets\Scripts\TargetProjectile.cs" />
@@ -352,6 +366,9 @@
     </Reference>
     <Reference Include="Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary">
       <HintPath>D:/Users/cgebhart/Documents/Unity/ProjectShard/Library/ScriptAssemblies/Unity.RenderPipelines.ShaderGraph.ShaderGraphLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.2D.Sprite.Editor">
+      <HintPath>D:/Users/cgebhart/Documents/Unity/ProjectShard/Library/ScriptAssemblies/Unity.2D.Sprite.Editor.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Postprocessing.Runtime">
       <HintPath>D:/Users/cgebhart/Documents/Unity/ProjectShard/Library/ScriptAssemblies/Unity.Postprocessing.Runtime.dll</HintPath>

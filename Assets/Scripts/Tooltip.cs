@@ -14,8 +14,8 @@ public class Tooltip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     {
         Vector2 pos = eventData.position;
         GameObject window = Dungeon.tooltipWindow;
-        window.transform.Find("header").GetComponent<TextMeshProUGUI>().text = header;
-        window.transform.Find("content").GetComponent<TextMeshProUGUI>().text = content;
+        window.transform.Find("header").GetComponent<TextMeshProUGUI>().text = Icons.Parse(header);
+        window.transform.Find("content").GetComponent<TextMeshProUGUI>().text = Icons.Parse(content);
         window.SetActive(true);
         float dx = window.GetComponent<RectTransform>().rect.width * 0.6f;
         float dy = window.GetComponent<RectTransform>().rect.height * 0.6f;

@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Rampaging Swordtusk
   id: RAMPAGING_SWORDTUSK
   level: 4
-  color: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 5
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 2
+  type: 3
   keywords: bc020000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 4
-  health: 5
+  endurance: 5
   upkeep: 3
   damageType: 102

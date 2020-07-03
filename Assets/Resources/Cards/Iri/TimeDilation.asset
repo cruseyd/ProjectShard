@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
+  m_Name: TimeDilation
+  m_EditorClassIdentifier: 
+  name: Time Dilation
+  id: TIME_DILATION
+  level: 4
+  color: 4
+  violetAffinity: 0
+  redAffinity: 0
+  goldAffinity: 0
+  greenAffinity: 0
+  blueAffinity: 2
+  indigoAffinity: 0
+  rarity: 1
+  type: 1
+  keywords: 91010000
+  abilityKeywords: 
+  strength: 1
+  perception: 3
+  finesse: 2
+  power: 0
+  health: 0
+  upkeep: 0
+  damageType: 0

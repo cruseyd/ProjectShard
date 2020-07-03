@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d0505e19a7b8e4428aa6b16e5f27fc6, type: 3}
+  m_Name: Warrior
+  m_EditorClassIdentifier: 
+  name: Warrior
+  maxHealth: 20
+  weapon: {fileID: 0}
+  armor: {fileID: 0}
+  cardPool:
+    pool:
+    - rates:
+      - card: {fileID: 11400000, guid: b6848aadc5f4a324e8b71bca8da8aafc, type: 2}
+        rate: 0
+      - card: {fileID: 11400000, guid: f8c26e9bf3ce7ee438295f5069162df8, type: 2}
+        rate: 0.5
+      - card: {fileID: 11400000, guid: 2f82ab6ae21cd6a46ae276036f3e599e, type: 2}
+        rate: 0.75
+      quantity: 4
+    - rates:
+      - card: {fileID: 11400000, guid: e15e3eabe6431724aa84e84b1dd0ac01, type: 2}
+        rate: 0
+      - card: {fileID: 11400000, guid: 631cbda8ae84c694bbb3cf26c46306e6, type: 2}
+        rate: 0.5
+      quantity: 4
+    - rates:
+      - card: {fileID: 11400000, guid: 9548ac64be6876e468dd297eed2a60c9, type: 2}
+        rate: 0
+      - card: {fileID: 11400000, guid: 631cbda8ae84c694bbb3cf26c46306e6, type: 2}
+        rate: 0.5
+      quantity: 3
+  decklist: {fileID: 0}

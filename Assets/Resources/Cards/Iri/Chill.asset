@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Chill
   id: CHILL
   level: 1
-  color: 5
+  color: 4
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
+  rarity: 0
   type: 1
   keywords: 33010000
+  abilityKeywords: 
   strength: 1
-  perception: 2
+  perception: 1
   finesse: 1
   power: 0
-  allegiance: 0
+  health: 0
   upkeep: 0
   damageType: 0

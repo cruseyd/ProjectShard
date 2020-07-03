@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Pitfall Vine
   id: PITFALL_VINE
   level: 1
-  color: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 4
+  type: 3
   keywords: bf020000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 1
-  health: 1
+  endurance: 1
   upkeep: 0
   damageType: 102

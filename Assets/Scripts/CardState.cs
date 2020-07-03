@@ -13,7 +13,7 @@ public class CardState
     {
         source = card;
         power = card.power.value;
-        health = card.health.value;
+        health = card.endurance.value;
         active = true;
     }
     public void Damage(int damage)

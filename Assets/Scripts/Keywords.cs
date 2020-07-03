@@ -44,23 +44,28 @@ public enum Keyword
     SHELL,
     PLANT,
     SPIRIT,
-    UNDEAD
+    UNDEAD,
+    ELEMENTAL
 }
 
 public static class Keywords
 {
     public static string Parse(Keyword word)
     {
-        return word.ToString("g");
+        return "<b>" + word.ToString("g").ToLower() + "</b>";
     }
     public static string Parse(Card.Type type)
     {
-        return type.ToString("g");
-        
+        return "<b>" + type.ToString("g").ToLower() + "</b>";
     }
     public static string Parse(Equipment.Type type)
     {
-        return type.ToString("g");
+        return "<b>" + type.ToString("g").ToLower() + "</b>";
+    }
+
+    public static string Parse(KeywordAbility.Key word)
+    {
+        return "<b>" + word.ToString("g").ToLower() + "</b>";
     }
 }
 
@@ -72,6 +77,9 @@ public abstract class KeywordAbility
         DEFAULT = 0,
         SWIFT,
         NIMBLE,
+        GUARDIAN,
+        ELUSIVE,
+        EPHEMERAL,
         BLOODLUST_1 = 100,
         BLOODLUST_2,
         BLOODLUST_3,
@@ -86,17 +94,23 @@ public abstract class KeywordAbility
 
     protected Card _user;
     protected int _level;
+    protected Key _key;
+    public Key key { get { return _key; } }
 
     public static KeywordAbility Get(Key key, Card user)
     {
         switch (key)
         {
             case Key.SWIFT: return new KA_Swift(0, user);
+            case Key.EPHEMERAL: return new KA_Ephemeral(0, user);
             case Key.BLOODLUST_1: return new KA_Bloodlust(1, user);
             case Key.BLOODLUST_2: return new KA_Bloodlust(2, user);
             case Key.BLOODLUST_3: return new KA_Bloodlust(3, user);
             case Key.BLOODLUST_4: return new KA_Bloodlust(4, user);
             case Key.BLOODLUST_5: return new KA_Bloodlust(5, user);
+            case Key.NIMBLE:
+            case Key.GUARDIAN:
+            case Key.ELUSIVE:
             default: return null;
         }
     }
@@ -107,10 +121,32 @@ public abstract class KeywordAbility
     }
 }
 
+public class KA_Ephemeral : KeywordAbility
+{
+    public KA_Ephemeral(int level, Card card) : base(level, card)
+    {
+        _user.cardEvents.onEnterDiscard += EnterDiscardHandler;
+        _key = Key.EPHEMERAL;
+    }
+
+    private void EnterDiscardHandler(Card card)
+    {
+        card.StartCoroutine(doDiscard());
+    }
+
+    private IEnumerator doDiscard()
+    {
+        Card user = _user as Card;
+        user.StartCoroutine(user.Zoom(true, 0.1f));
+        yield return user.Translate(Vector2.zero);
+        user.Delete();
+    }
+}
 public class KA_Swift : KeywordAbility
 {
     public KA_Swift(int level, Card card) : base(level, card)
     {
+        _key = Key.SWIFT;
         _user.cardEvents.onEnterPlay += EnterPlayHandler;
     }
 
@@ -135,9 +171,10 @@ public class KA_Bloodlust : KeywordAbility
 
     private void PlayCardHandler(Card card)
     {
-        if (card.type == Card.Type.ABILITY)
+        if (card.type == Card.Type.TECHNIQUE && _user.inPlay)
         {
             _user.controller.actorEvents.onPlayCard -= PlayCardHandler;
+            _user.AddModifier(new StatModifier(_level, Stat.Name.POWER, null, StatModifier.Duration.START_OF_TURN));
         }
     }
 }

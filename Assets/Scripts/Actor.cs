@@ -5,7 +5,7 @@ using UnityEngine;
 public abstract class Actor : MonoBehaviour, ITargetable
 {
     [SerializeField] protected ValueDisplay _healthDisplay;
-    [SerializeField] protected GameObject _statusDisplays;
+    [SerializeField] protected Transform _statusDisplays;
     [SerializeField] protected Deck _deck;
     [SerializeField] protected bool _playerControlled;
 
@@ -16,11 +16,12 @@ public abstract class Actor : MonoBehaviour, ITargetable
     protected List<ITargetable> _validTargets;
     protected ActorEvents _actorEvents;
     protected TargetEvents _targetEvents;
+    protected List<Card> _playedThisTurn;
 
-    public CardZone handZone;
-    public CardZone activeZone;
-    public CardZone discardZone;
-    
+    CardZone handZone;
+    CardZone activeZone;
+    CardZone discardZone;
+
     public Actor opponent
     {
         get
@@ -44,7 +45,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public Equipment armor { get { return _armor; } }
     public Equipment relic { get { return _relic; } }
     
-    protected Dictionary<StatusName, StatusEffect> _statusEffects;
+    protected Dictionary<StatusEffect.ID, StatusEffect> _statusEffects;
 
     public ActorParticles particles;
 
@@ -53,63 +54,34 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public Stat health;
     public Stat maxHealth;
     public Deck deck { get { return _deck; } }
-    public Card[] hand {
+    public List<Card> hand {
         get {
-            if (playerControlled)
-            {
-                return Dungeon.GetCards(CardZone.PLAYER_HAND);
-            } else
-            {
-                return Dungeon.GetCards(CardZone.DUNGEON_HAND);
-            }
+            return Dungeon.GetCards(CardZone.Type.HAND, playerControlled);
         }
     }
-    public Card[] active
+    public List<Card> active
     {
         get
         {
-            if (playerControlled)
-            {
-                return Dungeon.GetCards(CardZone.PLAYER_ACTIVE);
-            }
-            else
-            {
-                return Dungeon.GetCards(CardZone.DUNGEON_ACTIVE);
-            }
+            return Dungeon.GetCards(CardZone.Type.ACTIVE, playerControlled);
         }
     }
-    public Card[] discard
+    public List<Card> discard
     {
         get
         {
-            if (playerControlled)
-            {
-                return Dungeon.GetCards(CardZone.PLAYER_DISCARD);
-            }
-            else
-            {
-                return Dungeon.GetCards(CardZone.DUNGEON_DISCARD);
-            }
+            return Dungeon.GetCards(CardZone.Type.DISCARD, playerControlled);
         }
     }
 
     public virtual void Awake()
     {
-        _statusEffects = new Dictionary<StatusName, StatusEffect>();
-        StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
-        foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
+        _statusEffects = new Dictionary<StatusEffect.ID, StatusEffect>();
+        //StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
+        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
 
-        if (playerControlled)
-        {
-            handZone = CardZone.PLAYER_HAND;
-            activeZone = CardZone.PLAYER_ACTIVE;
-            discardZone = CardZone.PLAYER_DISCARD;
-        } else
-        {
-            handZone = CardZone.DUNGEON_HAND;
-            activeZone = CardZone.DUNGEON_ACTIVE;
-            discardZone = CardZone.DUNGEON_DISCARD;
-        }
+        
+        _playedThisTurn = new List<Card>();
         _validTargets = new List<ITargetable>();
         health = new Stat(0);
         maxHealth = new Stat(0);
@@ -118,8 +90,14 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual void Start()
     {
+        handZone = Dungeon.GetZone(CardZone.Type.HAND, playerControlled);
+        activeZone = Dungeon.GetZone(CardZone.Type.ACTIVE, playerControlled);
+        discardZone = Dungeon.GetZone(CardZone.Type.DISCARD, playerControlled);
+
         GameEvents.current.onQueryTarget += MarkTarget;
         GameEvents.current.onRefresh += Refresh;
+        actorEvents.onPlayCard += AddToPlayed;
+        actorEvents.onPostTurn += ClearPlayed;
     }
 
     public virtual void OnDestroy()
@@ -130,40 +108,47 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public virtual void Discard(Card card)
     {
         card.FaceUp(true, false);
-        Dungeon.MoveCard(card, discardZone);
+        card.Move(discardZone);
         card.particles.Clear();
     }
     public virtual void DiscardRandom()
     {
-        if (hand.Length > 0)
+        if (hand.Count > 0)
         {
-            int choice = Random.Range(0, hand.Length);
+            int choice = Random.Range(0, hand.Count);
             Discard(hand[choice]);
         }
     }
     public virtual void PutInPlay(Card card, bool selfControl = true)
     {
         card.FaceUp(true, true);
-        if (selfControl) { Dungeon.MoveCard(card, activeZone); }
+        if (selfControl) { card.Move(activeZone); }
         else {
-            Dungeon.MoveCard(card, opponent.activeZone);
+            card.Move(opponent.activeZone);
             card.SwitchController();
         }
+    }
+    public virtual void AddToHand(Card card)
+    {
+        card.FaceUp(playerControlled, true);
+        card.Move(handZone);
+        card.Refresh();
     }
     public virtual void Draw()
     {
         Card card = _deck.Draw();
-        card.FaceUp(playerControlled, true);
-        Dungeon.MoveCard(card, handZone);
-        card.Refresh();
-        actorEvents.DrawCard(card);
-        card.cardEvents.Draw();
+        if (card != null)
+        {
+            AddToHand(card);
+            actorEvents.DrawCard(card);
+            card.cardEvents.Draw();
+        }
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
-    public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
+    //public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
     public virtual IEnumerator DoDraw(int n)
     {
-        float duration = Dungeon.gameParams.cardAnimationRate;
+        float duration = GameData.instance.cardAnimationRate;
         for (int ii = 0; ii < n; ii++)
         {
             Draw();
@@ -172,11 +157,22 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual IEnumerator DoDiscardAll()
     {
-        float duration = Dungeon.gameParams.cardAnimationRate;
-        Card[] handCards = hand;
+        float duration = GameData.instance.cardAnimationRate;
+        List<Card> handCards = hand;
         foreach (Card card in handCards)
         {
+            Attempt attempt = new Attempt();
+            card.cardEvents.TryCycle(attempt);
+            if (!attempt.success) { continue; }
+            /*
+            if (card.GetStatus(StatusEffect.ID.MEMORIZED) > 0)
+            {
+                card.RemoveStatus(StatusEffect.ID.MEMORIZED);
+                continue;
+            }
+            */
             Discard(card);
+            card.cardEvents.Cycle();
             yield return new WaitForSeconds(duration);
         }
     }
@@ -185,6 +181,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
         _healthDisplay.value = health.value;
         _healthDisplay.baseValue = maxHealth.value;
         particles.Clear();
+        targetEvents.Refresh();
     }
     
     public virtual void StartEncounter()
@@ -192,6 +189,22 @@ public abstract class Actor : MonoBehaviour, ITargetable
         health.baseValue = maxHealth.value;
     }
 
+    public List<Card> GetCardsWithKeyword(Keyword key, CardZone.Type zone)
+    {
+        List<Card> matches = new List<Card>();
+        List<Card> cards = new List<Card>();
+        switch (zone)
+        {
+            case CardZone.Type.HAND: cards = hand; break;
+            case CardZone.Type.ACTIVE: cards = active; break;
+            case CardZone.Type.DISCARD: cards = discard; break;
+        }
+        foreach (Card card in cards)
+        {
+            if (card.HasKeyword(key)) { matches.Add(card); }
+        }
+        return matches;
+    }
     public virtual void IncrementHealth(int value)
     {
         health.baseValue += value;
@@ -206,27 +219,43 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public virtual void Damage(DamageData data)
     {
         if (data == null) { return; }
-
-        data.source.targetEvents.DealRawDamage(data);
-        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
-        data.source.targetEvents.DealModifiedDamage(data);
-        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
-        data.source.targetEvents.DealDamage(data);
-        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealDamage(data); }
+        if (data.source != null)
+        {
+            data.source.targetEvents.DealRawDamage(data);
+            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
+            data.source.targetEvents.DealModifiedDamage(data);
+            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
+            
+        }
 
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
+
         health.baseValue -= data.damage;
+        
+        if (data.source != null)
+        {
+            data.source.targetEvents.DealDamage(data);
+            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealDamage(data); }
+        }
         targetEvents.TakeDamage(data);
 
         if (data.damage > 0)
         {
             targetEvents.LoseHealth(data.damage);
         }
+        ResolveDamage(data);
     }
     public virtual void ResolveDamage(DamageData data)
     {
-
+        if (health.value <= 0)
+        {
+            if (!GameData.instance.invincible)
+            {
+                if (!playerControlled) { Dungeon.instance.Victory(); }
+                else { Dungeon.instance.Defeat(); }
+            }
+        }
     }
     // ITargetable Interface
     public void AddTarget(ITargetable target)
@@ -257,8 +286,9 @@ public abstract class Actor : MonoBehaviour, ITargetable
         bool flag = true;
         // automatic disqualifiers
         if (query.isNot != null && (query.isNot.Equals(this))) { return false; }
-        if (query.cardColor != Card.Color.DEFAULT) { return false; }
-        if (query.cardType != Card.Type.DEFAULT) { return false; }
+        if (query.cardColor.Count > 0) { return false; }
+        if (query.cardType.Count > 0) { return false; }
+        if (query.keyword.Count > 0) { return false; }
         if (query.templateParams.Count > 0) { return false; }
 
         // actual checks
@@ -281,10 +311,10 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public TargetTemplate GetQuery(Ability.Mode mode, int n)
     {
-        Debug.Assert(mode == Ability.Mode.INFUSE);
+        //Debug.Assert(mode == Ability.Mode.INFUSE);
         Debug.Assert(n == 0);
         TargetTemplate t = new TargetTemplate();
-        t.cardType = Card.Type.THRALL;
+        t.cardType.Add(Card.Type.THRALL);
         t.inPlay = true;
         t.isSelf = true;
         return t;
@@ -298,38 +328,45 @@ public abstract class Actor : MonoBehaviour, ITargetable
         List<ICommand> moves = new List<ICommand>();
         return moves;
     }
-    public virtual void AddStatus(StatusName id, int stacks = 1)
+    public virtual void AddStatus(StatusEffect.ID id, int stacks = 1)
     {
+        Attempt attempt = new Attempt();
+        targetEvents.TryGainStatus(id, stacks, attempt);
+        if (!attempt.success)
+        {
+            Debug.Log("Prevented " + id.ToString());
+            return;
+        }
         if (_statusEffects.ContainsKey(id))
         {
             _statusEffects[id].stacks += stacks;
             targetEvents.GainStatus(_statusEffects[id], stacks);
         } else
         {
-            int n = _statusEffects.Count;
-            StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
-            StatusEffect s = new StatusEffect(id, this, display, stacks);
-            _statusEffects[id] = s;
-            targetEvents.GainStatus(_statusEffects[id], stacks);
+            StatusEffect effect = StatusEffect.Spawn(id, this, stacks);
+            effect.transform.parent = _statusDisplays;
+            _statusEffects[id] = effect;
         }
     }
-    public virtual void RemoveStatus(StatusName id, int stacks = 1)
+    public virtual void RemoveStatus(StatusEffect.ID a_id, int a_stacks = 9999)
     {
-        if (_statusEffects.ContainsKey(id))
+        Debug.Log("Removing " + a_stacks + " stacks of " + a_id.ToString());
+        if (_statusEffects.ContainsKey(a_id))
         {
-            StatusEffect s = _statusEffects[id];
-            targetEvents.RemoveStatus(s, stacks);
-            if (stacks >= s.stacks)
+            StatusEffect s = _statusEffects[a_id];
+            
+            targetEvents.RemoveStatus(s, a_stacks);
+            if (a_stacks >= s.stacks)
             {
-                _statusEffects[id].Remove();
-                _statusEffects.Remove(id);
+                _statusEffects[a_id].Remove();
+                _statusEffects.Remove(a_id);
             } else
             {
-                s.stacks -= stacks;
+                s.stacks -= a_stacks;
             }
         }
     }
-    public virtual int GetStatus(StatusName id)
+    public virtual int GetStatus(StatusEffect.ID id)
     {
         if (_statusEffects.ContainsKey(id))
         {
@@ -340,4 +377,26 @@ public abstract class Actor : MonoBehaviour, ITargetable
             return 0;
         }
     }
+
+    public int NumPlayedThisTurn(TargetTemplate template)
+    {
+        int n = 0;
+        foreach (Card card in _playedThisTurn)
+        {
+            if (card.Compare(template, this)) { n++; }
+        }
+        return n;
+    }
+
+    public bool PlayedThisTurn(Card card)
+    {
+        return _playedThisTurn.Contains(card);
+    }
+
+    protected void AddToPlayed(Card card)
+    {
+        _playedThisTurn.Add(card);
+    }
+
+    protected void ClearPlayed(Actor actor) { _playedThisTurn.Clear(); }
 }

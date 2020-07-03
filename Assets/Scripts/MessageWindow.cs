@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 using UnityEngine.EventSystems;
 
@@ -11,7 +12,8 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     [SerializeField] private Transform _content;
     [SerializeField] private GameObject _contentPrefab;
-    
+    [SerializeField] private ScrollRect scrollRect;
+
     private Queue<GameObject> _messages;
     // Start is called before the first frame update
     void Awake()
@@ -32,16 +34,15 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         GameObject msgGO = Instantiate(_contentPrefab) as GameObject;
         msgGO.transform.SetParent(_content);
-        msgGO.transform.SetSiblingIndex(0);
+        //msgGO.transform.SetSiblingIndex(0);
         msgGO.GetComponent<TextMeshProUGUI>().text = message;
         _messages.Enqueue(msgGO);
         if (_messages.Count > maxMessages)
         {
             Destroy(_messages.Dequeue());
         }
-
+        scrollRect.verticalNormalizedPosition = 0;
     }
-
     public IEnumerator Expand(bool flag, float heightScale = 1, float duration = 0.25f)
     {
         if (flag)
@@ -62,14 +63,12 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
             yield return null;
         }
     }
-
     public void OnPointerEnter(PointerEventData eventData)
     {
         transform.SetAsLastSibling();
         StopAllCoroutines();
         StartCoroutine(Expand(true, 3));
     }
-
     public void OnPointerExit(PointerEventData eventData)
     {
         StopAllCoroutines();

@@ -28,7 +28,8 @@ public class GameEvents : MonoBehaviour
     public event Action<TargetTemplate, ITargetable, bool> onQueryTarget;
     public event Action<TemplateModifier> onAddGlobalModifier;
     public event Action<TemplateModifier> onRemoveGlobalModifier;
-
+    public event Action<DamageData> onCardDamaged;
+    public event Action<Card> onCardDestroyed;
     public event Action<ITargetable, ITargetable, ITargetable> onDeclareTarget;
 
     public void SpawnCard(Card card) { onSpawnCard?.Invoke(card); }
@@ -42,4 +43,7 @@ public class GameEvents : MonoBehaviour
     public void AddGlobalModifier(TemplateModifier mod) { onAddGlobalModifier?.Invoke(mod); }
     public void RemoveGlobalModifier(TemplateModifier mod) { onRemoveGlobalModifier?.Invoke(mod); }
     public void SelectTarget(ITargetable observer, ITargetable source, ITargetable target) { onDeclareTarget?.Invoke(observer, source, target); }
+
+    public void CardDamaged(DamageData data) { onCardDamaged?.Invoke(data); }
+    public void CardDestroyed(Card card) { onCardDestroyed?.Invoke(card); }
 }

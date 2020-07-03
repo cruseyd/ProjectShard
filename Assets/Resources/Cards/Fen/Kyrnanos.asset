@@ -14,21 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: 'Kyrnanos: Lord of the Wild'
   id: KYRNANOS
-  level: 1
-  color: 4
+  level: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
-  greenAffinity: 0
+  greenAffinity: 3
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 3
+  type: 3
   keywords: bc02000058020000
   abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
-  power: 4
-  health: 4
+  power: 3
+  endurance: 4
   upkeep: 4
   damageType: 0

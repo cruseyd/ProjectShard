@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: 
+  name: Mage
+  list:
+  - card: {fileID: 11400000, guid: e8b247b3eb7a7024a95d50eba521b0f7, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: 125150cd9a4bd144585b9fd1b8982987, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 488527a56cc5a494a9cc62372ffe83e8, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: 9cd9d6ae597c26140aa9c813aa81d175, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 03a67418f0d94174fab6fea08a5d8b90, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: d87c9e4b6c255de4aa42d06ebfd6387b, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 20837062ed70d3b4cb7a8c03574d2a3e, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 06cdf0d2438697a42861a06b739fcf92, type: 2}
+    quantity: 2

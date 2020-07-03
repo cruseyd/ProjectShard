@@ -43,11 +43,11 @@ public class GameState
     public GameState(Actor current)
     {
         pov = current;
-        numHandCards = current.hand.Length;
-        opposingNumHandCards = current.opponent.hand.Length;
+        numHandCards = current.hand.Count;
+        opposingNumHandCards = current.opponent.hand.Count;
         friendlyCards = new List<CardState>();
         opposingCards = new List<CardState>();
-        foreach (Card card in Dungeon.GetCards(CardZone.DUNGEON_ACTIVE))
+        foreach (Card card in Enemy.instance.active)
         {
             if (current == Enemy.instance)
             {
@@ -57,7 +57,7 @@ public class GameState
                 opposingCards.Add(new CardState(card));
             }
         }
-        foreach (Card card in Dungeon.GetCards(CardZone.PLAYER_ACTIVE))
+        foreach (Card card in Player.instance.active)
         {
             if (current == Enemy.instance)
             {

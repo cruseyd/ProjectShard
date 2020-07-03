@@ -5,70 +5,17 @@ using UnityEngine.EventSystems;
 
 public class Targeter : MonoBehaviour
 {
-    public static Targeter current;
-
-    [SerializeField] private ParticleLineRenderer _targetBeam;
-    private static ITargetable _source;
-    private static List<ITargetable> _targets;
-    private static Ability.Mode _abilityMode;
-    public static bool active = false;
-    public static int numSelected { get { return _targets.Count; } }
-    public static ITargetable source { get { return _source; } }
-    public static TargetTemplate currentQuery
+    [SerializeField] private ParticleLineRenderer _line;
+    private List<ITargetable> _targets;
+    private Ability.Mode _mode;
+    public bool interactive;
+    public ITargetable source;
+    public TargetTemplate query
     {
         get
         {
-            return source.GetQuery(_abilityMode, _targets.Count);
+            return source.GetQuery(_mode, _targets.Count);
         }
-    }
-    public void Awake()
-    {
-        if (current == null)
-        {
-            current = this;
-            _targets = new List<ITargetable>();
-            _source = null;
-        }
-        else { Destroy(this.gameObject); }
-    }
-    public void Update()
-    {
-        if (active)
-        {
-            ShowTarget(_source.transform.position, Input.mousePosition);
-        }
-    }
-    public static void SetSource(ITargetable src, Ability.Mode mode)
-    {
-        active = true;
-        _source = src;
-        _abilityMode = mode;
-        current._targetBeam.gameObject.SetActive(true);
-        src.FindTargets(_abilityMode, 0, true);
-    }
-    public static int AddTarget(ITargetable node)
-    {
-        if (node.Compare(currentQuery, source.controller))
-        {
-            _targets.Add(node);
-            Resolve();
-        }
-        return _targets.Count;
-    }
-    public static void Resolve()
-    {
-        if (!source.Resolve(_abilityMode, _targets))
-        {
-            _source.FindTargets(_abilityMode, _targets.Count, true);
-        }
-    }
-    public static void Clear()
-    {
-        _source = null;
-        active = false;
-        current._targetBeam.gameObject.SetActive(false);
-        _targets.Clear();
-        GameEvents.current.Refresh();
     }
     public static ITargetable HoveredTarget(PointerEventData eventData)
     {
@@ -76,27 +23,82 @@ public class Targeter : MonoBehaviour
         EventSystem.current.RaycastAll(eventData, hits);
         foreach (RaycastResult hit in hits)
         {
+            //Debug.Log("Checking " + hit.gameObject.name);
             ITargetable node = hit.gameObject.GetComponent<ITargetable>();
-            if (node != null) { return node; }
+            if (node != null)
+            {
+                //Debug.Log("Targeter sees an ITargetable");
+                return node;
+            }
         }
         return null;
     }
+    public void Update()
+    {
+        if (interactive)
+        {
+            _line.SetTarget(Input.mousePosition);
+        }
+    }
+    public void Set(ITargetable src, Ability.Mode mode, bool show = true)
+    {
+        interactive = true;
+        source = src;
+        _mode = mode;
+        _targets = new List<ITargetable>();
+        _line.gameObject.SetActive(true);
+        _line.transform.position = source.transform.position;
+        source.FindTargets(_mode, 0, show);
+    }
+    public void Show(ITargetable src, ITargetable target)
+    {
+        interactive = false;
+        source = null;
+        _line.gameObject.SetActive(true);
+        _line.transform.position = src.transform.position;
+        _line.SetTarget(target.transform.position);
+    }
 
-    public static void ShowTarget(ITargetable source, ITargetable target)
+    public void Show(Transform src, Transform target)
     {
-        current._targetBeam.transform.position = source.transform.position;
-        current._targetBeam.SetTarget(target.transform.position);
-        current._targetBeam.gameObject.SetActive(true);
-    }
-    public static void ShowTarget(Vector3 source, Vector3 target)
-    {
-        current._targetBeam.transform.position = source;
-        current._targetBeam.SetTarget(target);
-        current._targetBeam.gameObject.SetActive(true);
+        interactive = false;
+        source = null;
+        _line.gameObject.SetActive(true);
+        _line.transform.position = src.position;
+        _line.SetTarget(target.position);
     }
 
-    public static void HideTargeter()
+    public void AddTarget(ITargetable target)
     {
-        current._targetBeam.gameObject.SetActive(false);
+        Debug.Assert(source != null);
+        if (target.Compare(query, source.controller))
+        {
+            _targets.Add(target);
+            if (target is Card)
+            {
+                Card card = target as Card;
+                card.particles.Burst();
+                //card.particles.GlowGold();
+            }
+            Resolve();
+        }
     }
+    public void Resolve()
+    {
+        Debug.Assert(source != null);
+        if (source.Resolve(_mode, _targets))
+        {
+            Destroy(this.gameObject);
+        }
+        else
+        {
+            source.FindTargets(_mode, _targets.Count, true);
+        }
+    }
+
+    public void Hide(bool flag)
+    {
+        _line.gameObject.SetActive(!flag);
+    }
+
 }

@@ -22,8 +22,10 @@ MonoBehaviour:
   greenAffinity: 0
   blueAffinity: 1
   indigoAffinity: 0
-  type: 2
+  rarity: 1
+  type: 1
   keywords: c800000032010000
+  abilityKeywords: 
   strength: 1
   perception: 2
   finesse: 3

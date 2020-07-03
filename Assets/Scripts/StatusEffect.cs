@@ -1,149 +1,91 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class StatusEffect
+public class StatusEffect : MonoBehaviour
 {
-    public readonly StatusDisplay display;
-    public readonly ITargetable target;
-    public readonly StatusData data;
 
-    private int _stacks;
+    public enum ID
+    {
+        DEFAULT,
+        DAZE,
+        STUN,
+        CHILL,
+        FROZEN,
+        IMPALE,
+        BURN,
+        MEMORIZED,
+        INSIGHT,
+        ARMOR,
+        FRENZY,
+        FIREBRAND
+    }
+
+    private static GameObject _prefab;
+
+    private StatusData _data;
+    private ITargetable _target;
+    private StatusAbility _ability;
+    [SerializeField] private ValueDisplay _display;
+    [SerializeField] private Image _border;
+    [SerializeField] private Image _icon;
+    [SerializeField] private Tooltip _tooltip;
+
+    
+    public bool stackable { get { return _data.stackable; } }
+    public ID id { get { return _data.id; } }
+    public ITargetable target { get { return _target; } }
     public int stacks
     {
-        get { return _stacks; }
+        get
+        {
+            return _ability.stacks;
+        }
         set
         {
-            _stacks = Mathf.Max(value, 0);
-            if (!data.stackable) { _stacks = Mathf.Min(value, 1); }
-            display.Refresh();
-            if (_stacks <= 0)
-            {
-                target.RemoveStatus(data.id);
-            }
+            _ability.stacks = value;
         }
     }
 
-    public StatusEffect(StatusName id, ITargetable a_target, StatusDisplay a_display, int a_stacks = 1)
+    public static StatusEffect Spawn(ID a_id, ITargetable a_target, int a_stacks = 1)
     {
-        display = a_display;
-        target = a_target;
-        data = Resources.Load("StatusConditions/" + id.ToString()) as StatusData;
-        stacks = a_stacks;
-        switch (id)
+        if (_prefab == null)
         {
-            case StatusName.POISON:
-                target.controller.actorEvents.onStartTurn += Poison; break;
-            case StatusName.BURN:
-                target.controller.actorEvents.onStartTurn += Burn; break;
-            case StatusName.STUN:
-                if (target is Card) { ((Card)target).blockAvailable = false; }
-                target.controller.actorEvents.onStartTurn += Stun; break;
-            case StatusName.IMPALE:
-                if (target is Card) { ((Card)target).blockAvailable = false; }
-                target.controller.actorEvents.onStartTurn += Stun;
-                target.targetEvents.onTakeRawDamage += Impale;
-                break;
-            case StatusName.ELDER_KNOWLEDGE:
-                target.controller.actorEvents.onDrawCard += ElderKnowledge; break;
-            case StatusName.CHILL:
-                target.targetEvents.onGainStatus += Chill; break;
-            case StatusName.DAZE:
-                target.targetEvents.onGainStatus += Daze; break;
-            default: break;
+            _prefab = Resources.Load<GameObject>("Prefabs/StatusEffect") as GameObject;
         }
-        display.SetStatus(this);
-    }
 
+        GameObject effectGO = Instantiate(_prefab) as GameObject;
+        StatusEffect effect = effectGO.GetComponent<StatusEffect>();
+        effect._data = StatusData.Get(a_id);
+        Debug.Assert(effect._data != null);
+        effect._target = a_target;
+        
+        effect._border.color = effect._data.backgroundColor;
+        effect._icon.color = effect._data.iconColor;
+        effect._tooltip.header = effect._data.tooltipHeader;
+        effect._tooltip.content = effect._data.tooltipContent;
+
+        effect._ability = StatusAbility.Get(a_id, a_target, a_stacks);
+        Debug.Assert(effect._ability != null);
+        a_target.targetEvents.onRefresh += effect.Refresh;
+        return effect;
+    }
+    public void Refresh()
+    {
+        if (stackable)
+        {
+            _display.value = stacks;
+            _display.Refresh();
+        } else
+        {
+            _display.SetActive(false);
+        }
+    }
     public void Remove()
     {
-        display.SetStatus(null);
-        switch (data.id)
-        {
-            case StatusName.POISON:
-                target.controller.actorEvents.onStartTurn -= Poison; break;
-            case StatusName.BURN:
-                target.controller.actorEvents.onStartTurn -= Burn; break;
-            case StatusName.STUN:
-                target.controller.actorEvents.onStartTurn -= Stun; break;
-            case StatusName.IMPALE:
-                if (target is Card) { ((Card)target).blockAvailable = false; }
-                target.controller.actorEvents.onStartTurn -= Stun;
-                target.targetEvents.onTakeRawDamage -= Impale;
-                break;
-            case StatusName.ELDER_KNOWLEDGE:
-                target.controller.actorEvents.onDrawCard -= ElderKnowledge; break;
-            case StatusName.CHILL:
-                target.targetEvents.onGainStatus += Chill; break;
-            case StatusName.DAZE:
-                target.targetEvents.onGainStatus -= Daze; break;
-            default: break;
-        }
-    }
-
-
-    private void Poison(Actor actor)
-    {
-        target.Damage(new DamageData(1, Keyword.POISON, null, target));
-        stacks -= 1;
-    }
-    private void Burn(Actor actor)
-    {
-        target.Damage(new DamageData(stacks, Keyword.FIRE, null, target));
-        stacks -= 1;
-    }
-
-    private void Stun(Actor actor)
-    {
-        if (target is Card)
-        {
-            Debug.Assert(((Card)target).type == Card.Type.THRALL);
-            ((Card)target).attackAvailable = false;
-        } else if (target is Actor)
-        {
-            ((Actor)target).DiscardRandom();
-        }
-        target.RemoveStatus(data.id);
-    }
-
-    private void ElderKnowledge(Card drawn)
-    {
-        Debug.Assert(target is Actor);
-        int n = stacks;
-        target.RemoveStatus(data.id);
-        Actor actor = (Actor)target;
-        actor.Draw(n);
-    }
-
-    private void Chill(StatusEffect status, int s)
-    {
-        if (status == null || status.data.id != StatusName.CHILL) { return; }
-        if (target is Card && ((Card)target).cost.value <= status.stacks)
-        {
-            status.stacks -= ((Card)target).cost.value;
-            target.AddStatus(StatusName.STUN, 1);
-        }
-        else if (target is Actor && status.stacks >= 3)
-        {
-            status.stacks -= 3;
-            target.AddStatus(StatusName.STUN, 1);
-        }
-    }
-
-    private void Daze(StatusEffect status, int s)
-    {
-        if (status == null || status.data.id != StatusName.DAZE) { return; }
-        target.AddStatus(StatusName.STUN, 1);
-        target.RemoveStatus(StatusName.DAZE, stacks);
-    }
-
-    private void Impale(DamageData data)
-    {
-        Debug.Assert(data.target == target);
-        if (data.type == Keyword.LIGHTNING)
-        {
-            data.damage += 1;
-        }
+        _ability.Remove();
+        _target.targetEvents.onRefresh -= Refresh;
+        Destroy(this.gameObject);
     }
 }
-

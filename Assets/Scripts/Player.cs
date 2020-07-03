@@ -26,7 +26,7 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     [SerializeField] private ValueDisplay _indigoDisplay;
 
     private List<ValueDisplay> _affinityDisplay;
-    private List<Card> _playedThisTurn;
+    
     public Stat endurance;
     public Stat focus;
     public Stat maxFocus;
@@ -72,7 +72,6 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         affinity.Add(blueAffinity);
         affinity.Add(indigoAffinity);
 
-        _playedThisTurn = new List<Card>();
 
         endurance = new Stat(100);
         health = new Stat(0);
@@ -83,12 +82,13 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public override void Start()
     {
         base.Start();
-        PlayerData data = Resources.Load("PlayerData") as PlayerData;
-        _deck.Init(data.decklist);
-        _weapon.Equip(data.weapon, this);
-        _armor.Equip(data.armor, this);
-        _relic.Equip(data.relic, this);
-        actorEvents.onPlayCard += AddToPlayed;
+        Debug.Log("Initializing player with decklist: " + GameData.playerDecklist.name);
+        _deck.Init(GameData.playerDecklist);
+        
+        //_weapon.Equip(data.weapon, this);
+        //_armor.Equip(data.armor, this);
+        //_relic.Equip(data.relic, this);
+        
         Refresh();
     }
     public override void Refresh()
@@ -107,6 +107,11 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public override void StartEncounter()
     {
         base.StartEncounter();
+        if (GameData.instance.playerDeck != null)
+        {
+            _deck.Init(GameData.instance.playerDeck);
+        }
+        _deck.Shuffle();
         focus.baseValue = maxFocus.value;
     }
     public void StartTurn()
@@ -115,21 +120,23 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     }
     public void EndTurn()
     {
-        Card[] cards = Player.instance.active;
+        List<Card> cards = Player.instance.active;
         foreach (Card card in cards)
         {
-            if (card.needsUpkeep) { Player.instance.Discard(card); }
+            if (card.needsUpkeep)
+            {
+                Player.instance.Discard(card);
+            }
         }
     }
     public IEnumerator DoStartTurn()
     {
-        _playedThisTurn.Clear();
         burnAvailable = true;
         focus.baseValue = maxFocus.value;
         yield return DoRedraw();
-
         GameEvents.current.StartTurn(this);
         actorEvents.StartTurn();
+        actorEvents.BeginTurn();
 
         Dungeon.SetConfirmButtonText("End Turn");
         Dungeon.EnableConfirmButton(true);
@@ -142,13 +149,26 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     }
     public IEnumerator DoRedraw()
     {
+        /*
         foreach (Card card in hand)
         {
-            card.TriggerPassive();
+            if (card.GetStatus(StatusEffect.ID.MEMORIZED) <= 0)
+            {
+                card.TriggerPassive();
+            }
         }
+        */
         yield return DoDiscardAll();
-        yield return DoDraw(Dungeon.gameParams.playerHandSize);
+        yield return DoDraw(GameData.instance.playerHandSize);
+    }
 
+    public void Burn(Card card)
+    {
+        Discard(card);
+        addAffinity(card.data.color, 1);
+        burnAvailable = false;
+        Dungeon.ClearTargeter();
+        GameEvents.current.Refresh();
     }
     public void addAffinity(Card.Color color, int delta)
     {
@@ -167,13 +187,13 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         ITargetable hovered = Targeter.HoveredTarget(eventData);
         if (hovered != null && hovered is Card)
         {
-            Targeter.AddTarget(hovered);
+            Dungeon.targeter.AddTarget(hovered);
         }
-        Targeter.Clear();
+        Dungeon.ClearTargeter();
     }
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Targeter.SetSource(this, Ability.Mode.INFUSE);
+        //Targeter.SetSource(this, Ability.Mode.INFUSE);
     }
     public void OnDrag(PointerEventData eventData)
     {
@@ -181,23 +201,10 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
 
     public override bool Resolve(Ability.Mode mode, List<ITargetable> targets)
     {
-        Debug.Assert(mode == Ability.Mode.INFUSE);
-        Ability.Infuse((Card)targets[0]);
+        //Debug.Assert(mode == Ability.Mode.INFUSE);
+        //Ability.Infuse((Card)targets[0]);
         return true;
     }
 
-    public int NumPlayedThisTurn(TargetTemplate template)
-    {
-        int n = 0;
-        foreach (Card card in _playedThisTurn)
-        {
-            if (card.Compare(template, this)) { n++; }
-        }
-        return n;
-    }
-
-    private void AddToPlayed(Card card)
-    {
-        _playedThisTurn.Add(card);
-    }
+ 
 }

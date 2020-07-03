@@ -19,6 +19,7 @@ public class GameParams : ScriptableObject
     public float hoverDelay = 0.5f;
     public float cardAnimationRate = 0.25f;
 
+    /*
     public Color GetColor(Card.Color color)
     {
         switch (color)
@@ -33,4 +34,5 @@ public class GameParams : ScriptableObject
             default: return Color.white;
         }
     }
+    */
 }

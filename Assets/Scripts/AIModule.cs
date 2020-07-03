@@ -8,6 +8,7 @@ public class AIModule : MonoBehaviour
     public List<ICommand> FindMoves()
     {
         Actor actor = GetComponent<Actor>();
+        Debug.Log("Finding moves for actor " + actor.name);
         List<ICommand> moves = new List<ICommand>();
         foreach(Card card in actor.active)
         {
@@ -17,6 +18,7 @@ public class AIModule : MonoBehaviour
         {
             moves.AddRange(card.FindMoves());
         }
+        Debug.Log("AI module found " + moves.Count + " moves");
         return moves;
     }
 

@@ -14,20 +14,22 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Patience
   id: PATIENCE
-  level: 3
-  color: 4
+  level: 2
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
-  type: 8
+  rarity: 1
+  type: 7
   keywords: 
+  abilityKeywords: 
   strength: 1
   perception: 1
   finesse: 1
   power: 0
-  allegiance: 0
+  health: 0
   upkeep: 0
   damageType: 0

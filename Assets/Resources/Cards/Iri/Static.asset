@@ -15,7 +15,7 @@ MonoBehaviour:
   name: Static
   id: STATIC
   level: 2
-  color: 5
+  color: 4
   violetAffinity: 0
   redAffinity: 1
   goldAffinity: 0
@@ -24,10 +24,11 @@ MonoBehaviour:
   indigoAffinity: 0
   type: 1
   keywords: 
+  abilityKeywords: 
   strength: 1
   perception: 3
   finesse: 2
   power: 0
-  allegiance: 0
+  health: 0
   upkeep: 0
   damageType: 0

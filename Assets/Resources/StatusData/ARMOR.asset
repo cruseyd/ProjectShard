@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
+  m_Name: ARMOR
+  m_EditorClassIdentifier: 
+  id: 11
+  stackable: 1
+  tooltipHeader: Armor
+  tooltipContent: When you would take damage, decrease that damage by 1 and remove
+    1 stack of Armor.
+  iconColor: {r: 0.4433962, g: 0.4433962, b: 0.4433962, a: 1}
+  backgroundColor: {r: 0, g: 0.10823794, b: 0.6037736, a: 1}

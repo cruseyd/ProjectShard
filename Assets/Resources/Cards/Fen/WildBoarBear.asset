@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Wild Boar-Bear
   id: WILD_BOARBEAR
   level: 2
-  color: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 2
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 0
+  type: 3
   keywords: bc020000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 2
-  health: 2
+  endurance: 2
   upkeep: 1
   damageType: 102

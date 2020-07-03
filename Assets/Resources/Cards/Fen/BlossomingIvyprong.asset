@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Blossoming Ivyprong
   id: BLOSSOMING_IVYPRONG
   level: 2
-  color: 4
+  color: 3
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 1
   blueAffinity: 0
   indigoAffinity: 0
-  type: 6
+  rarity: 0
+  type: 3
   keywords: bf020000bc020000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 1
-  health: 1
+  endurance: 2
   upkeep: 1
   damageType: 102

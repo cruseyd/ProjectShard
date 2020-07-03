@@ -24,7 +24,7 @@ public class TargetTemplate
         DEFAULT,
         LEVEL,
         POWER,
-        ALLEGIANCE,
+        HEALTH,
     }
 
     public bool isDamageable;
@@ -35,12 +35,16 @@ public class TargetTemplate
     public bool isSelf;
     public bool isAttackable;
     public ITargetable isNot;
-    public Keyword keyword;
+    public List<Keyword> keyword;
+    public List<KeywordAbility.Key> keywordAbility;
+    public List<Keyword> notKeyword;
+    public List<KeywordAbility.Key> notKeywordAbility;
     public Actor actor;
     public Actor owner;
-    public Card.Type cardType;
-    public Card.Color cardColor;
+    public List<Card.Type> cardType;
+    public List<Card.Color> cardColor;
     public List<TemplateParam> templateParams;
+    public List<Card.Rarity> rarity;
 
 
     public TargetTemplate()
@@ -53,10 +57,14 @@ public class TargetTemplate
         inHand = false;
         actor = null;
         owner = null;
-        keyword = Keyword.DEFAULT;
-        cardType = Card.Type.DEFAULT;
-        cardColor = Card.Color.DEFAULT;
+        keyword = new List<Keyword>();
+        notKeyword = new List<Keyword>();
+        keywordAbility = new List<KeywordAbility.Key>();
+        notKeywordAbility = new List<KeywordAbility.Key>();
+        cardType = new List<Card.Type>();
+        cardColor = new List<Card.Color>();
         templateParams = new List<TemplateParam>();
+        rarity = new List<Card.Rarity>();
         isNot = null;
     }
 

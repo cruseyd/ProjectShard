@@ -10,14 +10,16 @@ public class CardParticles : MonoBehaviour
     [SerializeField] ParticleSystem _redShimmer;
     [SerializeField] ParticleSystem _goldGlow;
     [SerializeField] ParticleSystem _redGlow;
+    [SerializeField] ParticleSystem _burst;
 
     void Start()
     {
-        _goldShimmer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        _blueShimmer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        _redShimmer.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        _goldGlow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        _redGlow.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        Play(_goldShimmer, false);
+        Play(_blueShimmer, false);
+        Play(_redShimmer, false);
+        Play(_goldGlow, false);
+        Play(_redGlow, false);
+        Play(_burst, false);
     }
 
     public void Clear()
@@ -29,59 +31,62 @@ public class CardParticles : MonoBehaviour
         Play(_redGlow, false);
     }
 
-    public void MarkValidTarget()
+    public void ClearGlow()
     {
         Play(_goldGlow, false);
         Play(_redGlow, false);
+    }
+
+    public void ClearShimmer()
+    {
+        Play(_goldShimmer, false);
+        Play(_blueShimmer, false);
+        Play(_redShimmer, false);
+    }
+
+    public void ShimmerBlue()
+    {
         Play(_redShimmer, false);
         Play(_blueShimmer, true);
         Play(_goldShimmer, false);
     }
-    public void MarkSource()
+    public void GlowGold()
     {
         Play(_goldGlow, true);
         Play(_redGlow, false);
-        Play(_redShimmer, false);
-        Play(_blueShimmer, false);
-        Play(_goldShimmer, false);
     }
-    public void MarkActive()
+    public void ShimmerGold()
     {
-        Play(_goldGlow, false);
-        Play(_redGlow, false);
         Play(_redShimmer, false);
         Play(_blueShimmer, false);
         Play(_goldShimmer, true);
     }
-    public void MarkNeedsUpkeep()
+    public void ShimmerRed()
     {
-        Play(_goldGlow, false);
-        Play(_redGlow, false);
         Play(_redShimmer, true);
         Play(_blueShimmer, false);
         Play(_goldShimmer, false);
     }
 
-    public void Glow(bool flag)
+    public void GlowRed()
     {
-        Play(_goldGlow, flag);
+        Play(_redGlow, true);
+        Play(_goldGlow, false);
     }
 
-    public void RedGlow(bool flag)
+    public void Burst()
     {
-        Play(_redGlow, flag);
+        _burst.Stop();
+        _burst.Play();
     }
 
     private void Play(ParticleSystem system, bool flag)
     {
-        if (!system.gameObject.activeSelf) { system.gameObject.SetActive(true); }
-        if (!system.isPlaying && flag)
+        ParticleSystem.EmissionModule emission = system.emission;
+        if ((emission.enabled && !flag) || (!emission.enabled && flag))
         {
-            system.Play();
-        }
-        else if (!flag)
-        {
-            system.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            system.gameObject.SetActive(flag);
+            emission.enabled = flag;
         }
     }
 }

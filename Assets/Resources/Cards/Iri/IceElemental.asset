@@ -15,19 +15,21 @@ MonoBehaviour:
   name: Ice Elemental
   id: ICE_ELEMENTAL
   level: 3
-  color: 5
+  color: 4
   violetAffinity: 0
   redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 3
   indigoAffinity: 0
-  type: 6
+  rarity: 1
+  type: 3
   keywords: 33010000
+  abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
   power: 1
-  health: 4
-  upkeep: 0
+  endurance: 4
+  upkeep: 2
   damageType: 307

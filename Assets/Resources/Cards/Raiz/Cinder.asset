@@ -22,12 +22,14 @@ MonoBehaviour:
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
+  rarity: 0
   type: 1
   keywords: 2c010000
+  abilityKeywords: 
   strength: 1
-  perception: 2
+  perception: 1
   finesse: 1
   power: 0
-  allegiance: 0
+  endurance: 0
   upkeep: 0
   damageType: 0
