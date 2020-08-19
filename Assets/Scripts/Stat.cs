@@ -58,7 +58,6 @@ public class Stat
         else
         {
             _modifiers.Add(mod);
-            mod.SetTarget(this);
             return true;
         }
     }

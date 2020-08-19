@@ -33,6 +33,7 @@ public class TargetEvents
     public event Action<DamageData> onDealRawDamage;
     public event Action<DamageData> onDealModifiedDamage;
     public event Action<DamageData> onDealDamage;
+    public event Action<DamageData> onDealOverflowDamage;
 
     public event Action<DamageData> onTakeRawDamage;
     public event Action<DamageData> onTakeModifiedDamage;
@@ -53,7 +54,7 @@ public class TargetEvents
     public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
     public void DealModifiedDamage(DamageData data) { onDealModifiedDamage?.Invoke(data); }
     public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
-
+    public void DealOverFlowDamage(DamageData data) { onDealOverflowDamage?.Invoke(data); }
     public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
@@ -82,13 +83,15 @@ public class DamageData
     public Keyword type;
     public ITargetable source;
     public ITargetable target;
+    public bool isAttackDamage;
 
-    public DamageData(int value, Keyword key, ITargetable src, ITargetable trg)
+    public DamageData(int value, Keyword key, ITargetable src, ITargetable trg, bool isAttack = false)
     {
         _damage = value;
         type = key;
         source = src;
         target = trg;
+        isAttackDamage = isAttack;
     }
 }
 
@@ -113,6 +116,7 @@ public interface ITargetable : IMonoBehaviour
 
     int GetStatus(StatusEffect.ID id);
 
+    List<StatusEffect.ID> GetAllStatus();
     void Damage(DamageData data);
     void ResolveDamage(DamageData data);
 

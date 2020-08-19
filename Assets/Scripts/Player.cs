@@ -41,7 +41,6 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public List<Stat> affinity;
 
     public bool burnAvailable = true;
-
     
     public override void Awake()
     {
@@ -161,7 +160,16 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         yield return DoDiscardAll();
         yield return DoDraw(GameData.instance.playerHandSize);
     }
-
+    public override void AddFocus(int a_focus, int a_maxFocus = 0)
+    {
+        focus.baseValue += a_focus;
+        maxFocus.baseValue += a_maxFocus;
+    }
+    public override void CycleDeck()
+    {
+        maxFocus.baseValue++;
+        focus.baseValue++;
+    }
     public void Burn(Card card)
     {
         Discard(card);
@@ -198,7 +206,19 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     public void OnDrag(PointerEventData eventData)
     {
     }
-
+    public int Affinity(Card.Color color)
+    {
+        switch (color)
+        {
+            case Card.Color.RED: return redAffinity.value;
+            case Card.Color.BLUE: return blueAffinity.value;
+            case Card.Color.GREEN: return greenAffinity.value;
+            case Card.Color.VIOLET: return violetAffinity.value;
+            case Card.Color.GOLD: return goldAffinity.value;
+            case Card.Color.INDIGO: return indigoAffinity.value;
+            default: return 0;
+        }
+    }
     public override bool Resolve(Ability.Mode mode, List<ITargetable> targets)
     {
         //Debug.Assert(mode == Ability.Mode.INFUSE);

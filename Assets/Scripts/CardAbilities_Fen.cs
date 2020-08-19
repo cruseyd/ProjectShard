@@ -6,7 +6,8 @@ public class A_TerritorialBriar : CardAbility
 {
     public A_TerritorialBriar(Card user) : base(user)
     {
-        ((Card)user).cardEvents.onDraw += DrawHandler;
+        user.opponent.actorEvents.onPlayCard += OnPlayCardHandler;
+        user.opponent.targetEvents.onDeclareAttack += OnDeclareAttackHandler;
     }
     public override string Text()
     {
@@ -16,67 +17,19 @@ public class A_TerritorialBriar : CardAbility
         return txt;
     }
 
-    private void DrawHandler(Card card)
-    {
-        _user.opponent.actorEvents.onPlayCard += OnPlayCardHandler;
-        _user.opponent.targetEvents.onDeclareAttack += OnDeclareAttackHandler;
-    }
     private void OnDeclareAttackHandler(Card source, ITargetable target)
     {
-        if (_user.inPlay)
+        if (user.inPlay)
         {
-            Ability.Damage(new DamageData(1, Keyword.PIERCING, _user, source), false, null);
+            Ability.Damage(new DamageData(1, Keyword.PIERCING, user, source));
         }
     }
-
     private void OnPlayCardHandler(Card source)
     {
         if (_user.inPlay && source.type == Card.Type.TECHNIQUE)
         {
-            Damage(new DamageData(1, Keyword.PIERCING, _user, source.controller), false, null);
+            Ability.Damage(new DamageData(1, Keyword.PIERCING, _user, source.controller));
         }
-    }
-}
-
-public class A_CarnivorousPitfall : CardAbility
-{
-    public A_CarnivorousPitfall(Card user) : base(user) { }
-
-    public override string Text()
-    {
-        return "<b>Activate: </b> Add 2 <b>Pitfall Vine </b> to opponent's deck.";
-    }
-
-    public override bool ActivationAvailable()
-    {
-        return true;
-    }
-    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Activate(targets, undo, state);
-        CardData data = Resources.Load("Cards/Fen/PitfallVine") as CardData;
-        _user.opponent.deck.Shuffle(data);
-        _user.opponent.deck.Shuffle(data);
-    }
-}
-
-public class A_PitfallVine : CardAbility
-{
-    public override string Text()
-    {
-        return "When you draw this, take 2 Crushing damage. Then, put this into play under your opponent's control. Draw a card.";
-    }
-    public A_PitfallVine(Card user) : base(user)
-    {
-        ((Card)user).cardEvents.onDraw += OnDrawHandler;
-    }
-
-    private void OnDrawHandler(Card card)
-    {
-        Actor owner = card.controller;
-        Ability.Damage(new DamageData(2, Keyword.CRUSHING, card, card.controller), false, null);
-        owner.PutInPlay(card, false);
-        owner.Draw();
     }
 }
 
@@ -84,16 +37,15 @@ public class A_BlossomingIvyProng : CardAbility
 {
     public A_BlossomingIvyProng(Card user) : base(user)
     {
-        ((Card)user).cardEvents.onEnterPlay += EnterPlayHandler;
+        user.cardEvents.onEnterPlay += EnterPlayHandler;
     }
     public override string Text()
     {
-        return "When this enters play, gain 1 HEALTH.";
+        return "When this enters play, gain 2 HEALTH.";
     }
-
     void EnterPlayHandler(Card card)
     {
-        _user.controller.IncrementHealth(1);
+        Ability.Heal(user.controller, 2);
     }
 }
 
@@ -116,7 +68,7 @@ public class A_RampagingSwordtusk : CardAbility
     protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Activate(targets, undo, state);
-        Fight((Card)targets[0], undo, state);
+        Ability.Fight(user, (Card)targets[0], undo, state);
     }
 }
 
@@ -124,44 +76,37 @@ public class A_Equanimity : CardAbility
 {
     public A_Equanimity(Card user) : base(user)
     {
-
+        user.cardEvents.onCycle += CycleHandler;
     }
 
     public override string Text()
     {
         string txt = "Gain 3/0 FOCUS.";
-        txt += "<b>Passive: </b> Gain 1/0 FOCUS.";
+        txt += "<b>Cycle: </b> Gain 1/0 FOCUS.";
         return txt;
     }
 
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        if (_user.playerControlled)
-        {
-            ((Player)_user.controller).focus.baseValue += 3;
-        }
-
+        Ability.AddFocus(user.controller, 3, 0, undo, state);
     }
 
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
+    private void CycleHandler(Card card)
     {
-        if (_user.playerControlled)
-        {
-            ((Player)_user.controller).focus.baseValue += 1;
-        }
+        Ability.AddFocus(user.controller, 1, 0);
     }
-
 }
 
 public class A_Ricochet : CardAbility
 {
-    private int _costMod;
+    private StatModifier _mod;
     public A_Ricochet(Card user) : base(user)
     {
-        _costMod = 0;
+        _user.targetEvents.onRefresh += RefreshHandler;
         playTargets.Add(TargetAnyOpposing());
-        user.targetEvents.onRefresh += RefreshHandler;
+        _mod = new StatModifier(0, Stat.Name.COST, user);
+        user.AddModifier(_mod);
     }
 
     public override string Text()
@@ -178,20 +123,16 @@ public class A_Ricochet : CardAbility
         int damage_2 = 1;
 
         ITargetable target = (ITargetable)targets[0];
-        Damage(new DamageData(damage_1, Keyword.PIERCING, _user, target), undo, state);
+        Ability.Damage(new DamageData(damage_1, Keyword.PIERCING, _user, target), undo, state);
 
         ITargetable t2 = RandomOpposing((Card)_user, TargetAnyOpposing(targets[0]));
         if (t2 != null)
         {
-            Damage(new DamageData(damage_2, Keyword.PIERCING, _user, t2), undo, state);
+            Ability.Damage(new DamageData(damage_2, Keyword.PIERCING, _user, t2), undo, state);
         }
-        
-
     }
     private void RefreshHandler()
     {
-
-        Card user = _user as Card;
         List<Card> cards = user.controller.active;
         bool doReduce = false;
         foreach (Card card in cards)
@@ -201,30 +142,20 @@ public class A_Ricochet : CardAbility
                 doReduce = true;
             }
         }
-        if (doReduce && _costMod == 0)
-        {
-            _costMod = -2;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-            StatModifier mod = new StatModifier(_costMod, Stat.Name.COST, (Card)_user);
-            user.AddModifier(mod);
-        }
-        else if (_costMod != 0 && !doReduce)
-        {
-            _costMod = 0;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-        }
+        if (doReduce) { _mod.value = -2; }
+        else { _mod.value = 0; }
     }
-
 }
 
 public class A_ConcussiveShot : CardAbility
 {
-    int _costMod = 0;
+    private StatModifier _mod;
     public A_ConcussiveShot(Card user) : base(user)
     {
-        _costMod = 0;
         _user.targetEvents.onRefresh += RefreshHandler;
         playTargets.Add(TargetAnyOpposing());
+        _mod = new StatModifier(0, Stat.Name.COST, user);
+        user.AddModifier(_mod);
     }
 
     public override string Text()
@@ -237,15 +168,14 @@ public class A_ConcussiveShot : CardAbility
     {
         base.Play(targets, undo, state);
 
-        int damage_1 = 0;
+        int damage_1 = 2;
 
         ITargetable target = (ITargetable)targets[0];
-        Damage(new DamageData(damage_1, Keyword.PIERCING, _user, target), undo, state);
-        target.AddStatus(StatusEffect.ID.DAZE);
+        Ability.Damage(new DamageData(damage_1, Keyword.PIERCING, _user, target), undo, state);
+        Ability.Status(target, StatusEffect.ID.DAZE, 1, undo, state);
     }
     private void RefreshHandler()
     {
-        Card user = _user as Card;
         List<Card> cards = user.controller.active;
         bool doReduce = false;
         foreach (Card card in cards)
@@ -255,29 +185,20 @@ public class A_ConcussiveShot : CardAbility
                 doReduce = true;
             }
         }
-        if (doReduce && _costMod == 0)
-        {
-            _costMod = -2;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-            StatModifier mod = new StatModifier(_costMod, Stat.Name.COST, (Card)_user);
-            user.AddModifier(mod);
-        }
-        else if (_costMod != 0 && !doReduce)
-        {
-            _costMod = 0;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-        }
+        if (doReduce) { _mod.value = -2; }
+        else { _mod.value = 0; }
     }
 }
 
 public class A_RangersJudgement : CardAbility
 {
-    int _costMod = 0;
+    private StatModifier _mod;
     public A_RangersJudgement(Card user) : base(user)
     {
-        _costMod = 0;
         _user.targetEvents.onRefresh += RefreshHandler;
         playTargets.Add(TargetAnyOpposing());
+        _mod = new StatModifier(0, Stat.Name.COST, user);
+        user.AddModifier(_mod);
     }
 
     public override string Text()
@@ -294,11 +215,10 @@ public class A_RangersJudgement : CardAbility
 
         ITargetable target = (ITargetable)targets[0];
         Damage(new DamageData(damage_1, Keyword.PIERCING, _user, target), undo, state);
-        target.AddStatus(StatusEffect.ID.IMPALE);
+        Ability.Status(target, StatusEffect.ID.IMPALE, 1, undo, state);
     }
     private void RefreshHandler()
     {
-        Card user = _user as Card;
         List<Card> cards = user.controller.active;
         bool doReduce = false;
         foreach (Card card in cards)
@@ -308,25 +228,17 @@ public class A_RangersJudgement : CardAbility
                 doReduce = true;
             }
         }
-        if (doReduce && _costMod == 0)
-        {
-            _costMod = -2;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-            StatModifier mod = new StatModifier(_costMod, Stat.Name.COST, (Card)_user);
-            user.AddModifier(mod);
-        }
-        else if (_costMod != 0 && !doReduce)
-        {
-            _costMod = 0;
-            user.cost.RemoveModifiersFromSource(_user as Object);
-        }
+        if (doReduce) { _mod.value = -2; }
+        else { _mod.value = 0; }
     }
 }
 
 public class A_GenesisSpring : CardAbility
 {
     public A_GenesisSpring(Card user) : base(user)
-    { }
+    {
+        user.cardEvents.onCycle += CycleHandler;
+    }
 
     public override string Text()
     {
@@ -354,18 +266,12 @@ public class A_GenesisSpring : CardAbility
             if (card.type == Card.Type.THRALL) { numThralls++; }
         }
 
-        if (_user.controller is Player)
-        {
-            Player.instance.focus.baseValue += numThralls;
-        }
+        Ability.AddFocus(user.controller, numThralls, 0, undo, state);
     }
 
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
+    private void CycleHandler(Card card)
     {
-        if (_user.playerControlled)
-        {
-            _user.controller.IncrementHealth(1);
-        }
+        Ability.Heal(user.controller, 1);
     }
 }
 
@@ -392,10 +298,10 @@ public class A_FensBlessing : CardAbility
         Card target = targets[0] as Card;
 
         target.IncrementHealth(9999);
-        target.power.AddModifier(new StatModifier(1, Stat.Name.POWER, (Card)_user));
-        target.cost.AddModifier(new StatModifier(1, Stat.Name.COST, (Card)_user));
+        Ability.Heal(target, 9999, undo, state);
+        Ability.AddStatModifier(target, new StatModifier(1, Stat.Name.POWER, (Card)_user), undo, state);
+        Ability.AddStatModifier(target, new StatModifier(1, Stat.Name.COST, (Card)_user), undo, state);
     }
-
 }
 
 public class A_ConsumingBlob : CardAbility
@@ -427,16 +333,13 @@ public class A_ConsumingBlob : CardAbility
         return false;
     }
 
-    
-
     protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Activate(targets, undo, state);
-        Card user = _user as Card;
         Card target = targets[0] as Card;
-        user.endurance.AddModifier(new StatModifier(target.endurance.value, Stat.Name.HEALTH, user));
-        user.power.AddModifier(new StatModifier(target.power.value, Stat.Name.POWER, user));
-        target.Destroy();
+        Ability.AddStatModifier(user, new StatModifier(target.endurance.value, Stat.Name.ENDURANCE, user), undo, state);
+        Ability.AddStatModifier(user, new StatModifier(target.endurance.value, Stat.Name.POWER, user), undo, state);
+        Ability.DestroyCard(target, undo, state);
     }
 
 }
@@ -457,12 +360,9 @@ public class A_MitoticSlime : CardAbility
 
     private void DestroyHandler(Card card)
     {
-        CardData data = Resources.Load("Cards/Fen/Slimeling") as CardData;
-        for (int ii = 0; ii < 2; ii++)
-        {
-            Card slime = Card.Spawn(data, true, card.transform.position);
-            _user.controller.PutInPlay(slime);
-        }
+        CardData data = Resources.Load("Cards/Generic/Slimeling") as CardData;
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE);
     }
 }
 
@@ -489,19 +389,22 @@ public class A_PackWolfAlpha : CardAbility
 
     private void EnterPlayHandler(Card card)
     {
-        TemplateModifier mod = new TemplateModifier(+1, Stat.Name.POWER, _template, StatModifier.Duration.SOURCE, (Card)_user);
-        Dungeon.AddModifier(mod);
+        TemplateModifier mod = new TemplateModifier(+1, Stat.Name.POWER, user, Modifier.Duration.SOURCE, _template);
+        Ability.AddTemplateModifier(mod);
     }
 }
+
 public class A_KyrnanosLordOfTheWild : CardAbility
 {
+    private TargetTemplate _template;
     public A_KyrnanosLordOfTheWild(Card user) : base(user)
     {
-        ((Card)_user).cardEvents.onEnterPlay += EnterPlayHandler;
-    }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
+        _template = new TargetTemplate();
+        _template.inPlay = true;
+        _template.isSelf = true;
+        _template.keyword.Add(Keyword.BEAST);
+        _template.cardType.Add(Card.Type.THRALL);
+        user.cardEvents.onEnterPlay += EnterPlayHandler;
     }
 
     public override string Text()
@@ -518,13 +421,8 @@ public class A_KyrnanosLordOfTheWild : CardAbility
 
     public void EnterPlayHandler(Card self)
     {
-        TargetTemplate _template = new TargetTemplate();
-        _template.inPlay = true;
-        _template.isSelf = true;
-        _template.keyword.Add(Keyword.BEAST);
-        _template.cardType.Add(Card.Type.THRALL);
-        TemplateModifier mod = new TemplateModifier(-1, Stat.Name.UPKEEP, _template, StatModifier.Duration.SOURCE, (Card)_user);
-        Dungeon.AddModifier(mod);
+        TemplateModifier mod = new TemplateModifier(-1, Stat.Name.UPKEEP, user, Modifier.Duration.SOURCE, _template);
+        Ability.AddTemplateModifier(mod);
     }
 }
 
@@ -549,9 +447,9 @@ public class A_Stonesunder : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        Damage(new DamageData(1, Keyword.EARTH, user, targets[0]), undo, state);
-        targets[0].AddStatus(StatusEffect.ID.DAZE);
-        user.controller.Draw();
+        Ability.Damage(new DamageData(1, Keyword.EARTH, user, targets[0]), undo, state);
+        Ability.Status(targets[0], StatusEffect.ID.DAZE, 1, undo, state);
+        Ability.Draw(user.controller, 1, undo, state);
     }
 }
 
@@ -577,7 +475,7 @@ public class A_Fissure : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        ((Card)targets[0]).Destroy();
+        Ability.DestroyCard((Card)targets[0], undo, state);
     }
 }
 
@@ -595,8 +493,8 @@ public class A_Rejuvenate : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        user.controller.IncrementHealth(3);
-        user.controller.Draw();
+        Ability.Heal(user.controller, 3, undo, state);
+        Ability.Draw(user.controller, 1, undo, state);
     }
 }
 
@@ -608,13 +506,13 @@ public class A_ConsumeAdrenaline : CardAbility
     }
     public override string Text()
     {
-        return "Gain 2 Frenzy. Then, gain +1 HEALTH for each Frenzy you have.";
+        return "Gain 3 Frenzy. Then, gain +1 HEALTH for each Frenzy you have.";
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        user.controller.AddStatus(StatusEffect.ID.FRENZY, 2);
-        user.controller.IncrementHealth(user.controller.GetStatus(StatusEffect.ID.FRENZY));
+        Ability.Status(user.controller, StatusEffect.ID.FRENZY, 3, undo, state);
+        Ability.Heal(user.controller, user.controller.GetStatus(StatusEffect.ID.FRENZY), undo, state);
     }
 }
 
@@ -631,14 +529,34 @@ public class A_HowlOfThePack : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        CardData data = Resources.Load<CardData>("Cards/Fen/LoyalPackWolf") as CardData;
-        for (int ii = 0; ii < 2; ii++)
-        {
-            Card wolf = Card.Spawn(data, user.playerControlled, Dungeon.GetZone(CardZone.Type.HAND, user.playerControlled).transform.position);
-            user.controller.PutInPlay(wolf);
-        }
+        
+        CardData data = Resources.Load<CardData>("Cards/Set_1/Fen/LoyalPackWolf") as CardData;
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
 
         List<Card> cards = user.controller.GetCardsWithKeyword(Keyword.BEAST, CardZone.Type.ACTIVE);
-        user.controller.IncrementHealth(cards.Count);
+        Ability.Heal(user.controller, cards.Count, undo, state);
+    }
+}
+
+public class A_IvyprongSpiritcaller : CardAbility
+{
+    public A_IvyprongSpiritcaller(Card user) : base(user)
+    {
+        user.cardEvents.onEnterPlay += EnterPlayHandler;
+    }
+
+    public override string Text()
+    {
+        if (user.controller is Player)
+        {
+            return "When this enters play, Attune FEN.";
+        }
+        return "";
+    }
+
+    private void EnterPlayHandler(Card card)
+    {
+        Ability.Attune(user.controller, Card.Color.GREEN);
     }
 }

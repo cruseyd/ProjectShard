@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
+  m_Name: SlimePit
+  m_EditorClassIdentifier: 
+  name: Slime Pit
+  list:
+  - card: {fileID: 11400000, guid: 8b2a03734955e2d49ab5a21aed33e2ea, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: c3c7951a0b3ee604b90be8cbcefa924c, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: 5485dd725fa036e4383d06a45193f5f6, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: 5db72666c441c7745957a90b4f94ef5a, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: aeae92e0ce6816d4d81430096197b1a6, type: 2}
+    quantity: 1
+  - card: {fileID: 11400000, guid: bca51565857dd9c45955ab91f2eab1e1, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: f86990fb0f3fee549a0fca0b2a573f14, type: 2}
+    quantity: 6

@@ -4,54 +4,35 @@ using UnityEngine;
 
 public class A_Continuity : CardAbility
 {
-    public A_Continuity(Card user) : base(user) { }
+    public A_Continuity(Card user) : base(user)
+    {
+        user.cardEvents.onCycle += CycleHandler;
+    }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
-        if (state != null)
+        Ability.Draw(user.controller, 1, undo, state);
+        int n = 0;
+        foreach (Card card in user.controller.hand)
         {
-            if (undo)
-            {
-                state.DrawCards(user.controller, -1);
-            }
-            else
-            {
-                state.DrawCards(user.controller, 1);
-            }
+            if (card.type == Card.Type.SPELL) { n += 1; }
         }
-        else
-        {
-            int n = 0;
-            user.controller.Draw();
-            if (user.playerControlled)
-            {
-                foreach (Card card in user.controller.hand)
-                {
-                    if (card.type == Card.Type.SPELL) { n += 1; }
-                }
-                ((Player)user.controller).focus.baseValue += n;
-            }
-        }
+        Ability.AddFocus(user.controller, n, 0, undo, state);
+    }
 
-    }
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        if (_user.playerControlled)
-        {
-            ((Player)_user.controller).focus.baseValue += 1;
-        }
-    }
     public override string Text()
     {
         string txt = "Draw a card.";
-        if (((Card)_user).playerControlled)
+        if (user.playerControlled)
         {
-            txt += " Then, gain 1/0 FOCUS for each Spell in your hand.";
+            txt += " Gain 1/0 FOCUS for each Spell in your hand.";
             txt += "\n<b>Passive:</b> Gain 1/0 FOCUS.";
         }
         return txt;
+    }
+    private void CycleHandler(Card card)
+    {
+        Ability.AddFocus(user.controller, 1, 0);
     }
 }
 public class A_Chill : CardAbility
@@ -68,16 +49,13 @@ public class A_Chill : CardAbility
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, damageType, _user, target);
         Ability.Damage(data, undo, state);
-
-        ((ITargetable)target).AddStatus(StatusEffect.ID.CHILL, 1);
+        Ability.Status(target, StatusEffect.ID.CHILL, 1, undo, state);
     }
-
     public override string Text()
     {
         return "Target enemy takes 1 ICE damage and gains 1 Chill.";
     }
 }
-
 public class A_CrystalLance : CardAbility
 {
     public A_CrystalLance(Card user) : base(user)
@@ -92,8 +70,7 @@ public class A_CrystalLance : CardAbility
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, damageType, _user, target);
         Ability.Damage(data, undo, state);
-
-        ((ITargetable)target).AddStatus(StatusEffect.ID.IMPALE, 1);
+        Ability.Status(target, StatusEffect.ID.IMPALE, 1, undo, state);
     }
 
     public override string Text()
@@ -101,7 +78,6 @@ public class A_CrystalLance : CardAbility
         return "Target enemy takes 2 ICE damage and is Impaled.";
     }
 }
-
 public class A_DriftingVoidling : CardAbility
 {
     public A_DriftingVoidling(Card user) : base(user)
@@ -112,12 +88,6 @@ public class A_DriftingVoidling : CardAbility
     {
         return "When Drifting Voidling is destroyed, its controller gains 1 Insight.";
     }
-
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
-    }
-
     private void LeavePlayHandler(Card card)
     {
         card.controller.AddStatus(StatusEffect.ID.INSIGHT);
@@ -139,10 +109,6 @@ public class A_IceElemental : CardAbility
     {
         return "When you play an ICE Spell, Ice Elemental gains 1 ENDURANCE.";
     }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
-    }
 
     private void DrawHandler(Card card)
     {
@@ -158,7 +124,6 @@ public class A_IceElemental : CardAbility
     }
 
 }
-
 public class A_HailOfSplinters : CardAbility
 {
     public A_HailOfSplinters(Card user) : base(user) { }
@@ -167,6 +132,7 @@ public class A_HailOfSplinters : CardAbility
         base.Play(targets, undo, state);
         _user.controller.targetEvents.onDealDamage += DealDamageHandler;
         _user.controller.actorEvents.onEndTurn += EndTurnHandler;
+        Ability.Draw(user.controller, 1, undo, state);
         _user.controller.Draw();
     }
     public override string Text()
@@ -189,7 +155,6 @@ public class A_HailOfSplinters : CardAbility
         actor.actorEvents.onEndTurn -= EndTurnHandler;
     }
 }
-
 public class A_Rimeshield : CardAbility
 {
     public A_Rimeshield(Card user) : base(user)
@@ -205,8 +170,8 @@ public class A_Rimeshield : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        _user.controller.AddStatus(StatusEffect.ID.ARMOR, 2);
-        _user.controller.AddStatus(StatusEffect.ID.CHILL, 1);
+        Ability.Status(_user.controller, StatusEffect.ID.ARMOR, 2, undo, state);
+        Ability.Status(_user.controller, StatusEffect.ID.CHILL, 1, undo, state);
     }
 }
 public class A_FrostLattice : CardAbility
@@ -220,7 +185,7 @@ public class A_FrostLattice : CardAbility
         ITargetable t2 = RandomOpposing((Card)_user, t);
         t1?.AddStatus(StatusEffect.ID.CHILL, 1);
         t2?.AddStatus(StatusEffect.ID.CHILL, 1);
-        _user.controller.Draw();
+        Ability.Draw(_user.controller, 1, undo, state);
     }
 
     public override string Text()
@@ -228,7 +193,6 @@ public class A_FrostLattice : CardAbility
         return "Frost Lattice adds 1 stack of Chill to 2 random opposing targets. Draw a card.";
     }
 }
-
 public class A_RimeSprite : CardAbility
 {
     public A_RimeSprite(Card user) : base(user)
@@ -239,39 +203,31 @@ public class A_RimeSprite : CardAbility
     {
         return "When Rime Sprite deals damage to a target, add a Chill counter to that target and destroy this.";
     }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
-    }
-
     public void DealDamageHandler(DamageData data)
     {
         ((ITargetable)data.target).AddStatus(StatusEffect.ID.CHILL, 1);
         ((Card)_user).Destroy();
     }
 }
-
-
 public class A_TimeDilation : CardAbility
 {
     public A_TimeDilation(Card user) : base(user) { }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        _user.controller.Draw();
-        _user.controller.Draw();
-        if (_user.controller is Player)
-        {
-            ((Player)_user.controller).focus.baseValue += 3;
-        }
+        Ability.Draw(user.controller, 2, undo, state);
+        Ability.AddFocus(user.controller, 3, 0, undo, state);
     }
-
     public override string Text()
     {
-        return "Frost Lattice adds 1 stack of Chill to 2 random opposing targets. Draw a card.";
+        string txt = "Draw 2 cards.";
+        if (user.controller is Player)
+        {
+            txt += " Gain 3/0 FOCUS.";
+        }
+        return txt;
     }
 }
-
 public class A_Legerdemain : CardAbility
 {
     TargetTemplate _template;
@@ -318,11 +274,9 @@ public class A_Legerdemain : CardAbility
         _user.controller.AddToHand(card);
     }
 }
-
 public class A_MnemonicRecitation : CardAbility
 {
     private TargetTemplate _template;
-
     public A_MnemonicRecitation(Card user) : base(user)
     {
         _template = new TargetTemplate();
@@ -332,55 +286,47 @@ public class A_MnemonicRecitation : CardAbility
         _template.cardType.Add(Card.Type.SPELL);
         playTargets.Add(_template);
     }
-
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
         targets[0].AddStatus(StatusEffect.ID.MEMORIZED);
-        _user.controller.Draw();
+        Ability.Draw(user.controller, 1, undo, state);
     }
     public override string Text()
     {
         return "Memorize target Spell. Draw a card.";
     }
 }
-
 public class A_Shardfall : CardAbility
 {
     public A_Shardfall(Card user) : base(user)
     {
-
     }
 
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        StartChannel();
         CardData data = Resources.Load("Cards/Iri/Shardstrike") as CardData;
-        for (int ii = 0; ii < 1; ii++)
-        {
-            _user.controller.AddToHand(Card.Spawn(data, _user.playerControlled, _user.transform.position));
-        }
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }
 
-    protected override void Channel()
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        base.Channel();
+        base.Activate(targets, undo, state);
         CardData data = Resources.Load("Cards/Iri/Shardstrike") as CardData;
-        for (int ii = 0; ii < 1; ii++)
-        {
-            _user.controller.AddToHand(Card.Spawn(data, _user.playerControlled, _user.transform.position));
-        }
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }
+    public override bool ActivationAvailable() { return true; }
 
     public override string Text()
     {
-        string txt = "Add 2 <b>Shardstrike</b> with to your hand.";
+        string txt = "Add 2 <b>Shardstrike</b> to your hand.";
         txt += "\n<b>Channel: </b> Add 2 <b>Shardstrike</b> to your hand.";
         return txt;
     }
 }
-
 public class A_Shardstrike : CardAbility
 {
     public A_Shardstrike(Card user) : base(user)
@@ -405,13 +351,16 @@ public class A_Shardstrike : CardAbility
         target.AddStatus(StatusEffect.ID.IMPALE);
     }
 }
-
 public class A_Manaplasm : CardAbility
 {
+    private StatModifier _mod;
     private int _powerMod;
     public A_Manaplasm(Card user) : base(user)
     {
-        ((Card)user).cardEvents.onDraw += DrawHandler;
+        _mod = new StatModifier(0, Stat.Name.POWER, user, Modifier.Duration.SOURCE);
+        user.AddModifier(_mod);
+        user.controller.actorEvents.onPlayCard += PlayCardHandler;
+        user.controller.actorEvents.onEndTurn += EndTurnHandler;
     }
 
     public override string Text()
@@ -420,48 +369,28 @@ public class A_Manaplasm : CardAbility
         return txt;
     }
 
-    private void DrawHandler(Card card)
-    {
-        _user.controller.actorEvents.onPlayCard += PlayCardHandler;
-        _user.controller.actorEvents.onEndTurn += EndTurnHandler;
-        _powerMod = 0;
-    }
     private void PlayCardHandler(Card card)
     {
-        Card user = _user as Card;
-        if (card.type == Card.Type.SPELL)
+        if (user.inPlay && card.type == Card.Type.SPELL)
         {
-            _powerMod++;
-            user.power.RemoveModifiersFromSource(user);
-            user.power.AddModifier(new StatModifier(_powerMod, Stat.Name.POWER, user));
+            _mod.value++;
         }
     }
 
     private void EndTurnHandler(Actor actor)
     {
-        Card user = _user as Card;
-        _powerMod = 0;
-        user.power.RemoveModifiersFromSource(user);
+        _mod.value = 0;
     }
 
 }
-
 public class A_PrimordialSlime : CardAbility
 {
-
     private TargetTemplate _template;
-
     public A_PrimordialSlime(Card user) : base(user)
     {
         _template = new TargetTemplate();
         _template.cardType.Add(Card.Type.SPELL);
-
-        ((Card)user).cardEvents.onDraw += DrawHandler;
-    }
-
-    private void DrawHandler(Card card)
-    {
-        _user.controller.actorEvents.onEndTurn += EndTurnHandler;
+        user.controller.actorEvents.onEndTurn += EndTurnHandler;
     }
     public override string Text()
     {
@@ -471,18 +400,14 @@ public class A_PrimordialSlime : CardAbility
 
     private void EndTurnHandler(Actor actor)
     {
-        Card user = _user as Card;
         int numSpells = actor.NumPlayedThisTurn(_template);
-        Debug.Log("Played " + numSpells + " spells.");
         if (numSpells >= 2 && user.inPlay)
         {
-            Card clone = Card.Spawn(user.data, user.playerControlled, user.transform.position);
+            Card clone = Ability.CreateCard(user.controller, user.data, user.transform.position, CardZone.Type.ACTIVE);
             clone.AddKeywordAbility(KeywordAbility.Key.EPHEMERAL);
-            user.controller.PutInPlay(clone);
         }
     }
 }
-
 public class A_RideTheLightning : CardAbility
 {
     private TargetTemplate _template;
@@ -509,12 +434,9 @@ public class A_RideTheLightning : CardAbility
     {
         if (card.Compare(_template, _user.controller))
         {
-            _user.controller.Draw();
-            if (_user.controller is Player)
-            {
-                ((Player)_user.controller).focus.baseValue += 1;
-            }
-            Damage(new DamageData(1, Keyword.LIGHTNING, _user, _user.controller), false, null);
+            Ability.Draw(user.controller, 1);
+            Ability.AddFocus(user.controller, 1, 0);
+            Ability.Damage(new DamageData(1, Keyword.LIGHTNING, _user, _user.controller));
         }
     }
 
@@ -524,7 +446,6 @@ public class A_RideTheLightning : CardAbility
         _user.controller.actorEvents.onEndTurn -= EndTurnHandler;
     }
 }
-
 public class A_ChainLightning : CardAbility
 {
     public A_ChainLightning(Card user) : base(user)
@@ -542,16 +463,15 @@ public class A_ChainLightning : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        Damage(new DamageData(3, Keyword.LIGHTNING, _user, targets[0]), undo, state);
+        Ability.Damage(new DamageData(3, Keyword.LIGHTNING, _user, targets[0]), undo, state);
 
         ITargetable t2 = RandomOpposing((Card)_user, TargetAnyOpposing(targets[0]));
         ITargetable t3 = RandomOpposing((Card)_user, TargetAnyOpposing(t2));
         if (t2 == null) { return; }
-        Damage(new DamageData(2, Keyword.LIGHTNING, _user, t2), undo, state);
-        Damage(new DamageData(1, Keyword.LIGHTNING, _user, t3), undo, state);
+        Ability.Damage(new DamageData(2, Keyword.LIGHTNING, _user, t2), undo, state);
+        Ability.Damage(new DamageData(1, Keyword.LIGHTNING, _user, t3), undo, state);
     }
 }
-
 public class A_Static : CardAbility
 {
     public A_Static(Card user) : base(user) { }
@@ -559,20 +479,10 @@ public class A_Static : CardAbility
     {
         base.Play(targets, undo, state);
         TargetTemplate t = TargetAnyOpposing();
-        List<ITargetable> validTargets = new List<ITargetable>();
-        validTargets.Add(_user.opponent);
-        foreach (Card card in _user.opponent.active)
-        {
-            if (card.Compare(t, _user.controller))
-            {
-                validTargets.Add(card);
-            }
-        }
-
-        ITargetable target = validTargets[Random.Range(0, validTargets.Count)];
-        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (ITargetable)target), undo, state);
-        target = validTargets[Random.Range(0, validTargets.Count)];
-        Damage(new DamageData(1, Keyword.LIGHTNING, _user, (ITargetable)target), undo, state);
+        ITargetable t1 = RandomOpposing(user, t);
+        ITargetable t2 = RandomOpposing(user, t);
+        Ability.Damage(new DamageData(1, Keyword.LIGHTNING, _user, t1), undo, state);
+        Ability.Damage(new DamageData(1, Keyword.LIGHTNING, _user, t2), undo, state);
     }
 
     public override string Text()
@@ -580,14 +490,13 @@ public class A_Static : CardAbility
         return "Static deals 1 LIGHTNING damage to 2 random targets.";
     }
 }
-
 public class A_KatabaticSquall : CardAbility
 {
     public A_KatabaticSquall(Card user) : base(user) { }
 
     public override string Text()
     {
-        string txt = "Destroy all enemy thralls that are Chilled or Frozen. Add 2 Chilled to each remaining enemy Thrall.";
+        string txt = "Destroy all enemy thralls that are Chilled or Frozen. Add Chilled to each remaining enemy Thrall.";
         return txt;
     }
 
@@ -600,15 +509,14 @@ public class A_KatabaticSquall : CardAbility
             if (card.type != Card.Type.THRALL) { continue; }
             if (card.GetStatus(StatusEffect.ID.FROZEN) > 0 || card.GetStatus(StatusEffect.ID.CHILL) > 0)
             {
-                card.Destroy();
+                Ability.DestroyCard(card, undo, state);
             } else
             {
-                card.AddStatus(StatusEffect.ID.CHILL, 2);
+                Ability.Status(card, StatusEffect.ID.CHILL, 1, undo, state);
             }
         }
     }
 }
-
 public class A_Epiphany : CardAbility
 {
     public A_Epiphany(Card user) : base(user)
@@ -624,11 +532,34 @@ public class A_Epiphany : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        _user.controller.AddStatus(StatusEffect.ID.INSIGHT, 2);
+        base.Play(targets, undo, state);
+        Ability.Status(user.controller, StatusEffect.ID.INSIGHT, 2, undo, state);
     }
     private void CycleHandler(Card card)
     {
         ((Card)_user).cardEvents.onCycle -= CycleHandler;
         _user.controller.AddStatus(StatusEffect.ID.INSIGHT);
+    }
+}
+public class A_MomentOfClarity : CardAbility
+{
+    public A_MomentOfClarity(Card user) : base(user)
+    {
+    }
+
+    public override string Text()
+    {
+        return "Draw a card. Spells in your hand cost -1 FOCUS this turn.";
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        Ability.Draw(user.controller, 1, undo, state);
+        foreach (Card card in user.controller.hand)
+        {
+            if (card.type == Card.Type.SPELL)
+            {
+                card.cost.AddModifier(new StatModifier(-1, Stat.Name.COST, user, Modifier.Duration.END_OF_TURN));
+            }
+        }
     }
 }

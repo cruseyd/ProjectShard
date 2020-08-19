@@ -14,6 +14,13 @@ public static class Icons
     public static string focus = "<sprite index=6>";
     public static string health = "<sprite index=7>";
 
+    public static string raiz = "<sprite index=8>";
+    public static string iri = "<sprite index=9>";
+    public static string fen = "<sprite index=10>";
+    public static string lis = "<sprite index=11>";
+    public static string ora = "<sprite index=12>";
+    public static string vael = "<sprite index=13>";
+
     public static string slashing = "<sprite index=16>";
     public static string piercing = "<sprite index=17>";
     public static string crushing = "<sprite index=18>";
@@ -66,6 +73,13 @@ public static class Icons
 
         output = output.Replace("FOCUS", focus);
         output = output.Replace("HEALTH", health);
+
+        output = output.Replace("RAIZ", raiz);
+        output = output.Replace("IRI", iri);
+        output = output.Replace("FEN", fen);
+        output = output.Replace("LIS", lis);
+        output = output.Replace("ORA", ora);
+        output = output.Replace("VAEL", vael);
 
         output = output.Replace("SLASHING", slashing);
         output = output.Replace("PIERCING", piercing);

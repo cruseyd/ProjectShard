@@ -62,10 +62,23 @@ public static class Keywords
     {
         return "<b>" + type.ToString("g").ToLower() + "</b>";
     }
-
     public static string Parse(KeywordAbility.Key word)
     {
         return "<b>" + word.ToString("g").ToLower() + "</b>";
+    }
+    public static string Parse(Card.Color color)
+    {
+        switch (color)
+        {
+            case Card.Color.RED: return "RAIZ";
+            case Card.Color.BLUE: return "IRI";
+            case Card.Color.GREEN: return "FEN";
+            case Card.Color.VIOLET: return "LIS";
+            case Card.Color.GOLD: return "ORA";
+            case Card.Color.INDIGO: return "VAEL";
+            case Card.Color.TAN: return "NEUTRAL";
+            default: return "";
+        }
     }
 }
 
@@ -80,6 +93,11 @@ public abstract class KeywordAbility
         GUARDIAN,
         ELUSIVE,
         EPHEMERAL,
+        WARDEN,
+        PASSIVE,
+        EVASIVE,
+        ENIGMATIC,
+        OVERWHELM,
         BLOODLUST_1 = 100,
         BLOODLUST_2,
         BLOODLUST_3,
@@ -103,14 +121,14 @@ public abstract class KeywordAbility
         {
             case Key.SWIFT: return new KA_Swift(0, user);
             case Key.EPHEMERAL: return new KA_Ephemeral(0, user);
-            case Key.BLOODLUST_1: return new KA_Bloodlust(1, user);
-            case Key.BLOODLUST_2: return new KA_Bloodlust(2, user);
-            case Key.BLOODLUST_3: return new KA_Bloodlust(3, user);
-            case Key.BLOODLUST_4: return new KA_Bloodlust(4, user);
-            case Key.BLOODLUST_5: return new KA_Bloodlust(5, user);
-            case Key.NIMBLE:
-            case Key.GUARDIAN:
-            case Key.ELUSIVE:
+            case Key.GUARDIAN: return new KA_Guardian(0, user);
+            case Key.WARDEN: return new KA_Warden(0, user);
+            case Key.NIMBLE: return new KA_Nimble(0, user);
+            case Key.ELUSIVE: return new KA_Elusive(0, user);
+            case Key.EVASIVE: return new KA_Evasive(0, user);
+            case Key.ENIGMATIC: return new KA_Enigmatic(0, user);
+            case Key.OVERWHELM: return new KA_Overwhelm(0, user);
+            case Key.PASSIVE:
             default: return null;
         }
     }
@@ -156,25 +174,205 @@ public class KA_Swift : KeywordAbility
     }
 }
 
-public class KA_Bloodlust : KeywordAbility
+public class KA_Elusive : KeywordAbility
 {
-    public KA_Bloodlust(int level, Card card) : base(level, card)
+    public KA_Elusive(int level, Card card) : base(level, card)
     {
-        Debug.Assert(_user.type == Card.Type.THRALL);
-        _user.controller.actorEvents.onStartTurn += StartTurnHandler;
+        _key = Key.ELUSIVE;
+        _user.opponent.actorEvents.onTryMarkTarget += TryMarkTargetHandler;
     }
 
-    private void StartTurnHandler(Actor actor)
+    private void TryMarkTargetHandler(ITargetable source, ITargetable target, Attempt attempt)
     {
-        _user.controller.actorEvents.onPlayCard += PlayCardHandler;
-    }
-
-    private void PlayCardHandler(Card card)
-    {
-        if (card.type == Card.Type.TECHNIQUE && _user.inPlay)
+        if (_user.inPlay)
         {
-            _user.controller.actorEvents.onPlayCard -= PlayCardHandler;
-            _user.AddModifier(new StatModifier(_level, Stat.Name.POWER, null, StatModifier.Duration.START_OF_TURN));
+            if (target is Card && ((Card)target) == _user)
+            {
+                if (source is Card && ((Card)source).type == Card.Type.THRALL && !((Card)source).HasKeyword(Key.NIMBLE))
+                {
+                    foreach (Card card in _user.controller.active)
+                    {
+                        if (card.type == Card.Type.THRALL && !card.HasKeyword(Key.ELUSIVE))
+                        {
+                            attempt.success = false;
+                        }
+                    }
+                }
+            }
         }
     }
 }
+
+public class KA_Guardian : KeywordAbility
+{
+    public KA_Guardian(int level, Card card) : base(level, card)
+    {
+        _key = Key.GUARDIAN;
+        _user.opponent.actorEvents.onTryMarkTarget += TryMarkTargetHandler;
+    }
+
+    private void TryMarkTargetHandler(ITargetable source, ITargetable target, Attempt attempt)
+    {
+        if (_user.inPlay)
+        {
+            if (target.controller == _user.controller && source is Card)
+            {
+                Card src = source as Card;
+                if (src.type == Card.Type.TECHNIQUE || src.type == Card.Type.THRALL)
+                {
+                    if (src.HasKeyword(Key.NIMBLE))
+                    {
+                        attempt.success = true; return;
+                    }
+                    else if (target is Card)
+                    {
+                        Card trg = target as Card;
+                        if (trg.HasKeyword(Key.WARDEN) || trg.HasKeyword(Key.GUARDIAN))
+                        {
+                            attempt.success = true;
+                        }
+                        else
+                        {
+                            attempt.success = false;
+                        }
+                    }
+                    else
+                    {
+                        attempt.success = false;
+                    }
+                }
+            }
+        }
+    }
+}
+public class KA_Warden : KeywordAbility
+{
+    public KA_Warden(int level, Card card) : base(level, card)
+    {
+        _key = Key.WARDEN;
+        _user.opponent.actorEvents.onTryMarkTarget += TryMarkTargetHandler;
+    }
+
+    private void TryMarkTargetHandler(ITargetable source, ITargetable target, Attempt attempt)
+    {
+        if (_user.inPlay)
+        {
+            if (target.controller == _user.controller && source is Card)
+            {
+                Card src = source as Card;
+                if (src.HasKeyword(Key.NIMBLE))
+                {
+                    attempt.success = true; return;
+                }
+                if (src.type == Card.Type.SPELL || src.type == Card.Type.THRALL)
+                {
+                    if (target is Card)
+                    {
+                        Card trg = target as Card;
+                        if (trg.HasKeyword(Key.WARDEN) || trg.HasKeyword(Key.GUARDIAN))
+                        {
+                            attempt.success = true;
+                        } else
+                        {
+                            attempt.success = false;
+                        }
+                    } else
+                    {
+                        attempt.success = false;
+                    }
+                }
+            }
+        }
+    }
+}
+
+public class KA_Nimble : KeywordAbility
+{
+    public KA_Nimble(int level, Card card) : base(level, card)
+    {
+        _key = Key.NIMBLE;
+        _user.controller.actorEvents.onTryMarkTarget += TryMarkTargetHandler;
+    }
+
+    private void TryMarkTargetHandler(ITargetable source, ITargetable target, Attempt attempt)
+    {
+        if (_user.inPlay)
+        {
+            if (source is Card && ((Card)source) == _user && target is Actor && ((Actor)target) == _user.opponent)
+            {
+                if (_user.opponent.nimble.Count > 0)
+                {
+                    attempt.success = false;
+                } else
+                {
+                    attempt.success = true;
+                }
+            }
+        }
+    }
+}
+
+public class KA_Enigmatic : KeywordAbility
+{
+    public KA_Enigmatic(int level, Card card) : base(level, card)
+    {
+        _key = Key.ENIGMATIC;
+        _user.cardEvents.onTryMarkTarget += TryMarkTargetHandler;
+    }
+
+    private void TryMarkTargetHandler(ITargetable source, Card target, Attempt attempt)
+    {
+        if (_user.inPlay)
+        {
+            if (source is Card && ((Card)source).type == Card.Type.SPELL)
+            {
+                attempt.success = false;
+            } else
+            {
+                attempt.success = true;
+            }
+        }
+    }
+}
+public class KA_Evasive : KeywordAbility
+{
+    public KA_Evasive(int level, Card card) : base(level, card)
+    {
+        _key = Key.EVASIVE;
+        _user.cardEvents.onTryMarkTarget += TryMarkTargetHandler;
+    }
+
+    private void TryMarkTargetHandler(ITargetable source, Card target, Attempt attempt)
+    {
+        if (_user.inPlay)
+        {
+            if (source is Card && ((Card)source).type == Card.Type.TECHNIQUE)
+            {
+                attempt.success = false;
+            }
+            else
+            {
+                attempt.success = true;
+            }
+        }
+    }
+}
+
+public class KA_Overwhelm : KeywordAbility
+{
+    public KA_Overwhelm(int level, Card card) : base(level, card)
+    {
+        _user.targetEvents.onDealOverflowDamage += DealOverflowDamageHandler;
+
+    }
+
+    private void DealOverflowDamageHandler(DamageData data)
+    {
+        if (data.isAttackDamage)
+        {
+            DamageData overwhelmDamage = new DamageData(data.damage, data.type, data.source, data.target.controller, data.isAttackDamage);
+            data.target.controller.Damage(overwhelmDamage);
+        }
+    }
+}
+

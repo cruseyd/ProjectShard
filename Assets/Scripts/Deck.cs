@@ -10,7 +10,7 @@ public class Deck : MonoBehaviour
 
     private List<CardData> cards;
     public bool playerDeck;
-
+    public int count { get { return cards.Count; } }
     private void UpdateCounter()
     {
         _counter.text = cards.Count.ToString();
@@ -112,8 +112,10 @@ public class Deck : MonoBehaviour
         {
             if (playerDeck)
             {
-                Player.instance.maxFocus.baseValue++;
-                Player.instance.focus.baseValue++;
+                Player.instance.CycleDeck();
+            } else
+            {
+                Enemy.instance.CycleDeck();
             }
             Shuffle(_discard.GetComponentsInChildren<Card>());
             if (cards.Count == 0) { return null; }

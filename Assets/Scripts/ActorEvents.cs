@@ -19,6 +19,7 @@ public class ActorEvents
     public event Action<Card> onActivateCard;
     public event Action<DamageData> onCardDamaged;
     public event Action<StatusEffect, int> onCardGainedStatus;
+    public event Action<ITargetable, ITargetable, Attempt> onTryMarkTarget;
 
     public void StartTurn() { onStartTurn?.Invoke(_source); }
     public void BeginTurn() { onBeginTurn?.Invoke(_source); }
@@ -30,5 +31,5 @@ public class ActorEvents
     public void ActivateCard(Card card) { onActivateCard?.Invoke(card); }
     public void CardDamaged(DamageData data) { onCardDamaged?.Invoke(data); }
     public void CardGainedStatus(StatusEffect status, int stacks) { onCardGainedStatus?.Invoke(status, stacks); }
-    
+    public void TryMarkTarget(ITargetable source, ITargetable target, Attempt attempt) { onTryMarkTarget?.Invoke(source, target, attempt); }
 }

@@ -74,6 +74,51 @@ public abstract class Actor : MonoBehaviour, ITargetable
         }
     }
 
+    public List<Card> guardians
+    {
+        get
+        {
+            List<Card> cards = new List<Card>();
+            foreach (Card card in active)
+            {
+                if (card.HasKeyword(KeywordAbility.Key.GUARDIAN))
+                {
+                    cards.Add(card);
+                }
+            }
+            return cards;
+        }
+    }
+    public List<Card> wardens
+    {
+        get
+        {
+            List<Card> cards = new List<Card>();
+            foreach (Card card in active)
+            {
+                if (card.HasKeyword(KeywordAbility.Key.WARDEN))
+                {
+                    cards.Add(card);
+                }
+            }
+            return cards;
+        }
+    }
+    public List<Card> nimble
+    {
+        get
+        {
+            List<Card> cards = new List<Card>();
+            foreach (Card card in active)
+            {
+                if (card.HasKeyword(KeywordAbility.Key.NIMBLE))
+                {
+                    cards.Add(card);
+                }
+            }
+            return cards;
+        }
+    }
     public virtual void Awake()
     {
         _statusEffects = new Dictionary<StatusEffect.ID, StatusEffect>();
@@ -134,6 +179,10 @@ public abstract class Actor : MonoBehaviour, ITargetable
         card.Move(handZone);
         card.Refresh();
     }
+    public virtual void AddFocus(int focus, int maxFocus = 0)
+    {
+
+    }
     public virtual void Draw()
     {
         Card card = _deck.Draw();
@@ -145,7 +194,6 @@ public abstract class Actor : MonoBehaviour, ITargetable
         }
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
-    //public virtual void DiscardAll() { StartCoroutine(DoDiscardAll()); }
     public virtual IEnumerator DoDraw(int n)
     {
         float duration = GameData.instance.cardAnimationRate;
@@ -189,6 +237,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
         health.baseValue = maxHealth.value;
     }
 
+    public virtual void CycleDeck() { }
     public List<Card> GetCardsWithKeyword(Keyword key, CardZone.Type zone)
     {
         List<Card> matches = new List<Card>();
@@ -271,8 +320,13 @@ public abstract class Actor : MonoBehaviour, ITargetable
     {
         if (Compare(query, source.controller) && this != (Object)source)
         {
-            if (show) { particles.MarkValidTarget(true); }
-            source.AddTarget(this);
+            Attempt attempt = new Attempt();
+            source.controller.actorEvents.TryMarkTarget(source, this, attempt);
+            if (attempt.success)
+            {
+                if (show) { particles.MarkValidTarget(true); }
+                source.AddTarget(this);
+            }
         } else if (this == (Object)source)
         {
             if (show) { particles.MarkSource(true); }
@@ -377,7 +431,15 @@ public abstract class Actor : MonoBehaviour, ITargetable
             return 0;
         }
     }
-
+    public List<StatusEffect.ID> GetAllStatus()
+    {
+        List<StatusEffect.ID> list = new List<StatusEffect.ID>();
+        foreach (StatusEffect.ID key in _statusEffects.Keys)
+        {
+            list.Add(key);
+        }
+        return list;
+    }
     public int NumPlayedThisTurn(TargetTemplate template)
     {
         int n = 0;
