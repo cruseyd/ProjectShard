@@ -96,7 +96,7 @@ public class EnemyTurnPhase : GamePhase
         Enemy.instance.actorEvents.StartTurn();
         Enemy.instance.actorEvents.BeginTurn();
 
-        _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove();
+        _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove(AIStrategy.SIMULATE);
         if (_currentMove == null)
         {
             Dungeon.SetConfirmButtonText("End Enemy Turn");
@@ -124,7 +124,6 @@ public class EnemyTurnPhase : GamePhase
             Dungeon.phase = GamePhase.player;
         } else
         {
-            
             Dungeon.instance.StartCoroutine(doNextMove());
         }
     }
@@ -139,7 +138,7 @@ public class EnemyTurnPhase : GamePhase
             _interrupt = false;
         }
         
-        _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove();
+        _currentMove = Enemy.instance.GetComponent<AIModule>().ChooseMove(AIStrategy.SIMULATE);
         yield return new WaitForSeconds(GameData.instance.cardAnimationRate);
         if (_currentMove != null)
         {

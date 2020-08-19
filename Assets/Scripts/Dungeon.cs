@@ -202,7 +202,7 @@ public class Dungeon : MonoBehaviour
         else
         {
             modifiers.Add(mod);
-            GameEvents.current.AddGlobalModifier(mod);
+            GameEvents.current.Refresh();
             return true;
         }
     }
@@ -211,8 +211,7 @@ public class Dungeon : MonoBehaviour
         if (modifiers.Contains(mod))
         {
             modifiers.Remove(mod);
-            mod.mod.Remove();
-            //GameEvents.current.RemoveGlobalModifier(mod);
+            GameEvents.current.Refresh();
             return true;
         }
         else

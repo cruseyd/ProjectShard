@@ -41,6 +41,7 @@ public abstract class Modifier
     }
     private void EndTurnHandler(Actor actor)
     {
+        Debug.Log("Removing an end of turn modifier");
         Remove();
     }
 }
@@ -48,7 +49,7 @@ public abstract class Modifier
 public class StatModifier : Modifier
 {
     private int _value;
-    private Stat _target;
+    private List<Card> _targets;
 
     public readonly Stat.Name statName;
     public int value
@@ -65,63 +66,53 @@ public class StatModifier : Modifier
     {
         value = a_value;
         statName = a_statName;
+        _targets = new List<Card>();
     }
 
-    public void SetTarget(Stat stat) { _target = stat; }
-
-    public override void Remove()
+    public bool SetTarget(Card a_target)
     {
-        _target.RemoveModifier(this);
-    }
-}
-
-public class TemplateModifier : Modifier
-{
-    public readonly Stat.Name statName;
-    public readonly TargetTemplate template;
-    public readonly int value;
-    public StatModifier mod;
-
-    public TemplateModifier(int _value, Stat.Name stat, TargetTemplate t, Duration _dur, Card source) : base(source, _dur)
-    {
-        value = _value;
-        statName = stat;
-        template = t;
-        mod = new StatModifier(_value, stat, source);
-    }
-
-    public override void Remove()
-    {
-        Dungeon.RemoveModifier(this);
-    }
-
-    public void Compare(Card target)
-    {
-        if (target.Compare(template, source.controller))
+        if (a_target.AddModifier(this))
         {
-            target.AddModifier(mod);
+            _targets.Add(a_target);
+            return true;
+        }
+        return false;
+    }
+    public bool RemoveTarget(Card a_target)
+    {
+        if (a_target.RemoveModifier(this))
+        {
+            _targets.Remove(a_target);
+            return true;
+        }
+        return false;
+    }
+
+    public override void Remove()
+    {
+        for (int ii = _targets.Count-1; ii >= 0; ii--)
+        {
+            RemoveTarget(_targets[ii]);
         }
     }
-
 }
 
-public class ProtectionModifier : Modifier
+public class TemplateModifier : StatModifier
 {
     public readonly TargetTemplate template;
-    private ITargetable _target;
 
-    public ProtectionModifier(TargetTemplate _template, Card _source, Duration dur = Duration.PERMANENT) : base(_source, dur)
+    public TemplateModifier(int a_value, Stat.Name a_statName, Card a_source, Duration a_dur, TargetTemplate a_template)
+        : base(a_value, a_statName, a_source, a_dur)
     {
-        template = _template;
+        template = a_template;
     }
 
-    public void SetTarget(ITargetable trg)
-    {
-        _target = trg;
-    }
+    public bool Compare(Card card) { return card.Compare(template, source.controller); }
+
 
     public override void Remove()
     {
-
+        base.Remove();
+        Dungeon.RemoveModifier(this);
     }
 }

@@ -48,6 +48,27 @@ public class StatusEffect : MonoBehaviour
         }
     }
 
+    public static float Threat(ID a_id)
+    {
+        switch (a_id)
+        {
+            case ID.DAZE:
+            case ID.CHILL:
+                return -0.1f;
+            case ID.FROZEN:
+            case ID.STUN:
+            case ID.IMPALE:
+                return -0.5f;
+            case ID.BURN:
+                return -0.2f;
+            case ID.INSIGHT:
+            case ID.FRENZY:
+                return +0.2f;
+            case ID.FIREBRAND:
+                return +0.1f;
+            default: return 0f;
+        }
+    }
     public static StatusEffect Spawn(ID a_id, ITargetable a_target, int a_stacks = 1)
     {
         if (_prefab == null)

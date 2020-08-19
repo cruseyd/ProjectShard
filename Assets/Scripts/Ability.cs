@@ -16,7 +16,15 @@ public static class AbilityIndex
             case "PASSION":
             case "REASON":
             case "PATIENCE":
-                return new A_Ideal(user);
+                return new A_Ideal_0(user);
+            case "ZEAL":
+            case "LOGIC":
+            case "PERSEVERANCE":
+                return new A_Ideal_1(user);
+            case "OBSESSION":
+            case "ACUITY":
+            case "FORTITUDE":
+                return new A_Ideal_2(user);
             case "ELIXIR_OF_PASSION":
             case "ELIXIR_OF_REASON":
             case "ELIXIR_OF_PATIENCE":
@@ -46,11 +54,10 @@ public static class AbilityIndex
             case "BLAZING_VORTEX": return new A_BlazingVortex(user);
             case "HYROC_CHAMPION": return new A_HyrocChampion(user);
             case "FERAL_WARCAT": return new A_FeralWarcat(user);
+            case "RELENTLESS": return new A_Relentless(user);
 
             // green cards
             case "TERRITORIAL_BRIAR": return new A_TerritorialBriar(user);
-            case "CARNIVOROUS_PITFALL": return new A_CarnivorousPitfall(user);
-            case "PITFALL_VINE": return new A_PitfallVine(user);
             case "BLOSSOMING_IVYPRONG": return new A_BlossomingIvyProng(user);
             case "RAMPAGING_SWORDTUSK": return new A_RampagingSwordtusk(user);
             case "KYRNANOS": return new A_KyrnanosLordOfTheWild(user);
@@ -68,6 +75,7 @@ public static class AbilityIndex
             case "REJUVENATE": return new A_Rejuvenate(user);
             case "CONSUME_ADRENALINE": return new A_ConsumeAdrenaline(user);
             case "HOWL_OF_THE_PACK": return new A_HowlOfThePack(user);
+            case "IVYPRONG_SPIRITCALLER": return new A_IvyprongSpiritcaller(user);
 
             // blue cards
             case "CONTINUITY": return new A_Continuity(user);
@@ -91,6 +99,7 @@ public static class AbilityIndex
             case "STATIC": return new A_Static(user);
             case "KATABATIC_SQUALL": return new A_KatabaticSquall(user);
             case "EPIPHANY": return new A_Epiphany(user);
+            case "MOMENT_OF_CLARITY": return new A_MomentOfClarity(user);
 
             
             // null ability
@@ -105,9 +114,7 @@ public abstract class Ability
     {
         ACTIVATE,
         PLAY,
-        PASSIVE,
-        ATTACK,
-        CHANNEL
+        ATTACK
     }
 
     protected ITargetable _user;
@@ -148,38 +155,39 @@ public abstract class Ability
     protected virtual void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         Debug.Assert(_user is Card);
-        ((Card)_user).activationAvailable = false;
-        ((Card)_user).attackAvailable = false;
+        if (state != null)
+        {
+
+        } else
+        {
+            ((Card)_user).activationAvailable = false;
+            ((Card)_user).attackAvailable = false;
+        }
     }
     protected virtual void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        // at the bare minimum, all thralls are put into play, changing the boardstate
         Debug.Assert(_user is Card);
         Card user = (Card)_user;
         
         if (state != null)
         {
-            if (user.type == Card.Type.THRALL)
+            if (user.type == Card.Type.THRALL || user.type == Card.Type.INCANTATION)
             {
-                if (undo) { state.RemoveCard(user); }
-                else { state.AddCard(user); }
+                state.PutCardInPlay(user, undo);
             }
         }
     }
-    protected virtual void Passive(List<ITargetable> targets, bool undo = false, GameState state = null) { }
-
-    protected virtual void Channel() { }
-
     protected void Attack(ITargetable target, bool undo = false, GameState state = null)
     {
         Debug.Assert(_user is Card);
         Card user = (Card)_user;
+
         user.controller.targetEvents.DeclareAttack(user, target);
         user.targetEvents.DeclareAttack(user, target);
 
         if (!user.inPlay || user.endurance.value <= 0) { return; }
 
-        DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
+        DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target, true);
         DamageData targetDamage = null;
         if (target is Card)
         {
@@ -187,46 +195,22 @@ public abstract class Ability
             targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, user);
         }
 
-        target.Damage(_userDamage);
-        user.Damage(targetDamage);
-        target.ResolveDamage(_userDamage);
-        user.ResolveDamage(targetDamage);
+        Damage(_userDamage, undo, state);
+        Damage(targetDamage, undo, state);
+        //target.Damage(_userDamage);
+        //user.Damage(targetDamage);
+        if (state == null)
+        {
+            target.ResolveDamage(_userDamage);
+            user.ResolveDamage(targetDamage);
 
-        if (state != null)
-        {
-            if (undo) { user.attackAvailable = true; }
-            else { user.attackAvailable = false; }
-        }
-        else
-        {
             user.attackAvailable = false;
             user.activationAvailable = false;
         }
+            
+       // }
     }
-
-    protected void Fight(Card target, bool undo = false, GameState state = null)
-    {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
-        //user.controller.targetEvents.DeclareAttack(user, target);
-        //user.targetEvents.DeclareAttack(user, target);
-
-        if (!user.inPlay || user.endurance.value <= 0) { return; }
-
-        DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target);
-        DamageData targetDamage = null;
-        if (target is Card)
-        {
-            Card targetCard = (Card)target;
-            targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, user);
-        }
-
-        target.Damage(_userDamage);
-        user.Damage(targetDamage);
-        target.ResolveDamage(_userDamage);
-        user.ResolveDamage(targetDamage);
-    }
-
+    
     public TargetTemplate GetQuery(Mode mode, int n)
     {
         if (n > NumTargets(mode)) { return null; }
@@ -266,8 +250,6 @@ public abstract class Ability
             case Mode.PLAY: Play(targets); break;
             case Mode.ACTIVATE: Activate(targets); break;
             case Mode.ATTACK: Attack((ITargetable)targets[0]); break;
-            case Mode.PASSIVE: Passive(targets); break;
-            case Mode.CHANNEL: Channel(); break;
             default: break;
         }
     }
@@ -278,7 +260,6 @@ public abstract class Ability
             case Mode.PLAY: Play(targets, false, state); break;
             case Mode.ACTIVATE: Activate(targets, false, state); break;
             case Mode.ATTACK: Attack((ITargetable)targets[0], false, state); break;
-            case Mode.PASSIVE: Passive(targets, false, state); break;
             default: break;
         }
     }
@@ -289,7 +270,6 @@ public abstract class Ability
             case Mode.PLAY: Play(targets, true, state); break;
             case Mode.ACTIVATE: Activate(targets, true, state); break;
             case Mode.ATTACK: Attack((ITargetable)targets[0], true, state); break;
-            case Mode.PASSIVE: Passive(targets, true, state); break;
             default: break;
         }
     }
@@ -334,42 +314,184 @@ public abstract class Ability
                 if (activateTargets == null) { return 0; }
                 else { return activateTargets.Count; }
             case Mode.ATTACK: return 1;
-            case Mode.PASSIVE: return 0;
             default: return 0;
         }
     }
 
-    public void StartChannel()
+    public abstract string Text();
+    public static void Fight(Card aggressor, Card target, bool undo = false, GameState state = null)
     {
-        _user.controller.targetEvents.onTakeDamage += ChannelDamageHandler;
-        _channelCost = 0;
-    }
+        if (!aggressor.inPlay || aggressor.endurance.value <= 0) { return; }
 
-    private void ChannelDamageHandler(DamageData data)
-    {
-        Debug.Log("bonus cost: " + _channelCost);
-        Card user = _user as Card;
-        _channelCost++;
-        user.upkeep.RemoveModifiersFromSource(user as Object);
-        user.AddModifier(new StatModifier(_channelCost, Stat.Name.UPKEEP, user));
-        if (!_user.playerControlled && _channelCost >= 5)
+        DamageData _userDamage = new DamageData(aggressor.power.value, aggressor.damageType, aggressor, target);
+        DamageData targetDamage = null;
+        if (target is Card)
         {
-            ((Card)_user).Destroy();
+            Card targetCard = (Card)target;
+            targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, aggressor);
+        }
+
+        Ability.Damage(_userDamage, undo, state);
+        Ability.Damage(targetDamage, undo, state);
+        //target.Damage(_userDamage);
+        //user.Damage(targetDamage);
+        if (state == null)
+        {
+            target.ResolveDamage(_userDamage);
+            aggressor.ResolveDamage(targetDamage);
         }
     }
-
-    public abstract string Text();
-    public static void Damage(DamageData data, bool undo, GameState state)
+    public static void AddFocus(Actor actor, int focus, int maxFocus, bool undo = false, GameState state = null)
     {
         if (state != null)
         {
-            state.ApplyDamage(data, undo);
+
+        } else
+        {
+            actor.AddFocus(focus, maxFocus);
+        }
+    }
+    public static void Damage(DamageData data, bool undo = false, GameState state = null)
+    {
+        if (data == null) { return; }
+        if (state != null)
+        {
+            state.Damage(data, undo);
         } else
         {
             data.target.Damage(data);
-            //data.target.ResolveDamage(data);
         }
     }
+    public static void Heal(ITargetable target, int value, bool undo = false, GameState state = null)
+    {
+        Debug.Assert(value >= 0);
+        if (state != null)
+        {
+            if (target is Actor) { state.Heal((Actor)target, value, undo); }
+            else if (target is Card) { state.Heal((Card)target, value, undo); }
+        } else
+        {
+            target.IncrementHealth(value);
+        }
+    }
+    public static void Status(ITargetable target, StatusEffect.ID id, int stacks, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.Status(target, id, stacks, undo);
+        } else
+        {
+            target.AddStatus(id, stacks);
+        }
+    }
+    public static void Draw(Actor actor, int n, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.Draw(actor, n, undo);
+        } else
+        {
+            actor.Draw(n);
+        }
+        
+    }
+    public static Card CreateCard(Actor controller, CardData data, Vector3 spawn, CardZone.Type zone, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            switch(zone)
+            {
+                case CardZone.Type.HAND: state.AddCardToHand(controller, undo); break;
+                default: break;
+            }
+            return null;
+        } else
+        {
+            Card card = Card.Spawn(data, controller.playerControlled, spawn);
+            switch (zone)
+            {
+                case CardZone.Type.HAND: controller.AddToHand(card); break;
+                case CardZone.Type.ACTIVE: controller.PutInPlay(card); break;
+            }
+            return card;
+        }
+    }
+    public static void DestroyCard(Card card, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.RemoveCardFromPlay(card, undo);
+        } else
+        {
+            card.Destroy();
+        }
+    }
+    public static void AddCardToHand(Card card, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.RemoveCardFromPlay(card, undo);
+            state.AddCardToHand(card.controller, undo);
+        } else
+        {
+            card.controller.AddToHand(card);
+        }
+    }
+    public static void AddStatModifier(Card card, StatModifier mod, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.AddStatModifier(card, mod, undo);
+        } else
+        {
+            card.AddModifier(mod);
+        }
+    }
+    public static void AddTemplateModifier(TemplateModifier mod, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.AddTemplateModifier(mod, undo);
+        } else
+        {
+            Dungeon.AddModifier(mod);
+        }
+
+    }
+    public static void Harmonize(Actor target, Card.Color color, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+
+        } else
+        {
+            if (!(target is Player)) { return; }
+            foreach (Card card in target.hand)
+            {
+                if (card.data.color != color) { return; }
+            }
+            Player.instance.addAffinity(color, 1);
+        }
+    }
+    public static void Attune(Actor target, Card.Color color, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+
+        } else
+        {
+            if (!(target is Player)) { return; }
+            foreach (Card card in Player.instance.hand)
+            {
+                if (card.Affinity(color) > Player.instance.Affinity(color))
+                {
+                    Player.instance.addAffinity(color, 1);
+                    break;
+                }
+            }
+        }
+    }
+
     public TargetTemplate TargetAnyOpposing(ITargetable ignore = null)
     {
         TargetTemplate t = new TargetTemplate();
@@ -441,38 +563,17 @@ public class A_Elixir : CardAbility
         return "Gain 1/1 Focus.";
     }
 }
-public class A_Ideal : CardAbility
+public class A_Ideal_0 : CardAbility
 {
-    TargetTemplate _template;
-    public A_Ideal(Card user) : base(user)
+    public A_Ideal_0(Card user) : base(user)
     {
-        _template = new TargetTemplate();
-        _template.cardType.Add(Card.Type.IDEAL);
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        base.Play(targets, undo, state);
-        if (state != null)
+        user.controller.Draw();
+        if (user.controller is Player)
         {
-            if (undo)
-            {
-                state.DrawCards(user.controller, -1);
-            }
-            else
-            {
-                state.DrawCards(user.controller, 1);
-            }
-        }
-        else
-        {
-            user.controller.Draw();
-            if (user.controller is Player)
-            {
-                if (((Player)user.controller).NumPlayedThisTurn(_template) == 0)
-                {
-                    ((Player)user.controller).maxFocus.baseValue += 1;
-                }
-            }
+            ((Player)user.controller).maxFocus.baseValue += 1;
         }
     }
     public override string Text()
@@ -480,7 +581,45 @@ public class A_Ideal : CardAbility
         return "If you have not played an Ideal this turn, gain 0/1 Focus. \nDraw a card. ";
     }
 }
-
+public class A_Ideal_1 : CardAbility
+{
+    public A_Ideal_1(Card user) : base(user)
+    {
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        Ability.Draw(user.controller, 1, undo, state);
+        if (user.playerControlled)
+        {
+            Player.instance.addAffinity(user.data.color, 1);
+            Ability.Harmonize(user.controller, user.data.color, undo, state);
+        }
+    }
+    public override string Text()
+    {
+        return "Gain 1 " + Keywords.Parse(user.data.color) + "." +
+            "\nDraw a card." + 
+            "\nHarmonize " + Keywords.Parse(user.data.color) + ".";
+    }
+}
+public class A_Ideal_2 : CardAbility
+{
+    public A_Ideal_2(Card user) : base(user)
+    {
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        if (user.playerControlled)
+        {
+            Player.instance.addAffinity(user.data.color, 1);
+            user.controller.Draw();
+        }
+    }
+    public override string Text()
+    {
+        return "Gain 1 " + Keywords.Parse(user.data.color) + ". Draw a card.";
+    }
+}
 public class A_Fatigue : CardAbility
 {
     public A_Fatigue(Card user) : base(user)
@@ -504,7 +643,6 @@ public class A_Fatigue : CardAbility
         return txt;
     }
 }
-
 public class A_TokenThrall : CardAbility
 {
     public A_TokenThrall(Card user) : base(user)

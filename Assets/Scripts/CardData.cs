@@ -28,7 +28,10 @@ public class CardData : ScriptableObject
     public int perception;
     public int finesse;
 
-    [Header("Thrall Specific Parameters")]
+    [TextArea(minLines: 5, maxLines: 10)]
+    public string flavorText;
+
+    [Header("Thrall and Incantation Specific Parameters")]
     public int power;
     public int endurance;
     public int upkeep;

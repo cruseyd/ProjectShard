@@ -66,6 +66,7 @@
     <Compile Include="Assets\Scripts\Actor.cs" />
     <Compile Include="Assets\Scripts\ActorEvents.cs" />
     <Compile Include="Assets\Scripts\ActorParticles.cs" />
+    <Compile Include="Assets\Scripts\ActorState.cs" />
     <Compile Include="Assets\Scripts\BarDisplay.cs" />
     <Compile Include="Assets\Scripts\Card.cs" />
     <Compile Include="Assets\Scripts\CardAbilities_Fen.cs" />

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public interface ICommand
 {
+    string name { get; }
     void Execute();
     void Execute(GameState state);
     void Undo(GameState state);
@@ -16,6 +17,21 @@ public class AbilityCommand : ICommand
     private List<ITargetable> _targets;
     private Ability _ability;
     private Ability.Mode _mode;
+
+    public string name
+    {
+        get
+        {
+            if (_targets != null)
+            {
+                return _source.name + " targets " + _targets[0].name + " with " + _mode.ToString();
+            } else
+            {
+                return _source.name + " uses " + _mode.ToString();
+            }
+            
+        }
+    }
 
     public AbilityCommand(Ability ability, Ability.Mode mode, ITargetable source, List<ITargetable> targets = null)
     {

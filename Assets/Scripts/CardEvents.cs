@@ -19,6 +19,7 @@ public class CardEvents
     public event Action<Card> onDiscard;
     public event Action<Card, Attempt> onTryCycle; 
     public event Action<Card> onCycle;
+    public event Action<ITargetable, Card, Attempt> onTryMarkTarget;
 
     public void Draw() { onDraw?.Invoke(_source); }
     public void EnterPlay() { onEnterPlay?.Invoke(_source); }
@@ -29,4 +30,6 @@ public class CardEvents
 
     public void TryCycle(Attempt attempt) { onTryCycle?.Invoke(_source, attempt); }
     public void Cycle() { onCycle?.Invoke(_source); }
+
+    public void TryMarkTarget(ITargetable source, Attempt attempt) { onTryMarkTarget?.Invoke(source, _source, attempt); }
 }

@@ -4,110 +4,159 @@ using UnityEngine;
 
 public class GameState
 {
-    public List<CardState> friendlyCards;
-    public List<CardState> opposingCards;
 
-    public int numHandCards;
-    public int opposingNumHandCards;
+    private ActorState _self;
+    private ActorState _opponent;
+    public GameState(Actor self)
+    {
+        _self = new ActorState(self);
+        _opponent = new ActorState(self.opponent);
+    }
 
-    public int health;
-    public int opposingHealth;
-
-    public Actor pov;
-
-    public void ApplyDamage(DamageData damage, bool undo = false)
+    private CardState GetCardState(Card card)
+    {
+        CardState state = _self.GetCardState(card);
+        if (state == null) { state = _opponent.GetCardState(card); }
+        return state;
+    }
+    public void AddTemplateModifier(TemplateModifier mod, bool undo)
+    {
+        foreach (CardState state in _self.cards)
+        {
+            if (mod.Compare(state.source))
+            {
+                AddStatModifier(state.source, mod, undo);
+            }
+        }
+    }
+    public void AddStatModifier(Card card, StatModifier mod, bool undo)
     {
         int scale = 1;
         if (undo) { scale = -1; }
-        if ((Object)damage.target == pov) { health -= scale*damage.damage; }
-        else if ((Object)damage.target == pov.opponent) { opposingHealth -= scale*damage.damage; }
-        else
+        switch (mod.statName)
         {
-            Card targetCard = ((Card)damage.target);
-            GetCardState(targetCard).Damage(scale*damage.damage);
+            case Stat.Name.POWER: GetCardState(card).power += scale * mod.value; break;
+            case Stat.Name.HEALTH: GetCardState(card).health += scale * mod.value; break;
         }
     }
-    public void DamageActor(Actor src, int dmg, Keyword damageType = Keyword.DEFAULT)
+    public void Heal(Actor actor, int value, bool undo)
     {
-        //TODO: simulate damage type
-        if (src == pov) { health -= dmg; }
-        else { opposingHealth -= dmg; }
-    }
-
-    public void DrawCards(Actor src, int n)
-    {
-        if (src == pov) { numHandCards += n; }
-        else { opposingNumHandCards += n; }
-    }
-
-    public GameState(Actor current)
-    {
-        pov = current;
-        numHandCards = current.hand.Count;
-        opposingNumHandCards = current.opponent.hand.Count;
-        friendlyCards = new List<CardState>();
-        opposingCards = new List<CardState>();
-        foreach (Card card in Enemy.instance.active)
+        int scale = 1;
+        if (undo) { scale = -1; }
+        if (_self.actor == actor)
         {
-            if (current == Enemy.instance)
-            {
-                friendlyCards.Add(new CardState(card));
-            } else
-            {
-                opposingCards.Add(new CardState(card));
-            }
-        }
-        foreach (Card card in Player.instance.active)
-        {
-            if (current == Enemy.instance)
-            {
-                opposingCards.Add(new CardState(card));
-            }
-            else
-            {
-                friendlyCards.Add(new CardState(card));
-            }
-        }
-        if (current == Enemy.instance)
-        {
-            health = Enemy.instance.health.value;
-            opposingHealth = Player.instance.health.value;
+            _self.health += scale * value;
         } else
         {
-            health = Player.instance.health.value;
-            opposingHealth = Enemy.instance.health.value;
-
+            _opponent.health += scale * value;
         }
     }
-
-    public CardState GetCardState(Card card)
-    {
-        foreach (CardState state in friendlyCards) { if (state.source == card) { return state; } }
-        foreach (CardState state in opposingCards) { if (state.source == card) { return state; } }
-        return null;
-    }
-
-    public void AddCard(Card card)
-    {
-        if (GetCardState(card) == null)
-        {
-            if (card.controller == pov)
-            {
-                friendlyCards.Add(new CardState(card));
-            } else
-            {
-                opposingCards.Add(new CardState(card));
-            }
-        }
-    }
-
-    public void RemoveCard(Card card)
+    public void Heal(Card card, int value, bool undo)
     {
         CardState state = GetCardState(card);
         if (state != null)
         {
-            if (card.controller == pov) { friendlyCards.Remove(state); }
-            else { opposingCards.Remove(state); }
+            int scale = 1;
+            if (undo) { scale = -1; }
+            state.health += scale * value;
+            state.health = Mathf.Clamp(state.health, 0, state.source.endurance.baseValue);
         }
+    }
+    public void Damage(DamageData damage, bool undo)
+    {
+        int scale = 1;
+        if (undo) { scale = -1; }
+
+        if (damage.target is Actor)
+        {
+            if (((Actor)damage.target) == _self.actor)
+            {
+                _self.health -= scale * damage.damage;
+            } else
+            {
+                _opponent.health -= scale * damage.damage;
+            }
+        } else
+        {
+            Card trg = damage.target as Card;
+            if (trg.controller == _self.actor)
+            {
+                _self.GetCardState(trg).Damage(damage.damage * scale);
+            } else
+            {
+                _opponent.GetCardState(trg).Damage(damage.damage * scale);
+            }
+
+        }
+    }
+    public void Draw(Actor actor, int n, bool undo)
+    {
+        int scale = 1;
+        if (undo) { scale = -1; }
+        if (_self.actor == actor) { _self.Draw(scale*n); }
+        else { _opponent.Draw(scale*n); }
+    }
+    public void AddCardToHand(Actor actor, bool undo)
+    {
+        int scale = 1;
+        if (undo) { scale = -1; }
+        if (actor == _self.actor) { _self.numCardsInHand += scale; _self.numCardsPlayable += scale; }
+        else { _opponent.numCardsInHand += scale; _opponent.numCardsPlayable += scale; }
+    }
+    public void Status(ITargetable target, StatusEffect.ID id, int stacks, bool undo)
+    {
+        int scale = 1;
+        if (undo) { scale = -1; }
+        if (target is Actor)
+        {
+            Actor trg = target as Actor;
+            if (trg == _self.actor)
+            {
+                _self.Status(id, stacks*scale);
+            } else
+            {
+                _opponent.Status(id, stacks * scale);
+            }
+        } else if (target is Card)
+        {
+            Card card = target as Card;
+
+        }
+
+    }
+    public void PutCardInPlay(Card card, bool undo)
+    {
+        
+        if (card.controller == _self.actor)
+        {
+            _self.AddCard(new CardState(card), CardZone.Type.ACTIVE, undo);
+            if (card.zone.type == CardZone.Type.HAND) { _self.numCardsInHand--; }
+        } else
+        {
+            _opponent.AddCard(new CardState(card), CardZone.Type.ACTIVE, undo);
+            if (card.zone.type == CardZone.Type.HAND) { _opponent.numCardsInHand--; }
+        }
+    }
+    public void RemoveCardFromPlay(Card card, bool undo)
+    {
+        if (card.controller == _self.actor)
+        {
+            _self.RemoveCard(card, CardZone.Type.ACTIVE, undo);
+        }
+        else
+        {
+            _opponent.RemoveCard(card, CardZone.Type.ACTIVE, undo);
+        }
+    }
+    public float Evaluate()
+    {
+        float healthDelta = _self.health - _opponent.health;
+        float handDelta = _self.numCardsPlayable - _opponent.numCardsPlayable;
+        float threatDelta = _self.threat - _opponent.threat;
+
+        float evaluation = 5 * healthDelta + 3 * threatDelta + handDelta;
+        if (_self.health <= 0) { evaluation -= 9999; }         //avoid defeat
+        if (_opponent.health <= 0) { evaluation += 9999; }     //always choose victory
+        return evaluation;
     }
 }

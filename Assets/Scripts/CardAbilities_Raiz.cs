@@ -11,8 +11,6 @@ public class A_Cinder : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 2;
         ITargetable target = (ITargetable)targets[0];
@@ -31,18 +29,10 @@ public class A_Singe : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
-        if (state != null)
-        {
-
-        }
-        else
-        {
-            int n = user.opponent.GetStatus(StatusEffect.ID.BURN);
-            if (n > 0) { user.opponent.AddStatus(StatusEffect.ID.BURN, 1); }
-            else { user.opponent.AddStatus(StatusEffect.ID.BURN, 2); }
-        }
+        int n = user.opponent.GetStatus(StatusEffect.ID.BURN);
+        int stacks = 2;
+        if (n > 0) { stacks = 1; }
+        Ability.Status(user.opponent, StatusEffect.ID.BURN, stacks, undo, state);
     }
 
     public override string Text()
@@ -58,44 +48,16 @@ public class A_Blitz : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
-        if (state != null)
+        Ability.Draw(user.controller, 1, undo, state);
+        int n = 0;
+        foreach (Card card in user.controller.hand)
         {
-            if (undo)
-            {
-                state.DrawCards(user.controller, -1);
-            }
-            else
-            {
-                state.DrawCards(user.controller, 1);
-            }
+            if (card.type == Card.Type.TECHNIQUE) { n += 1; }
         }
-        else
-        {
-            int n = 0;
-            user.controller.Draw();
-            if (user.playerControlled)
-            {
-                foreach (Card card in user.controller.hand)
-                {
-                    if (card.type == Card.Type.TECHNIQUE) { n += 1; }
-                }
-                ((Player)user.controller).focus.baseValue += n;
-            }
-        }
+        Ability.AddFocus(user.controller, n, 0, undo, state);
+    }
 
-    }
-    /*
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        if (((Card)_user).playerControlled)
-        {
-            Player.instance.focus.baseValue += 1;
-        }
-    }
-    */
     public override string Text()
     {
         string txt = "Draw a card.";
@@ -108,10 +70,7 @@ public class A_Blitz : CardAbility
     }
     private void CycleHandler(Card card)
     {
-        if (user.playerControlled)
-        {
-            Player.instance.focus.baseValue += 1;
-        }
+        Ability.AddFocus(user.controller, 1, 0);
     }
 }
 public class A_Slash : CardAbility
@@ -122,22 +81,18 @@ public class A_Slash : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 2;
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.SLASHING, _user, target);
         Ability.Damage(data, undo, state);
     }
-
     public override string Text()
     {
         string txt = "Target enemy takes 2 SLASHING damage.";
         return txt;
     }
 }
-
 public class A_ViciousRend : CardAbility
 {
     public A_ViciousRend(Card user) : base(user)
@@ -146,8 +101,6 @@ public class A_ViciousRend : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 3;
         ITargetable target = (ITargetable)targets[0];
@@ -161,7 +114,6 @@ public class A_ViciousRend : CardAbility
         return txt;
     }
 }
-
 public class A_MightyCleave : CardAbility
 {
     public A_MightyCleave(Card user) : base(user)
@@ -170,8 +122,6 @@ public class A_MightyCleave : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 4;
         ITargetable target = (ITargetable)targets[0];
@@ -185,7 +135,6 @@ public class A_MightyCleave : CardAbility
         return txt;
     }
 }
-
 public class A_Flurry : CardAbility
 {
     private TargetTemplate _template;
@@ -195,17 +144,13 @@ public class A_Flurry : CardAbility
         _template = new TargetTemplate();
         _template.cardType.Add(Card.Type.TECHNIQUE);
 
-        Card usr = user as Card;
-        usr.cardEvents.onDraw += DrawHandler;
+        user.cardEvents.onDraw += DrawHandler;
         
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = _user as Card;
         base.Play(targets, undo, state);
         int damage = 1;
-
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.SLASHING, _user, target);
         Ability.Damage(data, undo, state);
@@ -221,14 +166,12 @@ public class A_Flurry : CardAbility
     }
     private void PlayedCardHandler(Card card)
     {
-        Card user = _user as Card;
         if (user.playedThisTurn && card.Compare(_template, _user.controller))
         {
-            user.controller.AddToHand(user);
+            Ability.AddCardToHand(user);
         }
     }
 }
-
 public class A_WildSwing : CardAbility
 {
     public A_WildSwing(Card user) : base(user)
@@ -237,8 +180,6 @@ public class A_WildSwing : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 2;
         ITargetable t1 = (ITargetable)targets[0];
@@ -258,7 +199,6 @@ public class A_WildSwing : CardAbility
         return "Wild Swing inflicts 2 SLASHING damage to any target and to another random opposing target.";
     }
 }
-
 public class A_SeeingRed : CardAbility
 {
     public A_SeeingRed(Card user) : base(user)
@@ -266,8 +206,8 @@ public class A_SeeingRed : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        _user.controller.AddStatus(StatusEffect.ID.FRENZY, 1);
-        _user.controller.Draw();
+        Ability.Status(user.controller, StatusEffect.ID.FRENZY, 1, undo, state);
+        Ability.Draw(user.controller, 1, undo, state);
     }
 
     public override string Text()
@@ -275,7 +215,6 @@ public class A_SeeingRed : CardAbility
         return "Gain 1 Frenzy. Draw a card.";
     }
 }
-
 public class A_Ireblade : CardAbility
 {
     private StatModifier _mod;
@@ -285,26 +224,20 @@ public class A_Ireblade : CardAbility
         user.targetEvents.onRefresh += RefreshHandler;
         user.cardEvents.onCycle += CycleHandler;
         _mod = new StatModifier(0, Stat.Name.COST, user);
+        user.AddModifier(_mod);
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
         int damage = 3;
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.SLASHING, _user, target);
         Ability.Damage(data, undo, state);
     }
-    /*
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        _user.controller.AddStatus(StatusEffect.ID.FRENZY);
-    }
-    */
+
     private void CycleHandler(Card card)
     {
-        user.controller.AddStatus(StatusEffect.ID.FRENZY);
+        Ability.Status(user.controller, StatusEffect.ID.FRENZY, 1);
     }
     public override string Text()
     {
@@ -315,10 +248,9 @@ public class A_Ireblade : CardAbility
 
     private void RefreshHandler()
     {
-        _mod.value = user.controller.GetStatus(StatusEffect.ID.FRENZY);
+        _mod.value = -user.controller.GetStatus(StatusEffect.ID.FRENZY);
     }
 }
-
 public class A_InfernoDjinn : CardAbility
 {
     private TargetTemplate _template;
@@ -334,7 +266,6 @@ public class A_InfernoDjinn : CardAbility
     {
         return "When you play a FIRE Spell, this gets +1 POWER.";
     }
-
     private void DrawHandler(Card card)
     {
         _user.controller.actorEvents.onPlayCard += OnPlayCardHandler;
@@ -348,7 +279,6 @@ public class A_InfernoDjinn : CardAbility
         }
     }
 }
-
 public class A_IntoTheFray : CardAbility
 {
     public A_IntoTheFray(Card user) : base(user)
@@ -356,16 +286,13 @@ public class A_IntoTheFray : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        _user.controller.AddStatus(StatusEffect.ID.FRENZY, 3);
+        Ability.Status(user.controller, StatusEffect.ID.FRENZY, 3, undo, state);
     }
-
     public override string Text()
     {
         return "Gain 3 Frenzy.";
     }
 }
-
-
 public class A_Sharpen : CardAbility
 {
     public A_Sharpen(Card user) : base(user) { }
@@ -374,7 +301,7 @@ public class A_Sharpen : CardAbility
         base.Play(targets, undo, state);
         _user.controller.targetEvents.onDealRawDamage += RawDamageHandler;
         _user.controller.actorEvents.onEndTurn += EndTurnHandler;
-        _user.controller.Draw();
+        Ability.Draw(user.controller, 1, undo, state);
     }
     public override string Text()
     {
@@ -392,7 +319,6 @@ public class A_Sharpen : CardAbility
         actor.actorEvents.onEndTurn -= EndTurnHandler;
     }
 }
-
 public class A_Spinetail : CardAbility
 {
     public A_Spinetail(Card user) : base(user)
@@ -412,38 +338,32 @@ public class A_Spinetail : CardAbility
     protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Activate(targets, undo, state);
-        targets[0].AddStatus(StatusEffect.ID.IMPALE, 1);
+        Ability.Status(targets[0], StatusEffect.ID.IMPALE, 1, undo, state);
     }
 }
-
 public class A_Emberfall : CardAbility
 {
     public A_Emberfall(Card user) : base(user)
     {
-
     }
 
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        StartChannel();
         CardData data = Resources.Load("Cards/Raiz/Emberstrike") as CardData;
-        for (int ii = 0; ii < 2; ii++)
-        {
-            _user.controller.AddToHand(Card.Spawn(data, _user.playerControlled, _user.transform.position));
-        }
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }
 
-    protected override void Channel()
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        base.Channel();
+        base.Activate(targets, undo, state);
         CardData data = Resources.Load("Cards/Raiz/Emberstrike") as CardData;
-        for (int ii = 0; ii < 2; ii++)
-        {
-            _user.controller.AddToHand(Card.Spawn(data, _user.playerControlled, _user.transform.position));
-        }
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
+        Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }
 
+    public override bool ActivationAvailable() { return true; }
     public override string Text()
     {
         string txt = "Add 2 <b>Emberstrike</b> with to your hand.";
@@ -451,7 +371,6 @@ public class A_Emberfall : CardAbility
         return txt;
     }
 }
-
 public class A_Emberstrike : CardAbility
 {
     public A_Emberstrike(Card user) : base(user)
@@ -465,18 +384,15 @@ public class A_Emberstrike : CardAbility
 
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = _user as Card;
         base.Play(targets, undo, state);
         int damage = 1;
 
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.FIRE, _user, target);
         Ability.Damage(data, undo, state);
-        target.AddStatus(StatusEffect.ID.BURN);
+        Ability.Status(target, StatusEffect.ID.BURN, 1, undo, state);
     }
 }
-
 public class A_BlazingVortex : CardAbility
 {
     public A_BlazingVortex(Card user) : base(user)
@@ -489,8 +405,6 @@ public class A_BlazingVortex : CardAbility
 
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = _user as Card;
         base.Play(targets, undo, state);
         int damage = 2;
 
@@ -519,51 +433,38 @@ public class A_BlazingVortex : CardAbility
         }
     }
 }
-
 public class A_HyrocChampion : CardAbility
 {
-    int _upkeepMod;
+    private StatModifier _mod;
     public A_HyrocChampion(Card user) : base(user)
     {
-        ((Card)user).cardEvents.onDraw += DrawHandler;
-    }
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        Debug.Assert(_user is Card);
-        base.Play(targets, undo, state);
+        user.controller.actorEvents.onPlayCard += PlayCardHandler;
+        user.controller.actorEvents.onEndTurn += EndTurnHandler;
+        user.cardEvents.onEnterPlay += EnterPlayHandler;
+        _mod = new StatModifier(0, Stat.Name.UPKEEP, user);
+        user.AddModifier(_mod);
     }
     public override string Text()
     {
         string txt = "When you play a Technique, Hyroc Champion gets -1 UPKEEP.";
         return txt;
     }
-
-    private void DrawHandler(Card card)
+    private void EnterPlayHandler(Card card)
     {
-        _user.controller.actorEvents.onPlayCard += PlayCardHandler;
-        _user.controller.actorEvents.onEndTurn += EndTurnHandler;
-        _upkeepMod = 0;
+        _mod.value = 0;
     }
     private void PlayCardHandler(Card card)
     {
-        Card user = _user as Card;
-        if (card.type == Card.Type.TECHNIQUE)
+        if (user.inPlay && card.type == Card.Type.TECHNIQUE)
         {
-            user.upkeep.RemoveModifiersFromSource(_user as Object);
-            _upkeepMod--;
-            StatModifier mod = new StatModifier(_upkeepMod, Stat.Name.UPKEEP, user);
-            user.AddModifier(mod);
+            _mod.value -= 1;
         }
     }
-
     private void EndTurnHandler(Actor actor)
     {
-        Card user = _user as Card;
-        _upkeepMod = 0;
-        user.upkeep.RemoveModifiersFromSource(_user as Object);
+        _mod.value = 0;
     }
 }
-
 public class A_Ignite : CardAbility
 {
     public A_Ignite(Card user) : base(user) { }
@@ -574,14 +475,11 @@ public class A_Ignite : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
-        user.controller.AddStatus(StatusEffect.ID.FIREBRAND);
-        user.controller.Draw();
+        Ability.Status(user.controller, StatusEffect.ID.FIREBRAND, 1, undo, state);
+        Ability.Draw(user.controller, 1, undo, state);
     }
 }
-
 public class A_FlamingFlourish : CardAbility
 {
     public A_FlamingFlourish(Card user) : base(user)
@@ -596,56 +494,36 @@ public class A_FlamingFlourish : CardAbility
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
-        Debug.Assert(_user is Card);
-        Card user = (Card)_user;
         base.Play(targets, undo, state);
-        user.controller.Draw();
+        Ability.Draw(user.controller, 1, undo, state);
         List<Card> cards = user.controller.hand;
         int n = 0;
         foreach (Card card in cards)
         {
             if (card.type == Card.Type.TECHNIQUE) { n++; }
         }
-        user.controller.AddStatus(StatusEffect.ID.FIREBRAND, n);
+        Ability.Status(user.controller, StatusEffect.ID.FIREBRAND, n, undo, state);
     }
     
     private void CycleHandler(Card card)
     {
-        _user.controller.AddStatus(StatusEffect.ID.FIREBRAND);
+        Ability.Status(user.controller, StatusEffect.ID.FIREBRAND, 1);
     }
-    /*
-    protected override void Passive(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        _user.controller.AddStatus(StatusEffect.ID.FIREBRAND);
-    }
-    */
 }
-
-
 public class A_FeralWarcat : CardAbility
 {
     public A_FeralWarcat(Card user) : base(user)
     {
-        ((Card)user).cardEvents.onDraw += DrawHandler;
+        _user.controller.targetEvents.onDeclareTarget += DeclareTargetHandler;
     }
     public override string Text()
     {
         return "When you target an enemy with an Technique, Feral Warcat deals 1 SLASHING damage to that target.";
     }
 
-    private void DrawHandler(Card card)
-    {
-        _user.controller.targetEvents.onDeclareTarget += DeclareTargetHandler;
-    }
-
-    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
-    {
-        base.Play(targets, undo, state);
-    }
-
     private void DeclareTargetHandler(ITargetable source, ITargetable target)
     {
-        if (source is Card && ((Card)_user).inPlay)
+        if (source is Card && user.inPlay)
         {
             Card src = (Card)source;
             if (src.type == Card.Type.TECHNIQUE)
@@ -654,5 +532,29 @@ public class A_FeralWarcat : CardAbility
             }
         }
     }
+}
+public class A_Relentless : CardAbility
+{
+    public A_Relentless(Card user) : base(user)
+    {
 
+    }
+
+    public override string Text()
+    {
+        return "Draw a card. Techniques in your hand cost -1 FOCUS this turn.";
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        Ability.Draw(user.controller, 1, undo, state);
+        StatModifier mod = new StatModifier(-1, Stat.Name.COST, user, Modifier.Duration.END_OF_TURN);
+
+        foreach (Card card in user.controller.hand)
+        {
+            if (card.type == Card.Type.TECHNIQUE)
+            {
+                card.cost.AddModifier(mod);
+            }
+        }
+    }
 }

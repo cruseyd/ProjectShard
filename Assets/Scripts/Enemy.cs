@@ -10,18 +10,25 @@ public class Enemy : Actor
     [SerializeField] private EnemyData _data;
     [SerializeField] private TextMeshProUGUI _nameText;
 
+    private int _drawRangeMin = 1;
+    private int _drawRangeMax = 6;
+
     public new string name
     {
         get { return _data.name; }
     }
-
+    public override void CycleDeck()
+    {
+        _drawRangeMin++;
+        _drawRangeMax++;
+    }
     public void DrawRandom()
     {
         StartCoroutine(DoDrawRandom());
     }
     public IEnumerator DoDrawRandom()
     {
-        int n = Random.Range(1, 7);
+        int n = Random.Range(_drawRangeMin, _drawRangeMax);
         n = (int)((float)n / 2.0f);
         n = Mathf.Max(n, 1);
         yield return DoDraw(n);
@@ -45,16 +52,9 @@ public class Enemy : Actor
         //set enemy UI to be active
         _data = data;
         _nameText.text = data.name;
-        //StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
-        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
-        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
 
         health.baseValue = data.maxHealth;
         maxHealth.baseValue = health.value;
-
-        //_weapon.Equip(data.weapon, this);
-        //_armor.Equip(data.armor, this);
-        //_relic = null;
 
         if (_data.cardPool != null && _data.cardPool.pool.Count > 0)
         {
@@ -66,6 +66,7 @@ public class Enemy : Actor
         {
             Debug.Log("Could not seed cards for " + name);
         }
-        
+        _drawRangeMin = 2;
+        _drawRangeMax = 7;
     }
 }
