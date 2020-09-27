@@ -10,26 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: IceElemental
+  m_Name: ChainLightning
   m_EditorClassIdentifier: 
-  name: Ice Elemental
-  id: ICE_ELEMENTAL
-  level: 3
-  color: 4
+  name: Chain Lightning
+  id: CHAIN_LIGHTNING
+  level: 2
+  color: 2
   violetAffinity: 0
-  redAffinity: 0
+  redAffinity: 2
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 3
+  blueAffinity: 2
   indigoAffinity: 0
   rarity: 1
-  type: 3
-  keywords: 33010000
+  type: 1
+  keywords: 32010000
   abilityKeywords: 
-  strength: 0
-  perception: 0
-  finesse: 0
-  power: 1
-  endurance: 4
-  upkeep: 2
-  damageType: 307
+  strength: 1
+  perception: 4
+  finesse: 2
+  flavorText: 
+  power: 0
+  endurance: 0
+  upkeep: 0
+  damageType: 0

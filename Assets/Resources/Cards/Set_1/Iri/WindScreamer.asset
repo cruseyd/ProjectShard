@@ -10,26 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: ChainLightning
+  m_Name: WindScreamer
   m_EditorClassIdentifier: 
-  name: Chain Lightning
-  id: CHAIN_LIGHTNING
+  name: Wind Screamer
+  id: WIND_SCREAMER
   level: 2
   color: 4
   violetAffinity: 0
-  redAffinity: 2
+  redAffinity: 0
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 2
+  blueAffinity: 1
   indigoAffinity: 0
-  rarity: 1
-  type: 1
-  keywords: 32010000
-  abilityKeywords: 
-  strength: 1
-  perception: 4
-  finesse: 2
-  power: 0
-  health: 0
-  upkeep: 0
-  damageType: 0
+  rarity: 0
+  type: 3
+  keywords: 33010000c0020000
+  abilityKeywords: 0200000008000000
+  strength: 0
+  perception: 0
+  finesse: 0
+  flavorText: 
+  power: 1
+  endurance: 2
+  upkeep: 1
+  damageType: 307

@@ -93,6 +93,11 @@ public class Deck : MonoBehaviour
         Destroy(card.gameObject);
         Shuffle(data);
     }
+    public void Insert(Card card, int index)
+    {
+        cards.Insert(index, card.data);
+        Destroy(card.gameObject);
+    }
     public void Shuffle(CardData data)
     {
         cards.Insert(Random.Range(0, cards.Count - 1), data);
@@ -108,24 +113,51 @@ public class Deck : MonoBehaviour
     }
     public Card Draw()
     {
-        if (cards.Count == 0)
-        {
-            if (playerDeck)
-            {
-                Player.instance.CycleDeck();
-            } else
-            {
-                Enemy.instance.CycleDeck();
-            }
-            Shuffle(_discard.GetComponentsInChildren<Card>());
-            if (cards.Count == 0) { return null; }
-        }
-        CardData data = cards[0];
-        cards.RemoveAt(0);
+        return Remove(0);
+    }
+    public Card Remove(int index)
+    {
+        Cycle();
+        if (cards.Count < index) { return null; }
+        CardData data = cards[index];
+        cards.RemoveAt(index);
         Card card = Card.Spawn(data, playerDeck, transform.position);
         card.FaceUp(false);
         UpdateCounter();
         return card;
 
+    }
+    public CardData Reveal(int index = 0)
+    {
+        Cycle();
+        if (cards.Count < index) { return null; }
+        CardData data = cards[index];
+        return data;
+    }
+
+    public List<CardData> RevealTop(int n)
+    {
+        List<CardData> revealed = new List<CardData>();
+        for (int ii = 0; ii < n; ii++)
+        {
+            revealed.Add(Reveal(ii));
+        }
+        return revealed;
+    }
+
+    private void Cycle()
+    {
+        if (cards.Count == 0)
+        {
+            if (playerDeck)
+            {
+                Player.instance.CycleDeck();
+            }
+            else
+            {
+                Enemy.instance.CycleDeck();
+            }
+            Shuffle(_discard.GetComponentsInChildren<Card>());
+        }
     }
 }

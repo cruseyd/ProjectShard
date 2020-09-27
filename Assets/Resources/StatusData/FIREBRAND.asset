@@ -17,5 +17,5 @@ MonoBehaviour:
   tooltipHeader: Firebrand
   tooltipContent: 'When you deal damage to a target with a Technique, deal 1 FIRE
     damage to that target and lose 1 stack of Firebrand. '
-  iconColor: {r: 1, g: 0.71534777, b: 0, a: 1}
-  backgroundColor: {r: 0.7075472, g: 0.1697658, b: 0, a: 1}
+  iconColor: {r: 0.7735849, g: 0.24834101, b: 0, a: 1}
+  backgroundColor: {r: 1, g: 0.53394943, b: 0, a: 1}

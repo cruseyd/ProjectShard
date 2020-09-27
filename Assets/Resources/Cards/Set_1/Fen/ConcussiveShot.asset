@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Concussive Shot
   id: CONCUSSIVE_SHOT
-  level: 0
+  level: 2
   color: 3
   violetAffinity: 0
   redAffinity: 0
@@ -29,7 +29,8 @@ MonoBehaviour:
   strength: 2
   perception: 2
   finesse: 3
+  flavorText: 
   power: 0
-  health: 0
+  endurance: 0
   upkeep: 0
   damageType: 0

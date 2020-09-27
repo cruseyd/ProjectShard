@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Slimeling
   m_EditorClassIdentifier: 
   name: Slimeling
-  id: SLIMELING
+  id: SLIMELING_TOKEN
   level: 1
   color: 3
   violetAffinity: 0

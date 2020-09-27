@@ -70,7 +70,6 @@ public class ActorState
         */
         numCardsInHand += n;
         numCardsPlayable += n;
-        Debug.Assert(numCardsInHand >= 0);
     }
     public void AddCard(CardState card, CardZone.Type zone, bool undo)
     {

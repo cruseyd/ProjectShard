@@ -24,11 +24,12 @@ MonoBehaviour:
   indigoAffinity: 0
   rarity: 0
   type: 3
-  keywords: 9101000033010000
+  keywords: 33010000c2020000
   abilityKeywords: 
   strength: 0
   perception: 0
   finesse: 0
+  flavorText: 
   power: 1
   endurance: 1
   upkeep: 0

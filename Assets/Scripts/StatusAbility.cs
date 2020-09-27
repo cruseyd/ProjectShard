@@ -242,6 +242,7 @@ public class SA_Chill : StatusAbility
     }
     public override void Remove()
     {
+        Debug.Log("Removing Chill");
         target.targetEvents.onGainStatus -= AddStatusHandler;
         if (target is Card)
         {
@@ -317,6 +318,7 @@ public class SA_Frozen : StatusAbility
         target.controller.actorEvents.onStartTurn -= StartTurnHandler;
         target.controller.actorEvents.onEndTurn -= EndTurnHandler;
         target.targetEvents.onTakeRawDamage -= TakeRawDamageHandler;
+        target.targetEvents.onTryGainStatus -= TryGainStatusHandler;
         if (target is Card)
         {
             Card card = target as Card;
@@ -369,7 +371,8 @@ public class SA_Firebrand : StatusAbility
     {
         if (data.source is Card && ((Card)data.source).type == Card.Type.TECHNIQUE)
         {
-            data.target.Damage(new DamageData(1, Keyword.FIRE, null, data.target));
+            Debug.Log("Firebrand Damage trigger");
+            Ability.Damage(new DamageData(1, Keyword.FIRE, null, data.target));
             stacks--;
         }
     }
@@ -431,5 +434,87 @@ public class SA_Insight : StatusAbility
         int n = stacks;
         target.RemoveStatus(_id);
         ((Actor)target).Draw(n);
+    }
+}
+
+public class SA_Alacrity : StatusAbility
+{
+    private StatModifier _mod;
+    public SA_Alacrity(StatusEffect.ID a_id, ITargetable a_target, int a_stacks) : base(a_id, a_target, a_stacks)
+    {
+        Debug.Assert(target is Card);
+        Card card = target as Card;
+        _mod = new StatModifier(-a_stacks, Stat.Name.COST, null);
+        card.AddModifier(_mod);
+        target.targetEvents.onRefresh += RefreshHandler;
+    }
+
+    public override void Remove()
+    {
+        target.targetEvents.onRefresh -= RefreshHandler;
+        ((Card)target).RemoveModifier(_mod);
+    }
+
+    private void RefreshHandler()
+    {
+        _mod.value = -stacks;
+    }
+}
+public class SA_Might : StatusAbility
+{
+    private StatModifier _powerMod;
+    private StatModifier _enduranceMod;
+    public SA_Might(StatusEffect.ID a_id, ITargetable a_target, int a_stacks) : base(a_id, a_target, a_stacks)
+    {
+        Debug.Assert(target is Card);
+        Card card = target as Card;
+        Debug.Assert(card.type == Card.Type.THRALL);
+        _powerMod = new StatModifier(a_stacks, Stat.Name.POWER, null);
+        _enduranceMod = new StatModifier(a_stacks, Stat.Name.ENDURANCE, null);
+        card.AddModifier(_powerMod);
+        card.AddModifier(_enduranceMod);
+        target.targetEvents.onRefresh += RefreshHandler;
+    }
+
+    public override void Remove()
+    {
+        target.targetEvents.onRefresh -= RefreshHandler;
+        ((Card)target).RemoveModifier(_powerMod);
+        ((Card)target).RemoveModifier(_enduranceMod);
+    }
+
+    private void RefreshHandler()
+    {
+        _powerMod.value = stacks;
+        _enduranceMod.value = stacks;
+    }
+}
+public class SA_Atrophy : StatusAbility
+{
+    private StatModifier _powerMod;
+    private StatModifier _enduranceMod;
+    public SA_Atrophy(StatusEffect.ID a_id, ITargetable a_target, int a_stacks) : base(a_id, a_target, a_stacks)
+    {
+        Debug.Assert(target is Card);
+        Card card = target as Card;
+        Debug.Assert(card.type == Card.Type.THRALL);
+        _powerMod = new StatModifier(-a_stacks, Stat.Name.POWER, null);
+        _enduranceMod = new StatModifier(-a_stacks, Stat.Name.ENDURANCE, null);
+        card.AddModifier(_powerMod);
+        card.AddModifier(_enduranceMod);
+        target.targetEvents.onRefresh += RefreshHandler;
+    }
+
+    public override void Remove()
+    {
+        target.targetEvents.onRefresh -= RefreshHandler;
+        ((Card)target).RemoveModifier(_powerMod);
+        ((Card)target).RemoveModifier(_enduranceMod);
+    }
+
+    private void RefreshHandler()
+    {
+        _powerMod.value = -stacks;
+        _enduranceMod.value = -stacks;
     }
 }

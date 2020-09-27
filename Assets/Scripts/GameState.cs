@@ -12,7 +12,6 @@ public class GameState
         _self = new ActorState(self);
         _opponent = new ActorState(self.opponent);
     }
-
     private CardState GetCardState(Card card)
     {
         CardState state = _self.GetCardState(card);
@@ -105,6 +104,7 @@ public class GameState
     }
     public void Status(ITargetable target, StatusEffect.ID id, int stacks, bool undo)
     {
+        Debug.Log("(VIRTUAL) Adding status " + id + " to state of " + target.name + " | undo = " + undo);
         int scale = 1;
         if (undo) { scale = -1; }
         if (target is Actor)
@@ -112,17 +112,16 @@ public class GameState
             Actor trg = target as Actor;
             if (trg == _self.actor)
             {
-                _self.Status(id, stacks*scale);
+                _self.Status(id, stacks * scale);
             } else
             {
                 _opponent.Status(id, stacks * scale);
             }
         } else if (target is Card)
         {
-            Card card = target as Card;
-
+            CardState state = GetCardState(target as Card);
+            state.Status(id, stacks * scale);
         }
-
     }
     public void PutCardInPlay(Card card, bool undo)
     {

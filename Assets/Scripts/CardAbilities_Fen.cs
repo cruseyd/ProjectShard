@@ -524,18 +524,18 @@ public class A_HowlOfThePack : CardAbility
     }
     public override string Text()
     {
-        return "Create two <b>Loyal Pack Wolf</b>. Then, +1 HEALTH for each Beast you control.";
+        return "Create two <b>Wolf</b>. Then, +2 HEALTH for each Beast you control.";
     }
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
         
-        CardData data = Resources.Load<CardData>("Cards/Set_1/Fen/LoyalPackWolf") as CardData;
+        CardData data = Resources.Load<CardData>("Cards/Generic/Wolf") as CardData;
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
 
         List<Card> cards = user.controller.GetCardsWithKeyword(Keyword.BEAST, CardZone.Type.ACTIVE);
-        Ability.Heal(user.controller, cards.Count, undo, state);
+        Ability.Heal(user.controller, 2*cards.Count, undo, state);
     }
 }
 

@@ -14,7 +14,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         SPELL,
         TECHNIQUE,
         THRALL, 
-        INCANTATION,
+        CONSTANT,
         ITEM,
         AFFLICTION,
         IDEAL
@@ -360,7 +360,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         {
             bool flag = true;
             flag &= (playerControlled);
-            flag &= (type == Card.Type.THRALL || type == Card.Type.INCANTATION);
+            flag &= (type == Card.Type.THRALL || type == Card.Type.CONSTANT);
             flag &= (upkeep != null && upkeep.value > 0);
             flag &= (_needsUpkeep);
             return flag;
@@ -513,7 +513,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             card.endurance = new Stat(data.endurance);
             card.upkeep = new Stat(data.upkeep);
         }
-        if (data.type == Type.INCANTATION)
+        if (data.type == Type.CONSTANT)
         {
             card.endurance = new Stat(data.endurance);
             card.upkeep = new Stat(data.upkeep);
@@ -604,7 +604,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
             card._strengthDisplay.transform.parent.gameObject.SetActive(false);
 
-        } else if (card.data.type == Type.INCANTATION)
+        } else if (card.data.type == Type.CONSTANT)
         {
             card._powerDisplay.transform.parent.gameObject.SetActive(true);
             card._powerDisplay.gameObject.SetActive(false);
@@ -622,13 +622,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (card.controller != null)
         {
             card.controller.actorEvents.onStartTurn += card.ResetFlags;
-            if (card.type == Card.Type.INCANTATION)
+            if (card.type == Card.Type.CONSTANT)
             {
-                card.controller.targetEvents.onTakeDamage += card.DamageIncantation;
+                card.controller.targetEvents.onTakeDamage += card.DamageConstant;
             }
         }
         GameEvents.current.onQueryTarget += card.MarkTarget;
         GameEvents.current.onRefresh += card.Refresh;
+        card.targetEvents.onDealRawDamage += (damageData) => { card.controller.targetEvents.DealRawDamage(damageData); };
+        card.targetEvents.onDealModifiedDamage += (damageData) => { card.controller.targetEvents.DealModifiedDamage(damageData); };
+        card.targetEvents.onDealDamage += (damageData) => { card.controller.targetEvents.DealDamage(damageData); };
+        card.targetEvents.onDealOverflowDamage += (damageData) => { card.controller.targetEvents.DealOverFlowDamage(damageData); };
 
         // ABILITY
         card._abilityText.text = "";
@@ -656,7 +660,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         //GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
-        controller.targetEvents.onTakeDamage -= DamageIncantation;
+        controller.targetEvents.onTakeDamage -= DamageConstant;
         if (!_graphic)
         {
             controller.actorEvents.onStartTurn -= ResetFlags;
@@ -738,7 +742,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             _enduranceDisplay.value = endurance.value;
             _upkeepDisplay.value = upkeep.value;
         }
-        else if (type == Type.INCANTATION)
+        else if (type == Type.CONSTANT)
         {
             _enduranceDisplay.value = endurance.value;
             _upkeepDisplay.value = upkeep.value;
@@ -896,7 +900,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (mode == Ability.Mode.PLAY)
         {
             if (!interrupted) { controller.actorEvents.PlayCard(this); }
-            if ((type == Type.THRALL || type == Type.INCANTATION) && !interrupted) { controller.PutInPlay(this); }
+            if ((type == Type.THRALL || type == Type.CONSTANT) && !interrupted) { controller.PutInPlay(this); }
             else { controller.Discard(this); }
         } else if (mode == Ability.Mode.ACTIVATE)
         {
@@ -918,39 +922,42 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void Damage(DamageData data)
     {
         if (data == null || !inPlay) { return; }
-        Debug.Assert(type == Type.THRALL || type == Type.INCANTATION);
+        Debug.Assert(type == Type.THRALL || type == Type.CONSTANT);
 
-        data.source.targetEvents.DealRawDamage(data);
-        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
-        data.source.targetEvents.DealModifiedDamage(data);
-        if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
+        if (data.source != null)
+        {
+            data.source.targetEvents.DealRawDamage(data);
+            data.source.targetEvents.DealModifiedDamage(data);
+        }
 
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
+
         int overflowDamage = data.damage - endurance.value;
         DamageData overflow = new DamageData(overflowDamage, data.type, data.source, data.target, data.isAttackDamage);
+       
         endurance.baseValue -= data.damage;
-
-        data.source.targetEvents.DealDamage(data);
-        if (overflowDamage > 0) { data.source.targetEvents.DealOverFlowDamage(overflow); }
-        if (!(data.source is Actor))
-        {
-            data.source.controller.targetEvents.DealDamage(data);
-            if (overflowDamage > 0) { data.source.controller.targetEvents.DealOverFlowDamage(overflow); }
-        }
-        GameEvents.current.CardDamaged(data);
-        controller.actorEvents.CardDamaged(data);
-        targetEvents.TakeDamage(data);
 
         if (data.damage > 0)
         {
+            if (data.source != null)
+            {
+                data.source.targetEvents.DealDamage(data);
+                if (overflowDamage > 0)
+                {
+                    data.source.targetEvents.DealOverFlowDamage(overflow);
+                }
+            }
+            targetEvents.TakeDamage(data);
             targetEvents.LoseHealth(data.damage);
         }
+        GameEvents.current.CardDamaged(data);
+        controller.actorEvents.CardDamaged(data);
         ResolveDamage(data);
     }
-    public void DamageIncantation(DamageData data)
+    public void DamageConstant(DamageData data)
     {
-        Debug.Assert(type == Card.Type.INCANTATION);
+        Debug.Assert(type == Card.Type.CONSTANT);
         Damage(new DamageData(1, Keyword.DEFAULT, data.source, this));
     }
     public bool Upkeep()
@@ -959,7 +966,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (((Player)controller).focus.value < upkeep.value && !GameData.instance.ignoreResources) { return false; }
         ((Player)controller).focus.baseValue -= upkeep.value;
         _needsUpkeep = false;
-        if (type == Type.INCANTATION)
+        if (type == Type.CONSTANT)
         {
             _ability.Use(Ability.Mode.ACTIVATE, null);
         }
@@ -1108,6 +1115,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 transform.localScale = Vector3.Lerp(start, targetScale, t);
                 yield return null;
             }
+            foreach (Transform status in _statusDisplays)
+            {
+                status.localScale = Vector3.one;
+            }
         }
     }
     public Vector2 GetPosition()
@@ -1166,14 +1177,14 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         Dungeon.EnableDropZones(true);
         if (needsTarget)
         {
-            StartCoroutine(Zoom(false));
+            zone.Organize();
             if (playable) { Dungeon.SetTargeter(this, Ability.Mode.PLAY); }
             else if (canAttack)
             {
                 Dungeon.SetTargeter(this, Ability.Mode.ATTACK);
             }
         }
-        StopAllCoroutines();
+        //StopAllCoroutines();
         transform.SetAsLastSibling();
         transform.parent.SetAsLastSibling();
     }
@@ -1478,6 +1489,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public virtual void AddStatus(StatusEffect.ID id, int stacks = 1)
     {
+        Debug.Log("(REAL) Trying to add status " + id + " to " + name);
         if (gameObject == null) { return; }
         Attempt attempt = new Attempt();
         targetEvents.TryGainStatus(id, stacks, attempt);

@@ -19,7 +19,10 @@ public class StatusEffect : MonoBehaviour
         INSIGHT,
         ARMOR,
         FRENZY,
-        FIREBRAND
+        FIREBRAND,
+        ALACRITY,
+        MIGHT,
+        ATROPHY
     }
 
     private static GameObject _prefab;

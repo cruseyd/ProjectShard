@@ -37,7 +37,7 @@ public class CardHeader : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         if (a_data.type == Card.Type.THRALL)
         {
             header._stats.text = a_data.power + " / " + a_data.endurance + " / " + a_data.upkeep;
-        } else if (a_data.type == Card.Type.INCANTATION)
+        } else if (a_data.type == Card.Type.CONSTANT)
         {
             header._stats.text = a_data.upkeep.ToString();
         } else

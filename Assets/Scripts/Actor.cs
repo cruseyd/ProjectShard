@@ -183,7 +183,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     {
 
     }
-    public virtual void Draw()
+    public virtual Card Draw()
     {
         Card card = _deck.Draw();
         if (card != null)
@@ -192,6 +192,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
             actorEvents.DrawCard(card);
             card.cardEvents.Draw();
         }
+        return card;
     }
     public virtual void Draw(int n) { StartCoroutine(DoDraw(n)); }
     public virtual IEnumerator DoDraw(int n)
@@ -271,10 +272,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
         if (data.source != null)
         {
             data.source.targetEvents.DealRawDamage(data);
-            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealRawDamage(data); }
             data.source.targetEvents.DealModifiedDamage(data);
-            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealModifiedDamage(data); }
-            
         }
 
         targetEvents.TakeRawDamage(data);
@@ -282,15 +280,13 @@ public abstract class Actor : MonoBehaviour, ITargetable
 
         health.baseValue -= data.damage;
         
-        if (data.source != null)
-        {
-            data.source.targetEvents.DealDamage(data);
-            if (!(data.source is Actor)) { data.source.controller.targetEvents.DealDamage(data); }
-        }
-        targetEvents.TakeDamage(data);
-
         if (data.damage > 0)
         {
+            if (data.source != null)
+            {
+                data.source.targetEvents.DealDamage(data);
+            }
+            targetEvents.TakeDamage(data);
             targetEvents.LoseHealth(data.damage);
         }
         ResolveDamage(data);
@@ -384,6 +380,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual void AddStatus(StatusEffect.ID id, int stacks = 1)
     {
+        Debug.Log("(REAL) Trying to add status " + id + " to " + name);
         Attempt attempt = new Attempt();
         targetEvents.TryGainStatus(id, stacks, attempt);
         if (!attempt.success)

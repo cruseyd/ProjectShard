@@ -17,7 +17,7 @@ MonoBehaviour:
   level: 0
   color: 2
   violetAffinity: 0
-  redAffinity: 4
+  redAffinity: 3
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
@@ -29,6 +29,7 @@ MonoBehaviour:
   strength: 5
   perception: 0
   finesse: 0
+  flavorText: 
   power: 0
   endurance: 0
   upkeep: 0

@@ -31,7 +31,8 @@ public static class AbilityIndex
                 return new A_Elixir(user);
 
             // tokens
-            case "SLIMELING": return new A_TokenThrall(user);
+            case "SLIMELING_TOKEN":
+                return new A_TokenThrall(user);
 
             // red cards
             case "CINDER": return new A_Cinder(user);
@@ -55,6 +56,8 @@ public static class AbilityIndex
             case "HYROC_CHAMPION": return new A_HyrocChampion(user);
             case "FERAL_WARCAT": return new A_FeralWarcat(user);
             case "RELENTLESS": return new A_Relentless(user);
+            case "HYROC_SCOUT": return new A_HyrocScout(user);
+            case "FEATHER_PHALANX": return new A_FeatherPhalanx(user);
 
             // green cards
             case "TERRITORIAL_BRIAR": return new A_TerritorialBriar(user);
@@ -83,7 +86,7 @@ public static class AbilityIndex
             case "RIMESHIELD": return new A_Rimeshield(user);
             case "CRYSTAL_LANCE": return new A_CrystalLance(user);
             case "DRIFTING_VOIDLING": return new A_DriftingVoidling(user);
-            case "ICE_ELEMENTAL": return new A_IceElemental(user);
+            case "GLACIER_BEHEMOTH": return new A_GlacierBehemoth(user);
             case "MANAPLASM": return new A_Manaplasm(user);
             case "PRIMORDIAL_SLIME": return new A_PrimordialSlime(user);
             case "FROST_LATTICE": return new A_FrostLattice(user);
@@ -100,7 +103,7 @@ public static class AbilityIndex
             case "KATABATIC_SQUALL": return new A_KatabaticSquall(user);
             case "EPIPHANY": return new A_Epiphany(user);
             case "MOMENT_OF_CLARITY": return new A_MomentOfClarity(user);
-
+            case "WIND_SCREAMER": return new A_WindScreamer(user);
             
             // null ability
             default: return new A_Null(user);
@@ -171,7 +174,7 @@ public abstract class Ability
         
         if (state != null)
         {
-            if (user.type == Card.Type.THRALL || user.type == Card.Type.INCANTATION)
+            if (user.type == Card.Type.THRALL || user.type == Card.Type.CONSTANT)
             {
                 state.PutCardInPlay(user, undo);
             }
@@ -197,18 +200,11 @@ public abstract class Ability
 
         Damage(_userDamage, undo, state);
         Damage(targetDamage, undo, state);
-        //target.Damage(_userDamage);
-        //user.Damage(targetDamage);
         if (state == null)
         {
-            target.ResolveDamage(_userDamage);
-            user.ResolveDamage(targetDamage);
-
             user.attackAvailable = false;
             user.activationAvailable = false;
         }
-            
-       // }
     }
     
     public TargetTemplate GetQuery(Mode mode, int n)
@@ -376,6 +372,7 @@ public abstract class Ability
     }
     public static void Status(ITargetable target, StatusEffect.ID id, int stacks, bool undo = false, GameState state = null)
     {
+        if (target is null) { return; }
         if (state != null)
         {
             state.Status(target, id, stacks, undo);

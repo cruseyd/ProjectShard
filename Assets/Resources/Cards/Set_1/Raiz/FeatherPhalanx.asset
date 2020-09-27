@@ -10,25 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: Static
+  m_Name: FeatherPhalanx
   m_EditorClassIdentifier: 
-  name: Static
-  id: STATIC
+  name: Feather Phalanx
+  id: FEATHER_PHALANX
   level: 2
-  color: 4
+  color: 2
   violetAffinity: 0
-  redAffinity: 1
+  redAffinity: 3
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 1
+  blueAffinity: 0
   indigoAffinity: 0
-  type: 1
+  rarity: 2
+  type: 4
   keywords: 
   abilityKeywords: 
-  strength: 1
-  perception: 3
-  finesse: 2
+  strength: 0
+  perception: 0
+  finesse: 0
+  flavorText: 
   power: 0
-  health: 0
-  upkeep: 0
+  endurance: 7
+  upkeep: 1
   damageType: 0

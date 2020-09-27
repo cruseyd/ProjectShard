@@ -37,6 +37,7 @@ public class Targeter : MonoBehaviour
     {
         if (interactive)
         {
+            _line.transform.position = source.transform.position;
             _line.SetTarget(Input.mousePosition);
         }
     }

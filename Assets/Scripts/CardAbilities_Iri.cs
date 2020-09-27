@@ -90,13 +90,13 @@ public class A_DriftingVoidling : CardAbility
     }
     private void LeavePlayHandler(Card card)
     {
-        card.controller.AddStatus(StatusEffect.ID.INSIGHT);
+        Ability.Status(card.controller, StatusEffect.ID.INSIGHT, 1);
     }
 }
-public class A_IceElemental : CardAbility
+public class A_GlacierBehemoth : CardAbility
 {
     TargetTemplate _template;
-    public A_IceElemental(Card user) : base(user)
+    public A_GlacierBehemoth(Card user) : base(user)
     {
         
         _template = new TargetTemplate();
@@ -107,7 +107,7 @@ public class A_IceElemental : CardAbility
     }
     public override string Text()
     {
-        return "When you play an ICE Spell, Ice Elemental gains 1 ENDURANCE.";
+        return "When you play an ICE Spell, Glacier Behemoth gains 1 ENDURANCE.";
     }
 
     private void DrawHandler(Card card)
@@ -181,10 +181,11 @@ public class A_FrostLattice : CardAbility
     {
         base.Play(targets, undo, state);
         TargetTemplate t = TargetAnyOpposing();
-        ITargetable t1 = RandomOpposing((Card)_user, t);
-        ITargetable t2 = RandomOpposing((Card)_user, t);
-        t1?.AddStatus(StatusEffect.ID.CHILL, 1);
-        t2?.AddStatus(StatusEffect.ID.CHILL, 1);
+        ITargetable t1 = RandomOpposing(user, t);
+        ITargetable t2 = RandomOpposing(user, t);
+        Debug.Log("Frost Lattice is targeting " + t1.name + " and " + t2.name);
+        Ability.Status(t1, StatusEffect.ID.CHILL, 1, undo, state);
+        Ability.Status(t2, StatusEffect.ID.CHILL, 1, undo, state);
         Ability.Draw(_user.controller, 1, undo, state);
     }
 
@@ -205,9 +206,34 @@ public class A_RimeSprite : CardAbility
     }
     public void DealDamageHandler(DamageData data)
     {
-        ((ITargetable)data.target).AddStatus(StatusEffect.ID.CHILL, 1);
-        ((Card)_user).Destroy();
+        Debug.Log("Rime Sprite Ability");
+        Status(data.target, StatusEffect.ID.CHILL, 1);
+        user.Destroy();
     }
+}
+public class A_WindScreamer : CardAbility
+{
+    public A_WindScreamer(Card user) : base(user)
+    {
+        activateTargets.Add(TargetOpposingThrall());
+    }
+    public override string Text()
+    {
+        return "<b>Activate:</b> Shuffle target opposing thrall into it's controllers deck. Shuffle this into your deck.";
+    }
+
+    public override bool ActivationAvailable()
+    {
+        return user.inPlay;
+    }
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Activate(targets, undo, state);
+        Card target = targets[0] as Card;
+        target.controller.deck.Shuffle(target);
+        user.controller.deck.Shuffle(user);
+    }
+
 }
 public class A_TimeDilation : CardAbility
 {
@@ -253,7 +279,7 @@ public class A_Legerdemain : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        targets[0].AddStatus(StatusEffect.ID.MEMORIZED);
+        Status(targets[0], StatusEffect.ID.MEMORIZED, 1);
         _card = (Card)targets[0];
         _cardPlayed = false;
         _user.controller.actorEvents.onPlayCard += CardPlayedHandler;
@@ -289,7 +315,7 @@ public class A_MnemonicRecitation : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        targets[0].AddStatus(StatusEffect.ID.MEMORIZED);
+        Ability.Status(targets[0], StatusEffect.ID.MEMORIZED, 1);
         Ability.Draw(user.controller, 1, undo, state);
     }
     public override string Text()
@@ -348,7 +374,7 @@ public class A_Shardstrike : CardAbility
         ITargetable target = (ITargetable)targets[0];
         DamageData data = new DamageData(damage, Keyword.ICE, _user, target);
         Ability.Damage(data, undo, state);
-        target.AddStatus(StatusEffect.ID.IMPALE);
+        Ability.Status(target, StatusEffect.ID.IMPALE, 1, undo, state);
     }
 }
 public class A_Manaplasm : CardAbility
@@ -538,7 +564,7 @@ public class A_Epiphany : CardAbility
     private void CycleHandler(Card card)
     {
         ((Card)_user).cardEvents.onCycle -= CycleHandler;
-        _user.controller.AddStatus(StatusEffect.ID.INSIGHT);
+        Ability.Status(user.controller, StatusEffect.ID.INSIGHT, 1);
     }
 }
 public class A_MomentOfClarity : CardAbility
@@ -561,5 +587,19 @@ public class A_MomentOfClarity : CardAbility
                 card.cost.AddModifier(new StatModifier(-1, Stat.Name.COST, user, Modifier.Duration.END_OF_TURN));
             }
         }
+    }
+}
+public class A_Flicker : CardAbility
+{
+    public A_Flicker(Card user) : base(user)
+    {
+    }
+
+    public override string Text()
+    {
+        return "Draw a card. If that card is a Spell or Technique, gain 2/0 Focus.";
+    }
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[System.Serializable]
 public enum Keyword
 {
     DEFAULT = 0,
@@ -45,7 +46,12 @@ public enum Keyword
     PLANT,
     SPIRIT,
     UNDEAD,
-    ELEMENTAL
+    ELEMENTAL,
+    //==============
+    WOLF=1000,
+    HYROC,
+    SLIME
+
 }
 
 public static class Keywords
@@ -97,17 +103,7 @@ public abstract class KeywordAbility
         PASSIVE,
         EVASIVE,
         ENIGMATIC,
-        OVERWHELM,
-        BLOODLUST_1 = 100,
-        BLOODLUST_2,
-        BLOODLUST_3,
-        BLOODLUST_4,
-        BLOODLUST_5,
-        RAGE_1 = 110,
-        RAGE_2,
-        RAGE_3,
-        RAGE_4,
-        RAGE_5
+        OVERWHELM
     }
 
     protected Card _user;

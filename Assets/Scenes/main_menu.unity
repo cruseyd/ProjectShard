@@ -446,7 +446,7 @@ GameObject:
   - component: {fileID: 261630833}
   - component: {fileID: 261630832}
   m_Layer: 5
-  m_Name: Text (TMP) (1)
+  m_Name: todo list
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -491,9 +491,10 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_text: "To Do List:\n- Build decks for testing\n- Stat.Name.COST -> Stat.Name.LEVEL\n-
-    Make cards persist while in deck\n- Companions\n- Items\n- Improve AI\n    -
-    Simulate multiple actions\n    - More sophisticated simulation\n\n"
+  m_text: "To Do List:\n- Ability.Draw(n) should return cards\n- Decouple draw from
+    animate draw\n\n- Build decks for testing\n- Make cards persist while in deck\n-
+    Companions\n- Items\n- Improve AI\n    - Simulate multiple actions\n    - More
+    sophisticated simulation\n\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -562,12 +563,12 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: -381.24084, w: -924.34906}
   m_textInfo:
     textComponent: {fileID: 261630832}
-    characterCount: 212
+    characterCount: 249
     spriteCount: 0
-    spaceCount: 43
-    wordCount: 38
+    spaceCount: 51
+    wordCount: 43
     linkCount: 0
-    lineCount: 10
+    lineCount: 12
     pageCount: 1
     materialCount: 1
   m_isUsingLegacyAnimationComponent: 0
@@ -2580,13 +2581,13 @@ MonoBehaviour:
   RARE: {r: 0.5451994, g: 0, b: 1, a: 1}
   LEGENDARY: {r: 1, g: 0.3563676, b: 0, a: 1}
   TOKEN: {r: 0.4339623, g: 0.4339623, b: 0.4339623, a: 1}
-  playerHandSize: 4
+  playerHandSize: 3
   enemyDrawMin: 1
   enemyDrawMax: 3
   draftPackSize: 7
   numDrafters: 3
   minDeckSize: 16
-  numDraftPacks: 2
+  numDraftPacks: 3
   hoverDelay: 0.5
   cardAnimationRate: 0.25
   startEncounter: 0

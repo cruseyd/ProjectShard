@@ -1,0 +1,9 @@
+[
+  {
+    "name": "Slash",
+    "type": "TECHNIQUE",
+    "level": 1,
+    "text": "Deal 2 SLASHING damage to opposing target.",
+    "key1": "SLASHING"
+  }
+]

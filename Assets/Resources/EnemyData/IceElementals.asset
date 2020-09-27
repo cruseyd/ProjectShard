@@ -9,10 +9,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
-  m_Name: TestEnemyList
+  m_Script: {fileID: 11500000, guid: 3d0505e19a7b8e4428aa6b16e5f27fc6, type: 3}
+  m_Name: IceElementals
   m_EditorClassIdentifier: 
-  name: 
-  list:
-  - card: {fileID: 11400000, guid: d87c9e4b6c255de4aa42d06ebfd6387b, type: 2}
-    quantity: 12
+  name: Ice Elementals
+  maxHealth: 20
+  weapon: {fileID: 0}
+  armor: {fileID: 0}
+  cardPool:
+    pool: []
+  decklist: {fileID: 11400000, guid: 903a705f08499284e8110fd41885bbb8, type: 2}

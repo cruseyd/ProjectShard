@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
+using System.IO;
 using UnityEngine.SceneManagement;
 
 /*
@@ -23,7 +24,6 @@ public enum CardZone
 public class Dungeon : MonoBehaviour
 {
     public static Dungeon instance;
-
     private GameParams _params;
     [SerializeField] private GameObject _targeterPrefab;
     //[SerializeField] private Enemy _enemy;
@@ -67,7 +67,7 @@ public class Dungeon : MonoBehaviour
     [SerializeField] private Stack<Targeter> _targeters;
     
     public static List<TemplateModifier> modifiers;
-
+    public static List<JSONCardData> jsonCards;
     public static GamePhase phase
     {
         get
@@ -148,6 +148,15 @@ public class Dungeon : MonoBehaviour
     }
     public void Start()
     {
+        jsonCards = new List<JSONCardData>();
+        string path = Application.dataPath + "/Resources/Cards/Set_1";
+        string json = File.ReadAllText (path + "/Raiz/cards.json");
+        json = "{ \"data\":" + json + "}";
+        JSONCardArray cardArray = JsonUtility.FromJson<JSONCardArray>(json);
+        foreach (JSONCardData data in cardArray.data)
+        {
+            Debug.Log(data.name + " | " + data.level + " | " + (Keyword)System.Enum.Parse(typeof(Keyword), data.key1) + " | " + data.text);
+        }
         if (GameData.instance.startEncounter)
         {
             StartEncounter();
@@ -257,6 +266,7 @@ public class Dungeon : MonoBehaviour
 
     public void StartEncounter()
     {
+
         _combatUI.SetActive(true);
         _draftUI.SetActive(false);
         StartCoroutine(DoStartEncounter());

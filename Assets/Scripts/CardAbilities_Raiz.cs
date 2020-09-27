@@ -159,7 +159,6 @@ public class A_Flurry : CardAbility
     {
         return "Target takes 1 SLASHING damage. If you play another Technique this turn, return this card to your hand.";
     }
-
     private void DrawHandler(Card card)
     {
         _user.controller.actorEvents.onPlayCard += PlayedCardHandler;
@@ -557,4 +556,69 @@ public class A_Relentless : CardAbility
             }
         }
     }
+}
+
+public class A_HyrocScout : CardAbility
+{
+    public A_HyrocScout(Card user) : base(user)
+    {
+        user.targetEvents.onDealDamage += DealDamageHandler;
+    }
+
+    public override string Text()
+    {
+        string txt = "When this deals damage to your opponent, draw a card and shuffle this card into your deck.";
+        return txt;
+    }
+
+    private void DealDamageHandler(DamageData data)
+    {
+        if (data != null && ((data.target as Object) == user.controller.opponent))
+        {
+            user.controller.Draw();
+            user.controller.deck.Shuffle(user);
+        }
+    }
+}
+
+public class A_FeatherPhalanx : CardAbility
+{
+    public A_FeatherPhalanx(Card user) : base(user) { }
+
+    public override string Text()
+    {
+        string txt = "<b>Channel: </b> Reveal the top card of your deck. If it is a Hyroc thrall, put it into play. Otherwise discard it.";
+        return txt;
+    }
+
+    protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Play(targets, undo, state);
+        for (int ii = 0; ii < 3; ii++)
+        {
+            Card card = user.controller.deck.Remove(0);
+            if (card.name.Contains("Hyroc") && card.type == Card.Type.THRALL)
+            {
+                user.controller.PutInPlay(card);
+            } else
+            {
+                user.controller.Discard(card);
+            }
+        }
+    }
+
+    protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
+    {
+        base.Activate(targets, undo, state);
+        Card card = user.controller.deck.Remove(0);
+        if (card.name.Contains("Hyroc") && card.type == Card.Type.THRALL)
+        {
+            user.controller.PutInPlay(card);
+        }
+        else
+        {
+            user.controller.Discard(card);
+        }
+    }
+    public override bool ActivationAvailable() { return true; }
 }

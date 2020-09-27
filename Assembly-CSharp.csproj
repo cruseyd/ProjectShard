@@ -103,6 +103,7 @@
     <Compile Include="Assets\Scripts\ICommand.cs" />
     <Compile Include="Assets\Scripts\ITargetable.cs" />
     <Compile Include="Assets\Scripts\Icons.cs" />
+    <Compile Include="Assets\Scripts\JSONCardData.cs" />
     <Compile Include="Assets\Scripts\Keywords.cs" />
     <Compile Include="Assets\Scripts\MessageManager.cs" />
     <Compile Include="Assets\Scripts\MessageWindow.cs" />

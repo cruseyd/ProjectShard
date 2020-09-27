@@ -10,27 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 596c21c55dd84bd499a95dfea5f5da1e, type: 3}
-  m_Name: FeralWarcat
+  m_Name: HyrocScout
   m_EditorClassIdentifier: 
-  name: Feral Warcat
-  id: FERAL_WARCAT
-  level: 2
+  name: Hyroc Scout
+  id: HYROC_SCOUT
+  level: 1
   color: 2
   violetAffinity: 0
-  redAffinity: 2
+  redAffinity: 1
   goldAffinity: 0
   greenAffinity: 0
   blueAffinity: 0
   indigoAffinity: 0
-  rarity: 1
+  rarity: 0
   type: 3
-  keywords: 
-  abilityKeywords: 
+  keywords: bc020000
+  abilityKeywords: 0200000001000000
   strength: 0
   perception: 0
   finesse: 0
   flavorText: 
-  power: 2
-  endurance: 2
+  power: 1
+  endurance: 1
   upkeep: 1
   damageType: 100

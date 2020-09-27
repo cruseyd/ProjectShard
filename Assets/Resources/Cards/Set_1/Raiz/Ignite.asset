@@ -20,7 +20,7 @@ MonoBehaviour:
   redAffinity: 1
   goldAffinity: 0
   greenAffinity: 0
-  blueAffinity: 1
+  blueAffinity: 0
   indigoAffinity: 0
   rarity: 0
   type: 1
@@ -29,6 +29,7 @@ MonoBehaviour:
   strength: 1
   perception: 2
   finesse: 2
+  flavorText: 
   power: 0
   endurance: 0
   upkeep: 0

@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
+  m_Name: HyrocScoutingParty
+  m_EditorClassIdentifier: 
+  name: Hyroc Scouting Party
+  list:
+  - card: {fileID: 11400000, guid: dba3b00e72bbf674e8b0b1bc732fa64c, type: 2}
+    quantity: 5
+  - card: {fileID: 11400000, guid: b6848aadc5f4a324e8b71bca8da8aafc, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: 1d08a04e9d5dabb4cad59717c4d5203d, type: 2}
+    quantity: 1
+  - card: {fileID: 0}
+    quantity: 0
+  - card: {fileID: 0}
+    quantity: 0
+  - card: {fileID: 0}
+    quantity: 0
+  - card: {fileID: 0}
+    quantity: 0

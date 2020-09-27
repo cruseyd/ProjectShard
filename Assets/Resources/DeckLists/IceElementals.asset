@@ -10,9 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9d69c362d55ac5b4e9ce465e3527b279, type: 3}
-  m_Name: TestEnemyList
+  m_Name: IceElementals
   m_EditorClassIdentifier: 
-  name: 
+  name: Ice Elementals
   list:
+  - card: {fileID: 11400000, guid: eb0a1e68ea65d9e498ce462333332a6a, type: 2}
+    quantity: 5
   - card: {fileID: 11400000, guid: d87c9e4b6c255de4aa42d06ebfd6387b, type: 2}
-    quantity: 12
+    quantity: 2
+  - card: {fileID: 11400000, guid: e194ef631cda45841bd454cb356f9dbb, type: 2}
+    quantity: 2
+  - card: {fileID: 11400000, guid: e8b247b3eb7a7024a95d50eba521b0f7, type: 2}
+    quantity: 3
+  - card: {fileID: 11400000, guid: 20837062ed70d3b4cb7a8c03574d2a3e, type: 2}
+    quantity: 3

@@ -53,7 +53,9 @@ public class TargetEvents
 
     public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
     public void DealModifiedDamage(DamageData data) { onDealModifiedDamage?.Invoke(data); }
-    public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
+    public void DealDamage(DamageData data) {
+        Debug.Log("ITargetable::DealDamage trigger from " + data.source.name);
+        onDealDamage?.Invoke(data); }
     public void DealOverFlowDamage(DamageData data) { onDealOverflowDamage?.Invoke(data); }
     public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }

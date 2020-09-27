@@ -65,6 +65,7 @@ public static class Icons
         string output = input;
         output = output.Replace("POWER", power);
         output = output.Replace("HEALTH", health);
+        output = output.Replace("ENDURANCE", endurance);
         output = output.Replace("UPKEEP", upkeep);
 
         output = output.Replace("STRENGTH", strength);
