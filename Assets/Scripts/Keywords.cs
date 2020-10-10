@@ -76,13 +76,13 @@ public static class Keywords
     {
         switch (color)
         {
-            case Card.Color.RED: return "RAIZ";
-            case Card.Color.BLUE: return "IRI";
-            case Card.Color.GREEN: return "FEN";
-            case Card.Color.VIOLET: return "LIS";
-            case Card.Color.GOLD: return "ORA";
-            case Card.Color.INDIGO: return "VAEL";
-            case Card.Color.TAN: return "NEUTRAL";
+            case Card.Color.RAIZ: return "RAIZ";
+            case Card.Color.IRI: return "IRI";
+            case Card.Color.FEN: return "FEN";
+            case Card.Color.LIS: return "LIS";
+            case Card.Color.ORA: return "ORA";
+            case Card.Color.VAEL: return "VAEL";
+            case Card.Color.NEUTRAL: return "NEUTRAL";
             default: return "";
         }
     }
@@ -103,7 +103,8 @@ public abstract class KeywordAbility
         PASSIVE,
         EVASIVE,
         ENIGMATIC,
-        OVERWHELM
+        OVERWHELM,
+        QUICK
     }
 
     protected Card _user;
@@ -151,8 +152,8 @@ public class KA_Ephemeral : KeywordAbility
     private IEnumerator doDiscard()
     {
         Card user = _user as Card;
-        user.StartCoroutine(user.Zoom(true, 0.1f));
-        yield return user.Translate(Vector2.zero);
+        user.graphic.StartCoroutine(user.graphic.DoZoom(true, 0.1f));
+        yield return user.graphic.DoTranslate(Vector2.zero);
         user.Delete();
     }
 }

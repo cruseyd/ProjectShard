@@ -4,18 +4,24 @@ using UnityEngine;
 using System;
 
 [System.Serializable]
-public struct DecklistItem
+public class DecklistItem
 {
-    public CardData card;
-    public int quantity;
+    public string id;
+    public int qty;
 }
 
-[CreateAssetMenu(fileName = "NewDecklist", menuName = "Decklist")]
-public class Decklist : ScriptableObject, IComparable
+[System.Serializable]
+public class DecklistArray
 {
-    public new string name;
-    public List<DecklistItem> list;
+    public List<Decklist> decks;
+}
 
+[System.Serializable]
+public class Decklist : IComparable
+{
+    public string name;
+    public List<DecklistItem> list;
+    
     public int CompareTo(object obj)
     {
         Decklist dlist = obj as Decklist;
@@ -27,4 +33,5 @@ public class Decklist : ScriptableObject, IComparable
             throw new ArgumentException("Tried to compare a Decklist with a non-Decklist");
         }
     }
+    
 }

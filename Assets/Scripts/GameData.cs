@@ -100,13 +100,13 @@ public class GameData : MonoBehaviour
     {
         switch (color)
         {
-            case Card.Color.VIOLET: return instance.VIOLET;
-            case Card.Color.RED: return instance.RED;
-            case Card.Color.GOLD: return instance.GOLD;
-            case Card.Color.GREEN: return instance.GREEN;
-            case Card.Color.BLUE: return instance.BLUE;
-            case Card.Color.INDIGO: return instance.INDIGO;
-            case Card.Color.TAN: return instance.TAN;
+            case Card.Color.LIS: return instance.VIOLET;
+            case Card.Color.RAIZ: return instance.RED;
+            case Card.Color.ORA: return instance.GOLD;
+            case Card.Color.FEN: return instance.GREEN;
+            case Card.Color.IRI: return instance.BLUE;
+            case Card.Color.VAEL: return instance.INDIGO;
+            case Card.Color.NEUTRAL: return instance.TAN;
             default: return Color.white;
         }
     }
@@ -117,7 +117,7 @@ public class GameData : MonoBehaviour
             case Card.Rarity.COMMON: return instance.COMMON;
             case Card.Rarity.SCARCE: return instance.SCARCE;
             case Card.Rarity.RARE: return instance.RARE;
-            case Card.Rarity.LEGENDARY: return instance.LEGENDARY;
+            case Card.Rarity.MYTHIC: return instance.LEGENDARY;
             case Card.Rarity.TOKEN: return instance.TOKEN;
             default: return Color.white;
         }

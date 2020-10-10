@@ -148,15 +148,6 @@ public class Dungeon : MonoBehaviour
     }
     public void Start()
     {
-        jsonCards = new List<JSONCardData>();
-        string path = Application.dataPath + "/Resources/Cards/Set_1";
-        string json = File.ReadAllText (path + "/Raiz/cards.json");
-        json = "{ \"data\":" + json + "}";
-        JSONCardArray cardArray = JsonUtility.FromJson<JSONCardArray>(json);
-        foreach (JSONCardData data in cardArray.data)
-        {
-            Debug.Log(data.name + " | " + data.level + " | " + (Keyword)System.Enum.Parse(typeof(Keyword), data.key1) + " | " + data.text);
-        }
         if (GameData.instance.startEncounter)
         {
             StartEncounter();
@@ -181,6 +172,10 @@ public class Dungeon : MonoBehaviour
     public static List<Card> GetCards(CardZone.Type zone, bool player = true)
     {
         return GetZone(zone, player).Cards();
+    }
+    public static List<CardGraphic> GetCardGraphics(CardZone.Type zone, bool player = true)
+    {
+        return GetZone(zone, player).CardGraphics();
     }
     public static CardZone GetZone(CardZone.Type zone, bool player = true)
     {
@@ -266,7 +261,6 @@ public class Dungeon : MonoBehaviour
 
     public void StartEncounter()
     {
-
         _combatUI.SetActive(true);
         _draftUI.SetActive(false);
         StartCoroutine(DoStartEncounter());

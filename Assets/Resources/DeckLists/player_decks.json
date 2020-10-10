@@ -1,0 +1,22 @@
+{
+  "decks": [
+    {
+      "name": "_TEST",
+      "list": [
+        {
+          "id": "SLASH",
+          "qty": 16
+        }
+      ]
+    },
+    {
+      "name": "_EMPTY",
+      "list": [
+        {
+          "id": "FATIGUE",
+          "qty": 16
+        }
+      ]
+    }
+  ]
+}

@@ -360,7 +360,7 @@ public class A_MitoticSlime : CardAbility
 
     private void DestroyHandler(Card card)
     {
-        CardData data = Resources.Load("Cards/Generic/Slimeling") as CardData;
+        CardData data = CardIndex.Get("SLIMELING");
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE);
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE);
     }
@@ -530,7 +530,7 @@ public class A_HowlOfThePack : CardAbility
     {
         base.Play(targets, undo, state);
         
-        CardData data = Resources.Load<CardData>("Cards/Generic/Wolf") as CardData;
+        CardData data = CardIndex.Get("WOLF");
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.ACTIVE, undo, state);
 
@@ -557,6 +557,6 @@ public class A_IvyprongSpiritcaller : CardAbility
 
     private void EnterPlayHandler(Card card)
     {
-        Ability.Attune(user.controller, Card.Color.GREEN);
+        Ability.Attune(user.controller, Card.Color.FEN);
     }
 }

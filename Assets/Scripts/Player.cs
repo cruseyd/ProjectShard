@@ -182,12 +182,12 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     {
         switch (color)
         {
-            case Card.Color.VIOLET: violetAffinity.baseValue += delta; break;
-            case Card.Color.RED: redAffinity.baseValue += delta; break;
-            case Card.Color.GOLD: goldAffinity.baseValue += delta; break;
-            case Card.Color.GREEN: greenAffinity.baseValue += delta; break;
-            case Card.Color.BLUE: blueAffinity.baseValue += delta; break;
-            case Card.Color.INDIGO: indigoAffinity.baseValue += delta; break;
+            case Card.Color.LIS: violetAffinity.baseValue += delta; break;
+            case Card.Color.RAIZ: redAffinity.baseValue += delta; break;
+            case Card.Color.ORA: goldAffinity.baseValue += delta; break;
+            case Card.Color.FEN: greenAffinity.baseValue += delta; break;
+            case Card.Color.IRI: blueAffinity.baseValue += delta; break;
+            case Card.Color.VAEL: indigoAffinity.baseValue += delta; break;
         }
     }
     public void OnEndDrag(PointerEventData eventData)
@@ -210,12 +210,12 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
     {
         switch (color)
         {
-            case Card.Color.RED: return redAffinity.value;
-            case Card.Color.BLUE: return blueAffinity.value;
-            case Card.Color.GREEN: return greenAffinity.value;
-            case Card.Color.VIOLET: return violetAffinity.value;
-            case Card.Color.GOLD: return goldAffinity.value;
-            case Card.Color.INDIGO: return indigoAffinity.value;
+            case Card.Color.RAIZ: return redAffinity.value;
+            case Card.Color.IRI: return blueAffinity.value;
+            case Card.Color.FEN: return greenAffinity.value;
+            case Card.Color.LIS: return violetAffinity.value;
+            case Card.Color.ORA: return goldAffinity.value;
+            case Card.Color.VAEL: return indigoAffinity.value;
             default: return 0;
         }
     }

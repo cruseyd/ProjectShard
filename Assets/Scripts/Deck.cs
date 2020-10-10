@@ -37,9 +37,10 @@ public class Deck : MonoBehaviour
         cards.Clear();
         foreach (DecklistItem item in list.list)
         {
-            for (int ii = 0; ii < item.quantity; ii++)
+            CardData data = CardIndex.Get(item.id);
+            for (int ii = 0; ii < item.qty; ii++)
             {
-                cards.Add(item.card);
+                cards.Add(data);
             }
         }
         Shuffle();

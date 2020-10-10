@@ -50,15 +50,15 @@ public class Drafter : MonoBehaviour
                 if (ii == 0)
                 {
                     double roll = Random.Range(0, 1);
-                    if (roll > 0.75) { pack.Add(Card.Rand(Card.Rarity.LEGENDARY)); }
-                    else { pack.Add(Card.Rand(Card.Rarity.RARE)); }
+                    if (roll > 0.75) { pack.Add(CardIndex.Rand(Card.Rarity.MYTHIC)); }
+                    else { pack.Add(CardIndex.Rand(Card.Rarity.RARE)); }
 
                 } else if (ii < 3)
                 {
-                    pack.Add(Card.Rand(Card.Rarity.SCARCE));
+                    pack.Add(CardIndex.Rand(Card.Rarity.SCARCE));
                 } else
                 {
-                    pack.Add(Card.Rand(Card.Rarity.COMMON));
+                    pack.Add(CardIndex.Rand(Card.Rarity.COMMON));
                 }
                 
             }
@@ -97,10 +97,10 @@ public class Drafter : MonoBehaviour
 
     public void ShowPack(int player = 0)
     {
-        List<Card> oldCards = Dungeon.GetCards(CardZone.Type.DRAFT);
+        List<CardGraphic> oldCards = Dungeon.GetCardGraphics(CardZone.Type.DRAFT);
         for (int ii = 0; ii < oldCards.Count; ii++)
         {
-            oldCards[ii].Delete();
+            Destroy(oldCards[ii].gameObject);
         }
 
         if (_round % GameData.instance.draftPackSize == 0 && _round < GameData.instance.numDraftPacks*GameData.instance.draftPackSize)
@@ -110,7 +110,7 @@ public class Drafter : MonoBehaviour
 
         foreach (CardData data in CurrentPack(0))
         {
-            Card card = Card.Spawn(data, true, Vector3.zero, true);
+            CardGraphic card = CardGraphic.Spawn(data, Vector3.zero);
             card.Move(Dungeon.GetZone(CardZone.Type.DRAFT));
         }
     }

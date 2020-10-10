@@ -4,6 +4,8 @@ using UnityEngine;
 using TMPro;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using System.IO;
+using System;
 
 public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     IBeginDragHandler, IEndDragHandler, IDragHandler, ITargetable
@@ -22,13 +24,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public enum Color
     {
         DEFAULT,
-        GOLD,
-        RED,
-        GREEN,
-        BLUE,
-        VIOLET,
-        INDIGO,
-        TAN
+        ORA,
+        RAIZ,
+        FEN,
+        IRI,
+        LIS,
+        VAEL,
+        NEUTRAL
     }
     public enum Attribute
     {
@@ -42,51 +44,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         COMMON,
         SCARCE,
         RARE,
-        LEGENDARY,
+        MYTHIC,
         TOKEN
     }
 
-    private static List<CardData> _allCardData;
-
-    private static List<CardData> _redCardData;
-    private static List<CardData> _blueCardData;
-    private static List<CardData> _greenCardData;
-
-    private static List<CardData> _allSpells;
-    private static List<CardData> _allTechniques;
-    private static List<CardData> _allThralls;
-
-    private static List<CardData> _commonData;
-    private static List<CardData> _scarceData;
-    private static List<CardData> _rareData;
-    private static List<CardData> _legendaryData;
-
     private static GameObject _cardPrefab;
-    private static GameObject _enemyCardPrefab;
 
-    [SerializeField] private GameObject _cardFront;
-    [SerializeField] private GameObject _cardBack;
-    [SerializeField] private GameObject _affinity;
     [SerializeField] private Transform _statusDisplays;
 
-    [SerializeField] private Image _border;
-    [SerializeField] private Image _rarity;
-
-    [SerializeField] private TextMeshProUGUI _nameText;
-    [SerializeField] private TextMeshProUGUI _keywordText;
-    [SerializeField] private TextMeshProUGUI _abilityText;
-    
-    [SerializeField] private ValueDisplay _costDisplay;
-    [SerializeField] private ValueDisplay _perceptionDisplay;
-    [SerializeField] private ValueDisplay _finesseDisplay;
-    [SerializeField] private ValueDisplay _strengthDisplay;
-    [SerializeField] private ValueDisplay _powerDisplay;
-    [SerializeField] private ValueDisplay _enduranceDisplay;
-    [SerializeField] private ValueDisplay _upkeepDisplay;
-
     public CardParticles particles;
+    public CardGraphic graphic;
 
-    private CardData _data;
     private Ability _ability;
     private List<KeywordAbility> _kAbilities;
     private List<KeywordAbility.Key> _kAbilityKeys;
@@ -95,10 +63,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     private Dictionary<StatusEffect.ID, StatusEffect> _statusEffects;
     private List<ITargetable> _validTargets;
 
-    private bool _graphic = false;
-    private bool _translating = false;
     private bool _followingCursor = false;
-    private bool _faceUp;
     private bool _needsUpkeep;
 
     public bool activationAvailable;
@@ -107,9 +72,9 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     [SerializeField] private bool _playerControlled;
     public bool playerControlled { get { return _playerControlled; } }
     public int zoneIndex;
-    public CardZone zone;
+    public CardZone zone { get { return graphic.zone; } }
 
-    public CardData data { get { return _data; } }
+    public CardData data { get { return graphic.data; } }
     public Actor controller
     {
         get
@@ -135,7 +100,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public TargetEvents targetEvents { get { return _targetEvents; } }
     public CardEvents cardEvents { get { return _cardEvents; } }
-    public new string name { get { return _data.name; } }
+    public new string name { get { return data.name; } }
     public Card.Type type { get { return data.type; } }
 
 
@@ -147,14 +112,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public Stat endurance;
     public Stat upkeep;
 
-    public int violetAffinity { get { return _data.violetAffinity; } }
-    public int redAffinity    { get { return _data.redAffinity; } }
-    public int goldAffinity   { get { return _data.goldAffinity; } }
-    public int greenAffinity  { get { return _data.greenAffinity; } }
-    public int blueAffinity   { get { return _data.blueAffinity; } }
-    public int indigoAffinity { get { return _data.indigoAffinity; } }
-
-    public Keyword damageType { get { return _data.damageType; } }
+    public int violetAffinity { get { return data.violetAffinity; } }
+    public int redAffinity    { get { return data.redAffinity; } }
+    public int goldAffinity   { get { return data.goldAffinity; } }
+    public int greenAffinity  { get { return data.greenAffinity; } }
+    public int blueAffinity   { get { return data.blueAffinity; } }
+    public int indigoAffinity { get { return data.indigoAffinity; } }
+    public Keyword damageType { get { return data.damageType; } }
 
     public bool resourcesAvailable
     {
@@ -377,110 +341,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
-    public static void Load()
+    public static Card Spawn(string id, bool isPlayerCard, Vector3 spawnPoint)
     {
-        _allCardData = new List<CardData>();
-        _redCardData = new List<CardData>();
-        _blueCardData = new List<CardData>();
-        _greenCardData = new List<CardData>();
-        _allSpells = new List<CardData>();
-        _allTechniques = new List<CardData>();
-        _allThralls = new List<CardData>();
-        _commonData = new List<CardData>();
-        _scarceData = new List<CardData>();
-        _rareData = new List<CardData>();
-        _legendaryData = new List<CardData>();
-
-        CardData[] cards = Resources.LoadAll<CardData>("Cards/Set_1");
-        foreach (CardData data in cards)
-        {
-            _allCardData.Add(data);
-            switch (data.color)
-            {
-                case Card.Color.RED: _redCardData.Add(data); break;
-                case Card.Color.BLUE: _blueCardData.Add(data); break;
-                case Card.Color.GREEN: _greenCardData.Add(data); break;
-                default: break;
-            }
-            switch (data.type)
-            {
-                case Card.Type.SPELL: _allSpells.Add(data); break;
-                case Card.Type.TECHNIQUE: _allTechniques.Add(data); break;
-                case Card.Type.THRALL: _allThralls.Add(data); break;
-            }
-            switch (data.rarity)
-            {
-                case Card.Rarity.COMMON: _commonData.Add(data); break;
-                case Card.Rarity.SCARCE: _scarceData.Add(data); break;
-                case Card.Rarity.RARE: _rareData.Add(data); break;
-                case Card.Rarity.LEGENDARY: _legendaryData.Add(data); break;
-            }
-        }
+        CardData data = CardIndex.Get(id);
+        if (data != null) { return Spawn(data, isPlayerCard, spawnPoint); }
+        return null;
     }
-
-    public static CardData Rand(List<CardData> _list = null)
-    {
-        while(true)
-        {
-            CardData data;
-            if (_list == null)
-            {
-                data = _allCardData[Random.Range(0, _allCardData.Count)];
-            } else
-            {
-                data = _list[Random.Range(0, _list.Count)];
-            }
-            
-            if (data.type != Card.Type.AFFLICTION && !data.abilityKeywords.Contains(KeywordAbility.Key.EPHEMERAL))
-            {
-                return data;
-            }
-        }
-    }
-    public static CardData Rand(TargetTemplate template, List<CardData> _list = null)
-    {
-        List<CardData> matches = new List<CardData>();
-        if (_list == null)
-        {
-            foreach (CardData data in _allCardData)
-            {
-                if (data.Compare(template))
-                {
-                    matches.Add(data);
-                }
-            }
-        } else
-        {
-            foreach (CardData data in _list)
-            {
-                if (data.Compare(template))
-                {
-                    matches.Add(data);
-                }
-            }
-        }
-        while (true)
-        {
-            CardData data = matches[Random.Range(0, matches.Count)];
-            if (data.type != Card.Type.AFFLICTION && !data.abilityKeywords.Contains(KeywordAbility.Key.EPHEMERAL))
-            {
-                return data;
-            }
-        }
-    }
-
-    public static CardData Rand(Rarity rarity)
-    {
-        switch (rarity)
-        {
-            case Rarity.COMMON: return Rand(_commonData);
-            case Rarity.SCARCE: return Rand(_scarceData);
-            case Rarity.RARE: return Rand(_rareData);
-            case Rarity.LEGENDARY: return Rand(_legendaryData);
-            default: return null;
-        }
-    }
-    public static Card Spawn(CardData data, bool isPlayerCard, Vector3 spawnPoint, bool graphic = false)
+    public static Card Spawn(CardData data, bool isPlayerCard, Vector3 spawnPoint)
     {
         if (Card._cardPrefab == null)
         {
@@ -488,10 +355,12 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         GameObject cardGO = Instantiate(_cardPrefab,spawnPoint, Quaternion.identity);
         Card card = cardGO.GetComponent<Card>();
+        card.graphic = cardGO.GetComponent<CardGraphic>();
+        card.graphic.Initialize(data);
+        card.FaceUp(false);
+        card.particles = cardGO.GetComponent<CardParticles>();
 
         // DATA AND STATE
-        card._data = data;
-        card._graphic = graphic;
         card._validTargets = new List<ITargetable>();
         card._statusEffects = new Dictionary<StatusEffect.ID, StatusEffect>();
         card._cardEvents = new CardEvents(card);
@@ -518,107 +387,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             card.endurance = new Stat(data.endurance);
             card.upkeep = new Stat(data.upkeep);
         }
-        
-        // TEXT
-        card._nameText.text = data.name;
-        card._keywordText.text = "";
-        foreach (Keyword word in data.keywords)
-        {
-            card._keywordText.text += (Keywords.Parse(word).ToUpper() + " ");
-        }
-        if (data.type != Card.Type.THRALL)
-        {
-            card._keywordText.text += Keywords.Parse(data.type).ToUpper();
-        }
-
-        // DISPLAYS AND VISUALS
-        card._strengthDisplay.valueName = Icons.strength;
-        card._finesseDisplay.valueName = Icons.finesse;
-        card._perceptionDisplay.valueName = Icons.perception;
-        card._powerDisplay.valueName = Icons.power;
-        card._enduranceDisplay.valueName = Icons.endurance;
-        card._upkeepDisplay.valueName = Icons.upkeep;
-
-        card._costDisplay.baseValue = data.level;
-        card._strengthDisplay.baseValue = data.strength;
-        card._finesseDisplay.baseValue = data.finesse;
-        card._perceptionDisplay.baseValue = data.perception;
-        card._powerDisplay.baseValue = data.power;
-        card._enduranceDisplay.baseValue = data.endurance;
-        card._upkeepDisplay.baseValue = data.upkeep;
-
-        card._border.color = GameData.GetColor(data.color);
-        card._rarity.color = GameData.GetColor(data.rarity);
-        Image[] pips = card._affinity.GetComponentsInChildren<Image>();
-        int pipNum = 0;
-        if (isPlayerCard)
-        {
-            for (int ii = 0; ii < data.violetAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.VIOLET);
-                pipNum++;
-            }
-            for (int ii = 0; ii < data.redAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.RED);
-                pipNum++;
-            }
-            for (int ii = 0; ii < data.goldAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.GOLD);
-                pipNum++;
-            }
-            for (int ii = 0; ii < data.greenAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.GREEN);
-                pipNum++;
-            }
-            for (int ii = 0; ii < data.blueAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.BLUE);
-                pipNum++;
-            }
-            for (int ii = 0; ii < data.indigoAffinity; ii++)
-            {
-                pips[pipNum].enabled = true;
-                pips[pipNum].color = GameData.GetColor(Card.Color.INDIGO);
-                pipNum++;
-            }
-        }
-        while (pipNum < pips.Length)
-        {
-            pips[pipNum].enabled = false;
-            pipNum++;
-        }
-
-        card._powerDisplay.transform.parent.gameObject.SetActive(false);
-        card._strengthDisplay.transform.parent.gameObject.SetActive(false);
-        if (card.data.type == Type.THRALL)
-        {
-            card._powerDisplay.transform.parent.gameObject.SetActive(true);
-
-            card._strengthDisplay.transform.parent.gameObject.SetActive(false);
-
-        } else if (card.data.type == Type.CONSTANT)
-        {
-            card._powerDisplay.transform.parent.gameObject.SetActive(true);
-            card._powerDisplay.gameObject.SetActive(false);
-            card._strengthDisplay.transform.parent.gameObject.SetActive(false);
-        } else
-        {
-            card._powerDisplay.transform.parent.gameObject.SetActive(false);
-            card._strengthDisplay.transform.parent.gameObject.SetActive(true);
-        }
-        
-        card.particles.Clear();
 
         // EVENTS
-        GameEvents.current.onAddGlobalModifier += card.AddGlobalModifier;
         if (card.controller != null)
         {
             card.controller.actorEvents.onStartTurn += card.ResetFlags;
@@ -635,36 +405,24 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         card.targetEvents.onDealOverflowDamage += (damageData) => { card.controller.targetEvents.DealOverFlowDamage(damageData); };
 
         // ABILITY
-        card._abilityText.text = "";
         card._kAbilities = new List<KeywordAbility>();
         card._kAbilityKeys = new List<KeywordAbility.Key>();
         foreach (KeywordAbility.Key key in data.abilityKeywords)
         {
             card._kAbilityKeys.Add(key);
             card._kAbilities.Add(KeywordAbility.Get(key, card));
-            card._abilityText.text += Keywords.Parse(key).ToLower() + "\n";
         }
         card._ability = AbilityIndex.Get(data.id, card);
-        card._abilityText.text += card._ability.Text();
 
-        card._abilityText.text += card.data.flavorText;
-
-        card.FaceUp(graphic);
-        card.RefreshText();
         GameEvents.current.SpawnCard(card);
         return card;
     }
     public void OnDestroy()
     {
-        GameEvents.current.onAddGlobalModifier -= AddGlobalModifier;
-        //GameEvents.current.onRemoveGlobalModifier -= RemoveGlobalModifier;
         GameEvents.current.onRefresh -= Refresh;
         GameEvents.current.onQueryTarget -= MarkTarget;
         controller.targetEvents.onTakeDamage -= DamageConstant;
-        if (!_graphic)
-        {
-            controller.actorEvents.onStartTurn -= ResetFlags;
-        }
+        controller.actorEvents.onStartTurn -= ResetFlags;
     }
     public int GetAttribute(Attribute a)
     {
@@ -733,37 +491,23 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void RefreshText()
     {
-        _costDisplay.value = cost.value;
-
+        graphic.SetStat(Stat.Name.COST, cost.value);
 
         if (type == Type.THRALL)
         {
-            _powerDisplay.value = power.value;
-            _enduranceDisplay.value = endurance.value;
-            _upkeepDisplay.value = upkeep.value;
+            graphic.SetStat(Stat.Name.POWER, power.value);
         }
-        else if (type == Type.CONSTANT)
+        if (type == Type.CONSTANT || type == Type.THRALL)
         {
-            _enduranceDisplay.value = endurance.value;
-            _upkeepDisplay.value = upkeep.value;
+            graphic.SetStat(Stat.Name.ENDURANCE, endurance.value);
+            graphic.SetStat(Stat.Name.UPKEEP, upkeep.value);
         }
-        else
+        if (type == Type.SPELL || type == Type.TECHNIQUE)
         {
-            _finesseDisplay.value = finesse.value;
-            _perceptionDisplay.value = perception.value;
-            _strengthDisplay.value = strength.value;
+            graphic.SetStat(Stat.Name.STRENGTH, strength.value);
+            graphic.SetStat(Stat.Name.PERCEPTION, perception.value);
+            graphic.SetStat(Stat.Name.FINESSE, finesse.value);
         }
-        _abilityText.text = "";
-        foreach (KeywordAbility.Key key in _kAbilityKeys)
-        {
-            _abilityText.text += key.ToString() + "\n";
-        }
-        _abilityText.text += Icons.Parse(_ability.Text()) + "\n";
-        _abilityText.text += "<i>" + data.flavorText + "</i>";
-    }
-    public void AddGlobalModifier(TemplateModifier mod)
-    {
-        
     }
     public bool AddModifier(StatModifier mod)
     {
@@ -1038,142 +782,21 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
         }
     }
-    public void FaceUp(bool flag, bool animate = false)
-    {
-        _faceUp = flag;
-        particles.Clear();
-        if (animate)
-        {
-            StartCoroutine(Flip(flag));
-        }
-        else
-        {
-            _cardFront.SetActive(flag);
-            _cardBack.SetActive(!flag);
-        }
-        //Refresh();
-    }
 
-    public void SwitchController()
-    {
-        _playerControlled = !_playerControlled;
-    }
-    public IEnumerator Flip(bool faceUp)
-    {
-        float duration = GameData.instance.cardAnimationRate;
-        float t = 0.0f;
-        float halfDur = duration / 2.0f;
-        Vector2 startScale = transform.localScale;
-        Vector2 midScale = new Vector2(0, startScale.y);
-        while (t < 1)
-        {
-            t += Time.deltaTime / halfDur;
-            transform.localScale = Vector2.Lerp(startScale, midScale, t);
-            yield return null;
-        }
-        FaceUp(faceUp, false);
-        t = 0.0f;
-        while (t < 1)
-        {
-            t += Time.deltaTime / halfDur;
-            transform.localScale = Vector2.Lerp(midScale, startScale, t);
-            yield return null;
-        }
-        Refresh();
-    }
-    public IEnumerator Translate(Vector2 targetPos, bool blocking = true, float duration = 0)
-    {
-        if (duration == 0)
-        {
-            duration = GameData.instance.cardAnimationRate;
-        }
-        if (blocking) { _translating = true; }
-        Vector2 startPos = transform.position;
-        float t = 0.0f;
-        while (t < 1)
-        {
-            t += Time.deltaTime / duration;
-            transform.position = Vector2.Lerp(startPos, targetPos, t);
-            yield return null;
-        }
-        if (blocking) { _translating = false; }
-        Refresh();
-    }
-    public IEnumerator Zoom(bool flag, float factor = 1.5f, float duration = 0.1f)
-    {
-        if (zone == null) { yield return null; }
-        else
-        {
-            RectTransform zoneTF = zone.GetComponent<RectTransform>();
-            Vector3 targetScale = Vector3.one * zoneTF.rect.height / GetComponent<RectTransform>().rect.height;
-            Vector3 start = transform.localScale;
-            if (flag) { targetScale = targetScale * factor; }
-            float t = 0;
-            while (t < 1)
-            {
-                t += Time.deltaTime / duration;
-                transform.localScale = Vector3.Lerp(start, targetScale, t);
-                yield return null;
-            }
-            foreach (Transform status in _statusDisplays)
-            {
-                status.localScale = Vector3.one;
-            }
-        }
-    }
-    public Vector2 GetPosition()
-    {
-        RectTransform zonetf = zone.GetComponent<RectTransform>();
-        switch (zone.type)
-        {
-            case CardZone.Type.DISCARD:
-                return zonetf.TransformPoint(0, 0, 0);
-            default:
-                float width = zonetf.rect.width;
-                float spacing = width / (1.0f * transform.parent.childCount);
-                float xpos = -width / 2.0f + spacing / 2.0f;
-
-                xpos += zoneIndex * spacing;
-                return zonetf.TransformPoint(xpos, 0, 0);
-        }
-
-    }
-
+    public void FaceUp(bool flag, bool animate = false) { graphic.FaceUp(flag, animate); }
+    public void SwitchController() { _playerControlled = !_playerControlled; }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if (_translating || Dungeon.targeting) { return; }
 
-        Vector2 zoomDir = Vector2.zero;
-        if (zone.type == CardZone.Type.ACTIVE
-            || zone.type == CardZone.Type.HAND
-            || zone.type == CardZone.Type.DRAFT)
-        {
-            zoomDir = Vector2.up; 
-        }
-
-        transform.SetAsLastSibling();
-        transform.parent.SetAsLastSibling();
-
-        Vector2 pos = transform.position;
-        Vector2 center = new Vector2(Screen.width / 2, Screen.height / 2);
-        Vector2 delta = center - pos;
-        delta = delta * zoomDir;
-        StartCoroutine(Zoom(true, 2.0f));
-        StartCoroutine(Translate(pos + delta * 0.3f, false, 0.1f));
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (_translating || Dungeon.targeting) { return; }
-        StopAllCoroutines();
-        StartCoroutine(Zoom(false));
-        StartCoroutine(Translate(GetPosition(), false, 0.1f));
-        transform.SetSiblingIndex(zoneIndex);
         Dungeon.FixLayering();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (_translating || !playerControlled) { return; }
+        if (!playerControlled) { return; }
         Dungeon.EnableDropZones(true);
         if (needsTarget)
         {
@@ -1184,7 +807,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 Dungeon.SetTargeter(this, Ability.Mode.ATTACK);
             }
         }
-        //StopAllCoroutines();
         transform.SetAsLastSibling();
         transform.parent.SetAsLastSibling();
     }
@@ -1208,7 +830,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 Resolve(Ability.Mode.PLAY, null);
             }
             else {
-                StartCoroutine(Zoom(false));
+                transform.localScale = Vector3.one;
                 zone.Organize();
             }
         } else
@@ -1221,20 +843,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             {
                 Dungeon.ClearTargeter();
             }
-            /*
-            bool valid = false;
-            if (hovered != null && Dungeon.targeting)
-            {
-                valid = hovered.Compare(Dungeon.targeter.query, Dungeon.targeter.source.controller);
-            }
-            if (valid)
-            {
-                Dungeon.targeter.AddTarget(hovered);
-            } else
-            {
-                Dungeon.ClearTargeter();
-            }
-            */
         }
         zone.Organize();
         particles.ClearGlow();
@@ -1244,7 +852,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (_translating || !playerControlled) { return; }
+        if (!playerControlled) { return; }
 
         if (needsTarget)
         {
@@ -1286,12 +894,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void Move(CardZone cardZone)
     {
         CardZone prevZone = zone;
-        zone = cardZone;
-        RectTransform newTF = cardZone.GetComponent<RectTransform>();
-        transform.SetParent(cardZone.transform);
-        transform.localScale = Vector3.one * newTF.rect.height / GetComponent<RectTransform>().rect.height;
-        cardZone.Organize();
-        prevZone?.Organize();
+        graphic.Move(cardZone);
         if (prevZone == null) { return; }
         if (prevZone.type == CardZone.Type.ACTIVE && cardZone.type != CardZone.Type.ACTIVE)
         {
@@ -1310,7 +913,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
         }
     }
-
     private bool OverZone(PointerEventData eventData, CardZone cardZone)
     {
         List<RaycastResult> hits = new List<RaycastResult>();
@@ -1337,7 +939,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void MarkTarget(TargetTemplate query, ITargetable source, bool show)
     {
         
-        if (Compare(query, source.controller) && this != (Object)source)
+        if (Compare(query, source.controller) && this != (UnityEngine.Object)source)
         {
             Attempt attempt = new Attempt();
             source.controller.actorEvents.TryMarkTarget(source, this, attempt);
@@ -1347,7 +949,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 if (show) { particles.ShimmerBlue(); }
                 source.AddTarget(this);
             }
-        } else if (this == (Object)source)
+        } else if (this == (UnityEngine.Object)source)
         {
             if (show) { } //particles.GlowGold(); }
         } else
@@ -1596,12 +1198,12 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         switch (color)
         {
-            case Card.Color.RED: return redAffinity;
-            case Card.Color.GREEN: return greenAffinity;
-            case Card.Color.BLUE: return blueAffinity;
-            case Card.Color.VIOLET: return violetAffinity;
-            case Card.Color.GOLD: return goldAffinity;
-            case Card.Color.INDIGO: return indigoAffinity;
+            case Card.Color.RAIZ: return redAffinity;
+            case Card.Color.FEN: return greenAffinity;
+            case Card.Color.IRI: return blueAffinity;
+            case Card.Color.LIS: return violetAffinity;
+            case Card.Color.ORA: return goldAffinity;
+            case Card.Color.VAEL: return indigoAffinity;
             default: return 0;
         }
     }

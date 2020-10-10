@@ -57,37 +57,37 @@ public class CardHeader : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
         for (int ii = 0; ii < a_data.violetAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.VIOLET);
+            pips[pipNum].color = GameData.GetColor(Card.Color.LIS);
             pipNum++;
         }
         for (int ii = 0; ii < a_data.redAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.RED);
+            pips[pipNum].color = GameData.GetColor(Card.Color.RAIZ);
             pipNum++;
         }
         for (int ii = 0; ii < a_data.goldAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.GOLD);
+            pips[pipNum].color = GameData.GetColor(Card.Color.ORA);
             pipNum++;
         }
         for (int ii = 0; ii < a_data.greenAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.GREEN);
+            pips[pipNum].color = GameData.GetColor(Card.Color.FEN);
             pipNum++;
         }
         for (int ii = 0; ii < a_data.blueAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.BLUE);
+            pips[pipNum].color = GameData.GetColor(Card.Color.IRI);
             pipNum++;
         }
         for (int ii = 0; ii < a_data.indigoAffinity; ii++)
         {
             pips[pipNum].enabled = true;
-            pips[pipNum].color = GameData.GetColor(Card.Color.INDIGO);
+            pips[pipNum].color = GameData.GetColor(Card.Color.VAEL);
             pipNum++;
         }
         while (pipNum < pips.Count)
@@ -131,9 +131,8 @@ public class CardHeader : MonoBehaviour, IPointerEnterHandler, IPointerExitHandl
     public void OnPointerEnter(PointerEventData eventData)
     {
         CardZone zone = Dungeon.GetZone(CardZone.Type.PREVIEW);
-        Card card = Card.Spawn(_data, true, zone.transform.position, true);
-        card.Move(zone);
-        card.StartCoroutine(card.Flip(true));
+        CardGraphic card = CardGraphic.Spawn(_data, zone.transform.position);
+        card.FaceUp(true);
     }
 
     public void OnPointerExit(PointerEventData eventData)

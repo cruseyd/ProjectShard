@@ -43,31 +43,51 @@ public class CardZone : MonoBehaviour
         return cards;
     }
 
+    public List<CardGraphic> CardGraphics(Card.Type type = Card.Type.DEFAULT)
+    {
+        List<CardGraphic> cards = new List<CardGraphic>();
+        CardGraphic[] allCards = transform.GetComponentsInChildren<CardGraphic>();
+        foreach (CardGraphic card in allCards)
+        {
+            if (type == Card.Type.DEFAULT || type == card.data.type)
+            {
+                cards.Add(card);
+            }
+        }
+        return cards;
+    }
+
+    public float Position(int zoneIndex)
+    {
+        int numCards = transform.childCount;
+        float width = _zone.rect.width;
+        float spacing = width / (1.0f * numCards);
+        float xpos = -width / 2.0f + spacing / 2.0f;
+        return xpos + zoneIndex * spacing;
+    }
+
     public void Organize()
     {
-        List < Card > cards = Cards();
-        for (int ii = 0; ii < cards.Count; ii++)
+        List<CardGraphic> graphics = CardGraphics();
+        for (int ii = 0; ii < graphics.Count; ii++)
         {
-            cards[ii].zoneIndex = ii;
+            graphics[ii].zoneIndex = ii;
         }
         if (_zone.rect.width < 200)
         {
-            foreach (Card card in cards)
+            foreach (CardGraphic card in graphics)
             {
                 Vector2 dest = _zone.TransformPoint(0, 0, 0);
-                card.StartCoroutine(card.Translate(dest));
+                card.StartCoroutine(card.DoTranslate(dest));
             }
         }
         else
         {
-            float width = _zone.rect.width;
-            float spacing = width / (1.0f * cards.Count);
-            float xpos = -width / 2.0f + spacing / 2.0f;
-            foreach (Card card in cards)
+            foreach (CardGraphic card in graphics)
             {
-                card.StartCoroutine(card.Zoom(false));
-                Vector2 dest = _zone.TransformPoint(xpos + card.zoneIndex * spacing, 0, 0);
-                card.StartCoroutine(card.Translate(dest));
+                card.StartCoroutine(card.DoZoom(false));
+                Vector2 dest = _zone.TransformPoint(Position(card.zoneIndex), 0, 0);
+                card.StartCoroutine(card.DoTranslate(dest));
                 card.transform.SetSiblingIndex(card.zoneIndex);
             }
         }

@@ -7,17 +7,16 @@ using UnityEngine.SceneManagement;
 
 public class GameStartMenu : MonoBehaviour
 {
-    private Decklist[] _playerDecklists;
-    private EnemyData[] _enemies;
+    private List<Decklist> _playerDecklists;
+    private List<EnemyData> _enemies;
 
     [SerializeField] private TMP_Dropdown _playerDeckDropdown;
     [SerializeField] private TMP_Dropdown _enemyDropdown;
 
-    private void Awake()
+    private void Start()
     {
-        Card.Load();
-        _playerDecklists = Resources.LoadAll<Decklist>("DeckLists/Player");
-        Array.Sort(_playerDecklists);
+        _playerDecklists = DecklistIndex.player;
+        _playerDecklists.Sort();
         _playerDeckDropdown.ClearOptions();
         List<TMP_Dropdown.OptionData> playerOptions = new List<TMP_Dropdown.OptionData>();
         foreach (Decklist dlist in _playerDecklists)
@@ -26,8 +25,8 @@ public class GameStartMenu : MonoBehaviour
         }
         _playerDeckDropdown.AddOptions(playerOptions);
 
-        _enemies = Resources.LoadAll<EnemyData>("EnemyData");
-        Array.Sort(_enemies);
+        _enemies = DecklistIndex.enemy;
+        _enemies.Sort();
         _enemyDropdown.ClearOptions();
         List<TMP_Dropdown.OptionData> enemyOptions = new List<TMP_Dropdown.OptionData>();
         foreach (EnemyData enemy in _enemies)

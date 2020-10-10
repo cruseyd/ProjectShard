@@ -349,7 +349,7 @@ public class A_Emberfall : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Play(targets, undo, state);
-        CardData data = Resources.Load("Cards/Raiz/Emberstrike") as CardData;
+        CardData data = CardIndex.Get("EMBERFALL");
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }
@@ -357,7 +357,7 @@ public class A_Emberfall : CardAbility
     protected override void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         base.Activate(targets, undo, state);
-        CardData data = Resources.Load("Cards/Raiz/Emberstrike") as CardData;
+        CardData data = CardIndex.Get("EMBERFALL");
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
         Ability.CreateCard(user.controller, data, user.transform.position, CardZone.Type.HAND, undo, state);
     }

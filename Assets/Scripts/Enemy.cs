@@ -55,17 +55,8 @@ public class Enemy : Actor
 
         health.baseValue = data.maxHealth;
         maxHealth.baseValue = health.value;
+        _deck.Init(_data.decklist);
 
-        if (_data.cardPool != null && _data.cardPool.pool.Count > 0)
-        {
-            _deck.Init(data.cardPool);
-        } else if (_data.decklist != null)
-        {
-            _deck.Init(_data.decklist);
-        } else
-        {
-            Debug.Log("Could not seed cards for " + name);
-        }
         _drawRangeMin = 2;
         _drawRangeMax = 7;
     }

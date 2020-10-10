@@ -42,7 +42,7 @@ public class DecklistDisplay : MonoBehaviour
     {
         get
         {
-            CardData filler = Resources.Load<CardData>("Cards/Neutral/Fatigue");
+            CardData filler = CardIndex.Get("FATIGUE");
             while (_deckData.Count < GameData.instance.minDeckSize)
             {
                 _deckData.Add(filler);

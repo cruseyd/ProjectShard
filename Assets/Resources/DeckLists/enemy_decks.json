@@ -1,0 +1,17 @@
+{
+  "enemies": [
+    {
+      "name": "_TEST",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "_TEST",
+        "list": [
+          {
+            "id": "SLASH",
+            "qty": 16
+          }
+        ]
+      }
+    }
+  ]
+}
