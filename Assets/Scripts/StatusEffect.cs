@@ -1,8 +1,27 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 using UnityEngine.UI;
 
+
+public class StatusEffectEvents
+{
+    private StatusEffect _source;
+    public StatusEffectEvents(StatusEffect source)
+    {
+        _source = source;
+    }
+
+    public event Action<StatusEffect> onRemove;
+    public event Action<StatusEffect, int> onGainStacks;
+    public event Action<StatusEffect, int> onLoseStacks;
+
+    public void Remove() { onRemove?.Invoke(_source); }
+    public void GainStacks(int stacks) { onGainStacks?.Invoke(_source, stacks); }
+    public void LoseStacks(int stacks) { onLoseStacks?.Invoke(_source, stacks); }
+
+}
 public class StatusEffect : MonoBehaviour
 {
 
@@ -22,7 +41,9 @@ public class StatusEffect : MonoBehaviour
         FIREBRAND,
         ALACRITY,
         MIGHT,
-        ATROPHY
+        ATROPHY,
+        SHARPEN = 1000,
+        LEGERDEMAIN
     }
 
     private static GameObject _prefab;
@@ -30,24 +51,46 @@ public class StatusEffect : MonoBehaviour
     private StatusData _data;
     private ITargetable _target;
     private StatusAbility _ability;
+    private int _stacks;
+
     [SerializeField] private ValueDisplay _display;
     [SerializeField] private Image _border;
     [SerializeField] private Image _icon;
     [SerializeField] private Tooltip _tooltip;
 
-    
+    public StatusEffectEvents events;
+
+    public static string Parse(string input)
+    {
+        string output = input;
+        string[] StatusNames = System.Enum.GetNames(typeof(StatusEffect.ID));
+        foreach (string name in StatusNames)
+        {
+            output = output.Replace(name, "<color=#00FFFF><b>" + name.ToLower() + "</b></color>");
+        }
+        return output;
+    }
+
     public bool stackable { get { return _data.stackable; } }
+    public bool idDebuff { get { return _data.isDebuff; } }
     public ID id { get { return _data.id; } }
     public ITargetable target { get { return _target; } }
     public int stacks
     {
         get
         {
-            return _ability.stacks;
+            return _stacks;
         }
         set
         {
-            _ability.stacks = value;
+            int delta = value - _stacks;
+            _stacks = value;
+            if (delta > 0) { events.GainStacks(delta); }
+            if (delta < 0) { events.LoseStacks(-delta); }
+            if (_stacks <= 0)
+            {
+                target.RemoveStatus(id, 9999);
+            }
         }
     }
 
@@ -69,6 +112,8 @@ public class StatusEffect : MonoBehaviour
                 return +0.2f;
             case ID.FIREBRAND:
                 return +0.1f;
+            case ID.MIGHT:
+                return +1.0f;
             default: return 0f;
         }
     }
@@ -84,14 +129,15 @@ public class StatusEffect : MonoBehaviour
         effect._data = StatusData.Get(a_id);
         Debug.Assert(effect._data != null);
         effect._target = a_target;
-        
+        effect._stacks = a_stacks;
+
         effect._border.color = effect._data.backgroundColor;
         effect._icon.color = effect._data.iconColor;
         effect._tooltip.header = effect._data.tooltipHeader;
         effect._tooltip.content = effect._data.tooltipContent;
 
-        effect._ability = StatusAbility.Get(a_id, a_target, a_stacks);
-        Debug.Assert(effect._ability != null);
+        effect.events = new StatusEffectEvents(effect);
+        effect._ability = StatusAbility.Get(effect, a_target, a_stacks);
         a_target.targetEvents.onRefresh += effect.Refresh;
         return effect;
     }
@@ -108,8 +154,9 @@ public class StatusEffect : MonoBehaviour
     }
     public void Remove()
     {
-        _ability.Remove();
+        _ability?.Remove();
         _target.targetEvents.onRefresh -= Refresh;
+        events.Remove();
         Destroy(this.gameObject);
     }
 }

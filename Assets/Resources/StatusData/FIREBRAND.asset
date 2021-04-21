@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
   m_Name: FIREBRAND
   m_EditorClassIdentifier: 
-  id: 9
+  id: 11
   stackable: 1
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Firebrand
   tooltipContent: 'When you deal damage to a target with a Technique, deal 1 FIRE
     damage to that target and lose 1 stack of Firebrand. '

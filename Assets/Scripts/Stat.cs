@@ -45,7 +45,19 @@ public class Stat
         set { _baseValue = value; }
         get { return (int)_baseValue; }
     }
-
+    public int modifier
+    {
+        get
+        {
+            int mod = 0;
+            for (int ii = _modifiers.Count -1; ii >= 0; ii--)
+            {
+                if (_modifiers[ii] == null) { _modifiers.RemoveAt(ii); }
+                else { mod += _modifiers[ii].value; }
+            }
+            return mod;
+        }
+    }
     public Stat(float a_baseValue)
     {
         _baseValue = a_baseValue;

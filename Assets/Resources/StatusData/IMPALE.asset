@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 5
   stackable: 0
+  isDebuff: 1
+  isBuff: 0
   tooltipHeader: Impale
   tooltipContent: "Impaled Thralls cannot block, attack, or use abilities until the
     end of their controller's next turn. \n\nAn Impaled Player must discard a card

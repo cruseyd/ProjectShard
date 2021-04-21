@@ -59,15 +59,20 @@ public class CardIndex : MonoBehaviour
         string path = Application.dataPath + "/Resources/Cards";
         string json = File.ReadAllText(path + "/cards.json");
         json = "{ \"data\":" + json + "}";
-        Debug.Log(json
-            );
+
         JSONCardArray cardArray = JsonUtility.FromJson<JSONCardArray>(json);
         Array.Sort(cardArray.data, (JSONCardData d1, JSONCardData d2) => { return d1.name.CompareTo(d2.name); });
-        CardData[] cards = new CardData[cardArray.data.Length];
+        List<CardData> cards = new List<CardData>();
 
         for (int ii = 0; ii < cardArray.data.Length; ii++)
         {
-            cards[ii] = new CardData(cardArray.data[ii]);
+            if (cardArray.data[ii].impl == "X" && cardArray.data[ii].set <= 1)
+            {
+                cards.Add(new CardData(cardArray.data[ii]));
+            } else
+            {
+                //Debug.Log(cardArray.data[ii].name + " not loaded (not implemented)");
+            }
         }
         foreach (CardData data in cards)
         {

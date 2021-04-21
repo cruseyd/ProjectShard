@@ -35,7 +35,8 @@ public class TargetTemplate
     public bool isSelf;
     public bool isAttackable;
     public ITargetable isNot;
-    public List<Keyword> keyword;
+    public List<Keyword> keywordAnd;
+    public List<Keyword> keywordOr;
     public List<KeywordAbility.Key> keywordAbility;
     public List<Keyword> notKeyword;
     public List<KeywordAbility.Key> notKeywordAbility;
@@ -45,6 +46,7 @@ public class TargetTemplate
     public List<Card.Color> cardColor;
     public List<TemplateParam> templateParams;
     public List<Card.Rarity> rarity;
+    public List<CardZone.Type> zone;
 
 
     public TargetTemplate()
@@ -57,13 +59,15 @@ public class TargetTemplate
         inHand = false;
         actor = null;
         owner = null;
-        keyword = new List<Keyword>();
+        keywordAnd = new List<Keyword>();
+        keywordOr = new List<Keyword>();
         notKeyword = new List<Keyword>();
         keywordAbility = new List<KeywordAbility.Key>();
         notKeywordAbility = new List<KeywordAbility.Key>();
         cardType = new List<Card.Type>();
         cardColor = new List<Card.Color>();
         templateParams = new List<TemplateParam>();
+        zone = new List<CardZone.Type>();
         rarity = new List<Card.Rarity>();
         isNot = null;
     }

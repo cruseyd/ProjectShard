@@ -50,12 +50,24 @@ public enum Keyword
     //==============
     WOLF=1000,
     HYROC,
-    SLIME
+    SLIME,
+    DRYAD,
+    WOLDEN
 
 }
 
 public static class Keywords
 {
+    public static string Parse(string input)
+    {
+        string output = input;
+        string[] KeywordAbilities = System.Enum.GetNames(typeof(KeywordAbility.Key));
+        foreach (string name in KeywordAbilities)
+        {
+            output = output.Replace(name, "<color=yellow><b>" + name.ToLower() + "</b></color>");
+        }
+        return output;
+    }
     public static string Parse(Keyword word)
     {
         return "<b>" + word.ToString("g").ToLower() + "</b>";
@@ -70,7 +82,7 @@ public static class Keywords
     }
     public static string Parse(KeywordAbility.Key word)
     {
-        return "<b>" + word.ToString("g").ToLower() + "</b>";
+        return "<color=yellow><b>" + word.ToString("g").ToLower() + "</b></color>";
     }
     public static string Parse(Card.Color color)
     {
@@ -104,7 +116,8 @@ public abstract class KeywordAbility
         EVASIVE,
         ENIGMATIC,
         OVERWHELM,
-        QUICK
+        QUICK,
+        FRAGILE
     }
 
     protected Card _user;
@@ -125,6 +138,7 @@ public abstract class KeywordAbility
             case Key.EVASIVE: return new KA_Evasive(0, user);
             case Key.ENIGMATIC: return new KA_Enigmatic(0, user);
             case Key.OVERWHELM: return new KA_Overwhelm(0, user);
+            case Key.FRAGILE: return new KA_Fragile(0, user);
             case Key.PASSIVE:
             default: return null;
         }
@@ -360,16 +374,27 @@ public class KA_Overwhelm : KeywordAbility
     public KA_Overwhelm(int level, Card card) : base(level, card)
     {
         _user.targetEvents.onDealOverflowDamage += DealOverflowDamageHandler;
-
     }
 
     private void DealOverflowDamageHandler(DamageData data)
     {
-        if (data.isAttackDamage)
+        if (data.isAttackDamage || ((Card)data.source).type != Card.Type.THRALL)
         {
             DamageData overwhelmDamage = new DamageData(data.damage, data.type, data.source, data.target.controller, data.isAttackDamage);
             data.target.controller.Damage(overwhelmDamage);
         }
+    }
+}
+
+public class KA_Fragile : KeywordAbility
+{
+    public KA_Fragile(int level, Card card) : base(level, card)
+    {
+        _user.targetEvents.onDealDamage += DealDamageHandler;
+    }
+    private void DealDamageHandler(DamageData data)
+    {
+        _user.Destroy();
     }
 }
 

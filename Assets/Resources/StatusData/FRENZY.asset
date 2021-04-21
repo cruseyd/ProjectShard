@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 10
   stackable: 1
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Frenzy
   tooltipContent: 'When you play a Technique, draw a card, gain 1/0 FOCUS, and take
     1 damage. Then remove a stack of Frenzy. '

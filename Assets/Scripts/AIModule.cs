@@ -38,15 +38,28 @@ public class AIModule : MonoBehaviour
             {
                 GameState gameState = new GameState(Enemy.instance);
                 float baseValue = gameState.Evaluate();
+                float baseValueSelf = gameState.EvaluateSelf();
+                float baseValueEnemy = gameState.EvaluateOpponent();
                 float moveValue = baseValue - 5;
                 ICommand chosen = null;
                 foreach (ICommand move in moves)
                 {
                     move.Execute(gameState);
                     float value = gameState.Evaluate();
-                    Debug.Log("Evaluating move: " + move.name + " | result: " + value + " | base: " + baseValue);
+                    //Debug.Log("Evaluating move: " + move.name + " | result: " + value +
+                    //    " | base: " + baseValue + "(" + baseValueSelf + ", " + baseValueEnemy + ")");
                     if (value > moveValue)
                     {
+                        if (value < baseValue) //if this move is worse than doing nothing...
+                        {
+                            float selfValue = gameState.EvaluateSelf();
+                            float enemyValue = gameState.EvaluateOpponent();
+                            if ((enemyValue - baseValueEnemy) > (selfValue - baseValueSelf))
+                            {
+                                // ... and it *only* helps the opponent, then don't do this. 
+                                continue;
+                            }
+                        }
                         moveValue = value;
                         chosen = move;
                     }

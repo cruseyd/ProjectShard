@@ -4,13 +4,297 @@
       "name": "_TEST",
       "list": [
         {
-          "id": "SLASH",
-          "qty": 16
+          "id": "LUMBERING_BANEBOUGH",
+          "qty": 5
+        },
+        {
+          "id": "DRYAD_MENDER",
+          "qty": 5
+        },
+        {
+          "id": "SURVIVALISM",
+          "qty": 5
         }
       ]
     },
     {
-      "name": "_EMPTY",
+      "name": "Warrior",
+      "list": [
+        {
+          "id": "SLASH",
+          "qty": 3
+        },
+        {
+          "id": "MIGHTY_CLEAVE",
+          "qty": 1
+        },
+        {
+          "id": "BLITZ",
+          "qty": 3
+        },
+        {
+          "id": "WILD_SWING",
+          "qty": 1
+        },
+        {
+          "id": "SKY_SUNDER",
+          "qty": 1
+        },
+        {
+          "id": "RELENTLESS",
+          "qty": 1
+        },
+        {
+          "id": "SHARPEN",
+          "qty": 1
+        },
+        {
+          "id": "SEVER",
+          "qty": 1
+        },
+        {
+          "id": "HYROC_CHAMPION",
+          "qty": 2
+        },
+        {
+          "id": "PASSION",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "Berzerker",
+      "list": [
+        {
+          "id": "SLASH",
+          "qty": 3
+        },
+        {
+          "id": "FLURRY",
+          "qty": 2
+        },
+        {
+          "id": "SEEING_RED",
+          "qty": 3
+        },
+        {
+          "id": "INTO_THE_FRAY",
+          "qty": 1
+        },
+        {
+          "id": "FERAL_THRASH",
+          "qty": 2
+        },
+        {
+          "id": "ADRENALINE_RUSH",
+          "qty": 2
+        },
+        {
+          "id": "REJUVENATE",
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "name": "Hyroc Swarm",
+      "list": [
+        {
+          "id": "SWIFTWING_HYROC",
+          "qty": 2
+        },
+        {
+          "id": "HYROC_SCOUT",
+          "qty": 2
+        },
+        {
+          "id": "SKYSWORN_ADEPT",
+          "qty": 2
+        },
+        {
+          "id": "HYROC_CHAMPION",
+          "qty": 2
+        },
+        {
+          "id": "SLASH",
+          "qty": 3
+        },
+        {
+          "id": "FLURRY",
+          "qty": 2
+        },
+        {
+          "id": "FEATHER_PHALANX",
+          "qty": 2
+        }
+      ]
+    },
+    {
+      "name": "Mage",
+      "list": [
+        {
+          "id": "CHILL",
+          "qty": 3
+        },
+        {
+          "id": "CRYSTAL_LANCE",
+          "qty": 2
+        },
+        {
+          "id": "FROST_LATTICE",
+          "qty": 2
+        },
+        {
+          "id": "CONTINUITY",
+          "qty": 2
+        },
+        {
+          "id": "MNEMONIC_RECITATION",
+          "qty": 3
+        },
+        {
+          "id": "TIME_DILATION",
+          "qty": 2
+        },
+        {
+          "id": "KATABATIC_SQUALL",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "Biomancer",
+      "list": [
+        {
+          "id": "MITOTIC_SLIME",
+          "qty": 3
+        },
+        {
+          "id": "CONSUMING_BLOB",
+          "qty": 2
+        },
+        {
+          "id": "MANAPLASM",
+          "qty": 2
+        },
+        {
+          "id": "PRIMORDIAL_SLIME",
+          "qty": 1
+        },
+        {
+          "id": "REJUVENATE",
+          "qty": 3
+        },
+        {
+          "id": "REPLICATE",
+          "qty": 2
+        },
+        {
+          "id": "AMORPHOUS_DEVOURER",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "Ranger",
+      "list": [
+        {
+          "id": "RICOCHET",
+          "qty": 3
+        },
+        {
+          "id": "PIERCING_BOLT",
+          "qty": 1
+        },
+        {
+          "id": "CONCUSSIVE_ARROW",
+          "qty": 1
+        },
+        {
+          "id": "MASTERFUL_SHOT",
+          "qty": 1
+        },
+        {
+          "id": "ECHOING_HOWL",
+          "qty": 3
+        },
+        {
+          "id": "MITOTIC_SLIME",
+          "qty": 2
+        },
+        {
+          "id": "SHADOW_FANG_ALPHA",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "Wolves",
+      "list": [
+        {
+          "id": "SHADOW_FANG_AMBUSHER",
+          "qty": 3
+        },
+        {
+          "id": "ECHOING_HOWL",
+          "qty": 3
+        },
+        {
+          "id": "SHADOW_FANG_ALPHA",
+          "qty": 2
+        },
+        {
+          "id": "PACK_MENTALITY",
+          "qty": 2
+        },
+        {
+          "id": "RICOCHET",
+          "qty": 2
+        },
+        {
+          "id": "PIERCING_BOLT",
+          "qty": 2
+        },
+        {
+          "id": "MASTERFUL_SHOT",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "Druid",
+      "list": [
+        {
+          "id": "SHADOW_FANG_AMBUSHER",
+          "qty": 3
+        },
+        {
+          "id": "ECHOING_HOWL",
+          "qty": 3
+        },
+        {
+          "id": "SHADOW_FANG_ALPHA",
+          "qty": 2
+        },
+        {
+          "id": "PACK_MENTALITY",
+          "qty": 2
+        },
+        {
+          "id": "RICOCHET",
+          "qty": 2
+        },
+        {
+          "id": "PIERCING_BOLT",
+          "qty": 2
+        },
+        {
+          "id": "MASTERFUL_SHOT",
+          "qty": 1
+        }
+      ]
+    },
+    {
+      "name": "EMPTY",
       "list": [
         {
           "id": "FATIGUE",

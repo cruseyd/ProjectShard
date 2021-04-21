@@ -38,6 +38,20 @@ public abstract class Actor : MonoBehaviour, ITargetable
             else { return Enemy.instance; }
         }
     }
+    public bool validTarget
+    {
+        get
+        {
+            if (Dungeon.targeter != null && Dungeon.targeter.source != null)
+            {
+                if (Dungeon.targeter.source.IsTargeting(this))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+    }
     public bool inPlay { get { return true; } }
     public ActorEvents actorEvents { get { return _actorEvents; } }
     public TargetEvents targetEvents { get { return _targetEvents; } }
@@ -122,8 +136,6 @@ public abstract class Actor : MonoBehaviour, ITargetable
     public virtual void Awake()
     {
         _statusEffects = new Dictionary<StatusEffect.ID, StatusEffect>();
-        //StatusDisplay[] displays = _statusDisplays.GetComponentsInChildren<StatusDisplay>();
-        //foreach (StatusDisplay tf in displays) { tf.gameObject.SetActive(false); }
 
         
         _playedThisTurn = new List<Card>();
@@ -229,7 +241,13 @@ public abstract class Actor : MonoBehaviour, ITargetable
     {
         _healthDisplay.value = health.value;
         _healthDisplay.baseValue = maxHealth.value;
-        particles.Clear();
+        if (validTarget)
+        {
+            particles.MarkValidTarget(true);
+        } else
+        {
+            particles.Clear();
+        }
         targetEvents.Refresh();
     }
     
@@ -268,16 +286,16 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual void Damage(DamageData data)
     {
+        
         if (data == null) { return; }
         if (data.source != null)
         {
             data.source.targetEvents.DealRawDamage(data);
             data.source.targetEvents.DealModifiedDamage(data);
         }
-
         targetEvents.TakeRawDamage(data);
         targetEvents.TakeModifiedDamage(data);
-
+        
         health.baseValue -= data.damage;
         
         if (data.damage > 0)
@@ -331,6 +349,7 @@ public abstract class Actor : MonoBehaviour, ITargetable
             particles.Clear();
         }
     }
+    public bool IsTargeting(ITargetable target) { return false; }
     public bool Compare(TargetTemplate query, Actor self)
     {
         bool flag = true;
@@ -338,7 +357,8 @@ public abstract class Actor : MonoBehaviour, ITargetable
         if (query.isNot != null && (query.isNot.Equals(this))) { return false; }
         if (query.cardColor.Count > 0) { return false; }
         if (query.cardType.Count > 0) { return false; }
-        if (query.keyword.Count > 0) { return false; }
+        if (query.keywordAnd.Count > 0) { return false; }
+        if (query.keywordOr.Count > 0) { return false; }
         if (query.templateParams.Count > 0) { return false; }
 
         // actual checks
@@ -380,12 +400,10 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual void AddStatus(StatusEffect.ID id, int stacks = 1)
     {
-        Debug.Log("(REAL) Trying to add status " + id + " to " + name);
         Attempt attempt = new Attempt();
         targetEvents.TryGainStatus(id, stacks, attempt);
         if (!attempt.success)
         {
-            Debug.Log("Prevented " + id.ToString());
             return;
         }
         if (_statusEffects.ContainsKey(id))
@@ -401,7 +419,6 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
     public virtual void RemoveStatus(StatusEffect.ID a_id, int a_stacks = 9999)
     {
-        Debug.Log("Removing " + a_stacks + " stacks of " + a_id.ToString());
         if (_statusEffects.ContainsKey(a_id))
         {
             StatusEffect s = _statusEffects[a_id];
@@ -415,6 +432,14 @@ public abstract class Actor : MonoBehaviour, ITargetable
             {
                 s.stacks -= a_stacks;
             }
+        }
+    }
+
+    public virtual void RemoveAllStatus()
+    {
+        foreach (StatusEffect.ID id in _statusEffects.Keys)
+        {
+            RemoveStatus(id);
         }
     }
     public virtual int GetStatus(StatusEffect.ID id)
@@ -458,4 +483,12 @@ public abstract class Actor : MonoBehaviour, ITargetable
     }
 
     protected void ClearPlayed(Actor actor) { _playedThisTurn.Clear(); }
+
+    public void DoubleClick()
+    {
+        if (validTarget)
+        {
+            Dungeon.targeter.AddTarget(this);
+        }
+    }
 }

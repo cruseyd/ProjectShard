@@ -22,7 +22,8 @@ public class CardEvents
     public event Action<ITargetable, Card, Attempt> onTryMarkTarget;
 
     public void Draw() { onDraw?.Invoke(_source); }
-    public void EnterPlay() { onEnterPlay?.Invoke(_source); }
+    public void EnterPlay() {
+        onEnterPlay?.Invoke(_source); }
     public void Destroy() { onDestroy?.Invoke(_source); }
     public void LeavePlay() { onLeavePlay?.Invoke(_source); }
     public void EnterDiscard() { onEnterDiscard?.Invoke(_source); }

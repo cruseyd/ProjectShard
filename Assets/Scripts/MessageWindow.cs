@@ -24,6 +24,7 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
 
     private void Update()
     {
+        maxMessages = 100;
         if (Input.GetKeyDown(KeyCode.Space))
         {
             Add("You pressed 'space' " + _messages.Count);
@@ -34,21 +35,22 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         GameObject msgGO = Instantiate(_contentPrefab) as GameObject;
         msgGO.transform.SetParent(_content);
-        //msgGO.transform.SetSiblingIndex(0);
+        msgGO.transform.SetSiblingIndex(0);
         msgGO.GetComponent<TextMeshProUGUI>().text = message;
         _messages.Enqueue(msgGO);
         if (_messages.Count > maxMessages)
         {
             Destroy(_messages.Dequeue());
         }
-        scrollRect.verticalNormalizedPosition = 0;
+        scrollRect.verticalNormalizedPosition = 1;
     }
     public IEnumerator Expand(bool flag, float heightScale = 1, float duration = 0.25f)
     {
         if (flag)
         {
-            yield return new WaitForSeconds(1);
+            yield return new WaitForSeconds(0.5f);
         }
+        scrollRect.verticalNormalizedPosition = 1;
         float t = 0;
         Vector2 start = GetComponent<RectTransform>().sizeDelta;
         Vector2 end = _baseRect;
@@ -60,6 +62,7 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
         {
             t += Time.deltaTime / duration;
             GetComponent<RectTransform>().sizeDelta = Vector2.Lerp(start, end, t);
+            scrollRect.verticalNormalizedPosition = 1;
             yield return null;
         }
     }
@@ -73,5 +76,10 @@ public class MessageWindow : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     {
         StopAllCoroutines();
         StartCoroutine(Expand(false));
+    }
+
+    public void Test()
+    {
+        Add("This is a test message.");
     }
 }

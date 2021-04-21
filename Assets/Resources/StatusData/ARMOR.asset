@@ -12,8 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b2a75df4c3297e4ba33ff655324774b, type: 3}
   m_Name: ARMOR
   m_EditorClassIdentifier: 
-  id: 11
+  id: 9
   stackable: 1
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Armor
   tooltipContent: When you would take damage, decrease that damage by 1 and remove
     1 stack of Armor.

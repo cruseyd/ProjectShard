@@ -5,9 +5,9 @@ using UnityEngine;
 public class CardParticles : MonoBehaviour
 {
 
-    [SerializeField] ParticleSystem _goldShimmer;
-    [SerializeField] ParticleSystem _blueShimmer;
-    [SerializeField] ParticleSystem _redShimmer;
+    [SerializeField] List<ParticleSystem> _goldShimmer;
+    [SerializeField] List<ParticleSystem> _blueShimmer;
+    [SerializeField] List<ParticleSystem> _redShimmer;
     [SerializeField] ParticleSystem _goldGlow;
     [SerializeField] ParticleSystem _redGlow;
     [SerializeField] ParticleSystem _burst;
@@ -87,6 +87,13 @@ public class CardParticles : MonoBehaviour
         {
             system.gameObject.SetActive(flag);
             emission.enabled = flag;
+        }
+    }
+    private void Play(List<ParticleSystem> system, bool flag)
+    {
+        foreach (ParticleSystem s in system)
+        {
+            Play(s, flag);
         }
     }
 }

@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 2
   stackable: 0
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Stun
   tooltipContent: "Stunned Thralls cannot block, attack, or use abilities until the
     end of their controller's next turn. \n\nA Stunned Player must discard a card

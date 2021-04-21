@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 6
   stackable: 1
+  isDebuff: 1
+  isBuff: 0
   tooltipHeader: Burn
   tooltipContent: 'At the start of your turn, take FIRE damage equal to the number
     of stacks of Burn. Then remove 1 stack of Burn. '

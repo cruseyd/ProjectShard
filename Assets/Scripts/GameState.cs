@@ -28,6 +28,16 @@ public class GameState
             }
         }
     }
+    public void RemoveTemplateModifier(TemplateModifier mod, bool undo)
+    {
+        foreach (CardState state in _self.cards)
+        {
+            if (mod.Compare(state.source))
+            {
+                RemoveStatModifier(state.source, mod, undo);
+            }
+        }
+    }
     public void AddStatModifier(Card card, StatModifier mod, bool undo)
     {
         int scale = 1;
@@ -36,6 +46,16 @@ public class GameState
         {
             case Stat.Name.POWER: GetCardState(card).power += scale * mod.value; break;
             case Stat.Name.HEALTH: GetCardState(card).health += scale * mod.value; break;
+        }
+    }
+    public void RemoveStatModifier(Card card, StatModifier mod, bool undo)
+    {
+        int scale = 1;
+        if (undo) { scale = -1; }
+        switch (mod.statName)
+        {
+            case Stat.Name.POWER: GetCardState(card).power -= scale * mod.value; break;
+            case Stat.Name.HEALTH: GetCardState(card).health -= scale * mod.value; break;
         }
     }
     public void Heal(Actor actor, int value, bool undo)
@@ -156,6 +176,28 @@ public class GameState
         float evaluation = 5 * healthDelta + 3 * threatDelta + handDelta;
         if (_self.health <= 0) { evaluation -= 9999; }         //avoid defeat
         if (_opponent.health <= 0) { evaluation += 9999; }     //always choose victory
+        return evaluation;
+    }
+    public float EvaluateSelf()
+    {
+        float healthDelta = _self.health;
+        float handDelta = _self.numCardsPlayable;
+        float threatDelta = _self.threat;
+
+        float evaluation = 5 * healthDelta + 3 * threatDelta + handDelta;
+        if (_self.health <= 0) { evaluation -= 9999; }         //avoid defeat
+        if (_opponent.health <= 0) { evaluation += 9999; }     //always choose victory
+        return evaluation;
+    }
+    public float EvaluateOpponent()
+    {
+        float healthDelta = _opponent.health;
+        float handDelta = _opponent.numCardsPlayable;
+        float threatDelta = _opponent.threat;
+
+        float evaluation = 5 * healthDelta + 3 * threatDelta + handDelta;
+        if (_self.health <= 0) { evaluation += 9999; }         //avoid defeat
+        if (_opponent.health <= 0) { evaluation -= 9999; }     //always choose victory
         return evaluation;
     }
 }

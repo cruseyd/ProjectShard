@@ -113,6 +113,10 @@ public class EnemyTurnPhase : GamePhase
         Enemy.instance.actorEvents.EndTurn();
         Enemy.instance.actorEvents.PostTurn();
         // end enemy turn
+        foreach (Card card in Enemy.instance.hand)
+        {
+            Enemy.instance.Discard(card);
+        }
         Enemy.instance.DrawRandom();
     }
     public override void Confirm()

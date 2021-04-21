@@ -1,0 +1,521 @@
+fileFormatVersion: 2
+guid: 88aacab0e3583574882e2ee4b05e5288
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 5189691121816951081
+    second: card_0
+  - first:
+      213: -1150797853226429853
+    second: card_1
+  - first:
+      213: 4179361977775431376
+    second: card_2
+  - first:
+      213: 3388945746152779112
+    second: card_3
+  - first:
+      213: 7797158584684704892
+    second: card_4
+  - first:
+      213: -2926814536932516816
+    second: card_5
+  - first:
+      213: 1542423998797467731
+    second: card_6
+  - first:
+      213: 1726367332772499340
+    second: card_7
+  - first:
+      213: -8789749092250026857
+    second: card_8
+  - first:
+      213: 4831517175032741843
+    second: card_9
+  - first:
+      213: -6285694348100652515
+    second: card_10
+  - first:
+      213: 7247009199863952834
+    second: card_11
+  - first:
+      213: 8799890943240362401
+    second: card_12
+  - first:
+      213: -5730878019799153479
+    second: card_13
+  - first:
+      213: 2111860244624441137
+    second: card_14
+  - first:
+      213: 5536039749264606949
+    second: card_15
+  - first:
+      213: 7510658959863396369
+    second: card_16
+  - first:
+      213: 1697019322546908749
+    second: card_17
+  - first:
+      213: 1091916756874483999
+    second: card_18
+  - first:
+      213: 3459038646671603892
+    second: card_19
+  - first:
+      213: 1804271963503620522
+    second: card_20
+  - first:
+      213: 7389427156121150376
+    second: card_21
+  - first:
+      213: 3739046437729302291
+    second: card_22
+  - first:
+      213: 480835609232195222
+    second: card_23
+  - first:
+      213: 9010558026739401144
+    second: card_24
+  - first:
+      213: -8195627329444483539
+    second: card_25
+  - first:
+      213: 7121121542154994164
+    second: card_26
+  - first:
+      213: -5700552110049869563
+    second: card_27
+  - first:
+      213: 2328419392559176251
+    second: card_28
+  - first:
+      213: 8852296037750511041
+    second: card_29
+  - first:
+      213: 4154073768842987811
+    second: card_30
+  - first:
+      213: 2693357738077268862
+    second: card_31
+  - first:
+      213: 5687146191882094190
+    second: card_32
+  - first:
+      213: 5480723006670331781
+    second: card_33
+  - first:
+      213: -5784673579272902198
+    second: card_34
+  - first:
+      213: -7692873824269194333
+    second: card_35
+  - first:
+      213: 3973600948975352649
+    second: card_36
+  - first:
+      213: 6337735234584906332
+    second: card_37
+  - first:
+      213: 7715251158851104233
+    second: card_38
+  - first:
+      213: -5170238488712253943
+    second: card_39
+  - first:
+      213: -1726152090308212849
+    second: card_40
+  - first:
+      213: 8027130820998465553
+    second: card_41
+  - first:
+      213: 3993158690706090220
+    second: card_42
+  - first:
+      213: -4993405572458106959
+    second: card_43
+  - first:
+      213: 1593605213218037102
+    second: card_44
+  - first:
+      213: 2742469377586461004
+    second: card_45
+  - first:
+      213: -1631228393013074176
+    second: card_46
+  - first:
+      213: 8166288953568076632
+    second: card_47
+  - first:
+      213: -4943934186041802475
+    second: card_48
+  - first:
+      213: 2277991108227711627
+    second: card_49
+  - first:
+      213: -8027077566281379897
+    second: card_50
+  - first:
+      213: -3284983360476379740
+    second: card_51
+  - first:
+      213: -3675402643016422660
+    second: card_52
+  - first:
+      213: -403553647447184134
+    second: card_53
+  - first:
+      213: 4140569590272758284
+    second: card_54
+  - first:
+      213: -4655238299229736722
+    second: card_55
+  - first:
+      213: 319439297180196834
+    second: card_56
+  - first:
+      213: 3530371982836653566
+    second: card_57
+  - first:
+      213: -3849607146575279566
+    second: card_58
+  - first:
+      213: -9140835429016655661
+    second: card_59
+  - first:
+      213: -3312338701795143353
+    second: card_60
+  - first:
+      213: -9189006721415155160
+    second: card_61
+  - first:
+      213: -2195911770615852805
+    second: card_62
+  - first:
+      213: -568472627735640064
+    second: card_63
+  - first:
+      213: -5984336843954737358
+    second: card_64
+  - first:
+      213: -7093153801240949760
+    second: card_65
+  - first:
+      213: -6106415630544926931
+    second: card_66
+  externalObjects: {}
+  serializedVersion: 11
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 2
+    mipBias: -100
+    wrapU: 1
+    wrapV: 1
+    wrapW: 0
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  applyGammaDecoding: 0
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 2
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 2
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: iPhone
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Android
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Windows Store Apps
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 8192
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 2
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: card_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1200
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 929d5e1449c750840800000000000000
+      internalID: 5189691121816951081
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_1
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 1200
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 362182e137b8700f0800000000000000
+      internalID: -1150797853226429853
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_2
+      rect:
+        serializedVersion: 2
+        x: 1800
+        y: 1200
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0de14195393100a30800000000000000
+      internalID: 4179361977775431376
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_3
+      rect:
+        serializedVersion: 2
+        x: 2700
+        y: 1200
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 86de1826334f70f20800000000000000
+      internalID: 3388945746152779112
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c74f481fb62153c60800000000000000
+      internalID: 7797158584684704892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_5
+      rect:
+        serializedVersion: 2
+        x: 900
+        y: 0
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 03c10b28fadd167d0800000000000000
+      internalID: -2926814536932516816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_6
+      rect:
+        serializedVersion: 2
+        x: 1800
+        y: 0
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3505c5d647ac76510800000000000000
+      internalID: 1542423998797467731
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: card_7
+      rect:
+        serializedVersion: 2
+        x: 2700
+        y: 0
+        width: 900
+        height: 1200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c8f4eb541f945f710800000000000000
+      internalID: 1726367332772499340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    physicsShape: []
+    bones: []
+    spriteID: df246b34f9bf8e64395faa1c5250482e
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+  spritePackingTag: 
+  pSDRemoveMatte: 0
+  pSDShowRemoveMatteOption: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

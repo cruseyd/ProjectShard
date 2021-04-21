@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 7
   stackable: 0
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Memorized
   tooltipContent: The next time you cycle, this card will not be discarded.
   iconColor: {r: 0.9622642, g: 0.9349771, b: 0, a: 1}

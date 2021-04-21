@@ -51,13 +51,16 @@ public class TargetEvents
     public void GainStatus(StatusEffect status, int stacks) { onGainStatus?.Invoke(status, stacks); }
     public void RemoveStatus(StatusEffect status, int stacks) { onRemoveStatus?.Invoke(status, stacks); }
 
-    public void DealRawDamage(DamageData data) { onDealRawDamage?.Invoke(data); }
+    public void DealRawDamage(DamageData data)
+    {
+        onDealRawDamage?.Invoke(data); }
     public void DealModifiedDamage(DamageData data) { onDealModifiedDamage?.Invoke(data); }
-    public void DealDamage(DamageData data) {
-        Debug.Log("ITargetable::DealDamage trigger from " + data.source.name);
-        onDealDamage?.Invoke(data); }
+    public void DealDamage(DamageData data) { onDealDamage?.Invoke(data); }
     public void DealOverFlowDamage(DamageData data) { onDealOverflowDamage?.Invoke(data); }
-    public void TakeRawDamage(DamageData data) { onTakeRawDamage?.Invoke(data); }
+    public void TakeRawDamage(DamageData data)
+    {
+        onTakeRawDamage?.Invoke(data);
+    }
     public void TakeModifiedDamage(DamageData data) { onTakeModifiedDamage?.Invoke(data); }
     public void TakeDamage(DamageData data) { onTakeDamage?.Invoke(data); }
 
@@ -103,18 +106,19 @@ public interface ITargetable : IMonoBehaviour
     Actor controller { get; }
     Actor opponent { get; }
     TargetEvents targetEvents { get; }
-
     bool inPlay { get; }
     void AddTarget(ITargetable target);
     void FindTargets(Ability.Mode mode, int n, bool show = false);
     List<ICommand> FindMoves();
     void MarkTarget(TargetTemplate query, ITargetable source, bool show);
+    bool IsTargeting(ITargetable target);
     bool Compare(TargetTemplate query, Actor self);
     TargetTemplate GetQuery(Ability.Mode mode, int n);
     bool Resolve(Ability.Mode mode, List<ITargetable> targets);
 
     void AddStatus(StatusEffect.ID id, int stacks = 1);
     void RemoveStatus(StatusEffect.ID id, int stacks = 9999);
+    void RemoveAllStatus();
 
     int GetStatus(StatusEffect.ID id);
 

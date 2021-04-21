@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 8
   stackable: 1
+  isDebuff: 0
+  isBuff: 1
   tooltipHeader: Insight
   tooltipContent: 'When you draw a card, remove all stacks of Insight and draw an
     additional card for each stack removed. '

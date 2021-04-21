@@ -7,8 +7,154 @@
         "name": "_TEST",
         "list": [
           {
+            "id": "WILD_BEAR-BOAR",
+            "qty": 8
+          },
+          {
+            "id": "FATIGUE",
+            "qty": 7
+          }
+        ]
+      }
+    },
+    {
+      "name": "Hyroc Swarm",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "Hyroc Swarm",
+        "list": [
+          {
+            "id": "SWIFTWING_HYROC",
+            "qty": 5
+          },
+          {
+            "id": "HYROC_SCOUT",
+            "qty": 3
+          },
+          {
             "id": "SLASH",
-            "qty": 16
+            "qty": 5
+          },
+          {
+            "id": "FEATHER_PHALANX",
+            "qty": 2
+          }
+        ]
+      }
+
+    },
+    {
+      "name": "Warrior",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "Warrior",
+        "list": [
+          {
+            "id": "SLASH",
+            "qty": 8
+          },
+          {
+            "id": "VICIOUS_REND",
+            "qty": 3
+          },
+          {
+            "id": "WILD_SWING",
+            "qty": 3
+          },
+          {
+            "id": "SHARPEN",
+            "qty": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "Berzerker",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "Berzerker",
+        "list": [
+          {
+            "id": "SLASH",
+            "qty": 8
+          },
+          {
+            "id": "FERAL_THRASH",
+            "qty": 3
+          },
+          {
+            "id": "INTO_THE_FRAY",
+            "qty": 3
+          },
+          {
+            "id": "ADRENALINE_RUSH",
+            "qty": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "Mage",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "Mage",
+        "list": [
+          {
+            "id": "CHILL",
+            "qty": 8
+          },
+          {
+            "id": "FROST_LATTICE",
+            "qty": 3
+          },
+          {
+            "id": "CRYSTAL_LANCE",
+            "qty": 3
+          },
+          {
+            "id": "TIME_DILATION",
+            "qty": 1
+          },
+          {
+            "id": "KATABATIC_SQUALL",
+            "qty": 1
+          }
+        ]
+      }
+    },
+    {
+      "name": "Slime Pit",
+      "maxHealth": 20,
+      "decklist": {
+        "name": "Slime Pit",
+        "list": [
+          {
+            "id": "MITOTIC_SLIME",
+            "qty": 2
+          },
+          {
+            "id": "CONSUMING_BLOB",
+            "qty": 3
+          },
+          {
+            "id": "EMPOWER",
+            "qty": 4
+          },
+          {
+            "id": "MANAPLASM",
+            "qty": 2
+          },
+          {
+            "id": "REPLICATE",
+            "qty": 1
+          },
+          {
+            "id": "PRIMORDIAL_SLIME",
+            "qty": 2
+          },
+          {
+            "id": "REJUVENATE",
+            "qty": 1
           }
         ]
       }

@@ -9,7 +9,7 @@ public class TestCardGraphic : MonoBehaviour
 
     public void AddCard()
     {
-        CardGraphic card = CardGraphic.Spawn(CardIndex.Rand(), transform.position);
+        CardGraphic card = CardGraphic.Spawn(CardIndex.Get("CHAIN_LIGHTNING"), transform.position);
         card.FaceUp(true);
         card.Move(_zoneA);
     }

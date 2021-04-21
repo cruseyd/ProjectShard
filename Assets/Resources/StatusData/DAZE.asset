@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 1
   stackable: 1
+  isDebuff: 1
+  isBuff: 0
   tooltipHeader: Daze
   tooltipContent: "Dazed Thralls have -1 POWER. \n\nIf a Thrall or Player is Dazed
     twice in the same turn, they are Stunned. "

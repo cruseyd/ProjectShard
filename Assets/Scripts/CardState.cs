@@ -28,7 +28,10 @@ public class CardState
     public CardState(Card card)
     {
         source = card;
-        power = card.power.value;
+        if (card.type == Card.Type.THRALL)
+        {
+            power = card.power.value;
+        }
         health = card.endurance.value;
         active = true;
         _statusEffects = new Dictionary<StatusEffect.ID, int>();

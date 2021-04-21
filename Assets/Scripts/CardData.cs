@@ -39,13 +39,16 @@ public class CardData : IComparable// : ScriptableObject
 
     public string text;
 
+    public List<int> values;
+
     public CardData(JSONCardData json)
     {
         Debug.Assert(json.name != null);
         Debug.Assert(json.rarity != null);
         Debug.Assert(json.color != null);
         name = json.name;
-        id = name.ToUpper().Replace(" ", "_");
+        string id_name = name.Split(':')[0];
+        id = id_name.ToUpper().Replace(" ", "_");
         level = json.level;
         rarity = (Card.Rarity)System.Enum.Parse(typeof(Card.Rarity), json.rarity);
         color = (Card.Color)System.Enum.Parse(typeof(Card.Color), json.color);
@@ -91,6 +94,13 @@ public class CardData : IComparable// : ScriptableObject
         if (json.dmg_type != null) { damageType = (Keyword)System.Enum.Parse(typeof(Keyword), json.dmg_type); }
         if (json.text != null) { text = Icons.Parse(json.text); }
         else { text = ""; }
+
+        Debug.Log("CardData constructor (" + name + ") | json.dmg_type: " + json.dmg_type + " | damageType: " + damageType);
+
+        values = new List<int>();
+        values.Add(json.val1);
+        values.Add(json.val2);
+        values.Add(json.val3);
     }
 
     public bool Compare(TargetTemplate query)
@@ -122,15 +132,26 @@ public class CardData : IComparable// : ScriptableObject
             }
             if (!success) { return false; }
         }
-        if (query.keyword.Count > 0)
+        if (query.keywordAnd.Count > 0)
         {
-            bool success = false;
-            foreach (Keyword key in query.keyword)
+            foreach (Keyword key in query.keywordAnd)
             {
+                flag &= (keywords.Contains(key));
+            }
+        }
+        if (query.keywordOr.Count > 0)
+        {
+            Debug.Log("Checking " + name);
+            bool success = false;
+            foreach (Keyword key in query.keywordOr)
+            {
+                Debug.Log("Checking " + name + " for keyword " + key);
                 if (keywords.Contains(key))
                 {
+                    Debug.Log("success");
                     success = true; break;
                 }
+                Debug.Log("failure");
             }
             if (!success) { return false; }
         }

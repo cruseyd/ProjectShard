@@ -21,12 +21,12 @@ public class CardZone : MonoBehaviour
 
     public Type type;
     public bool playerOwned;
-
-    private RectTransform _zone;
-
+    public float scale = 1.0f;
+    private RectTransform _rect;
     public void Awake()
     {
-        _zone = GetComponent<RectTransform>();
+        _rect = GetComponent<RectTransform>();
+        scale = _rect.rect.height / 200.0f;
     }
 
     public List<Card> Cards(Card.Type type = Card.Type.DEFAULT)
@@ -60,7 +60,7 @@ public class CardZone : MonoBehaviour
     public float Position(int zoneIndex)
     {
         int numCards = transform.childCount;
-        float width = _zone.rect.width;
+        float width = _rect.rect.width;
         float spacing = width / (1.0f * numCards);
         float xpos = -width / 2.0f + spacing / 2.0f;
         return xpos + zoneIndex * spacing;
@@ -68,28 +68,23 @@ public class CardZone : MonoBehaviour
 
     public void Organize()
     {
+        //Debug.Log("Organize: " + type);
         List<CardGraphic> graphics = CardGraphics();
         for (int ii = 0; ii < graphics.Count; ii++)
         {
             graphics[ii].zoneIndex = ii;
         }
-        if (_zone.rect.width < 200)
+        foreach (CardGraphic card in graphics)
         {
-            foreach (CardGraphic card in graphics)
+            
+            Vector2 dest = _rect.TransformPoint(0, 0, 0);
+            if (type == Type.HAND || type == Type.ACTIVE || type == Type.DRAFT)
             {
-                Vector2 dest = _zone.TransformPoint(0, 0, 0);
-                card.StartCoroutine(card.DoTranslate(dest));
+                dest = _rect.TransformPoint(Position(card.zoneIndex), 0, 0);
             }
-        }
-        else
-        {
-            foreach (CardGraphic card in graphics)
-            {
-                card.StartCoroutine(card.DoZoom(false));
-                Vector2 dest = _zone.TransformPoint(Position(card.zoneIndex), 0, 0);
-                card.StartCoroutine(card.DoTranslate(dest));
-                card.transform.SetSiblingIndex(card.zoneIndex);
-            }
+
+            card.Translate(dest);
+            card.transform.SetSiblingIndex(card.zoneIndex);
         }
     }
 }

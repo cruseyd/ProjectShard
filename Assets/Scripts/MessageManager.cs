@@ -29,7 +29,6 @@ public class MessageManager : MonoBehaviour
 
     private void OnCardPlayed(Card card)
     {
-        _window.Add("\n");
     }
     private void OnDamage(DamageData damage)
     {
@@ -47,7 +46,7 @@ public class MessageManager : MonoBehaviour
             txt += " took " + damage.damage + " " + Icons.Get(damage.type) + " damage";
             if (damage.source != null)
             {
-                txt += " from" + damage.source.name;
+                txt += " from " + damage.source.name;
             } else
             {
                 txt += ".";
@@ -57,7 +56,7 @@ public class MessageManager : MonoBehaviour
     }
     private void OnPlayCard(Card card, Attempt attempt)
     {
-        string txt = "";
+        string txt = "\n";
         if (card.playerControlled)
         {
             txt += "You played " + card.name + ".";
@@ -69,13 +68,13 @@ public class MessageManager : MonoBehaviour
     }
     private void OnStartTurn(Actor actor)
     {
-        string txt = "___________________________________________\n";
+        string txt = "\n";
         if (actor is Player)
         {
-            txt += "<b>Start Player Turn.</b>";
+            txt += "<b>Start Player Turn.</b>\n";
         } else
         {
-            txt += "<b>Start " + actor.name + " Turn.</b>";
+            txt += "<b>Start " + actor.name + " Turn.</b>\n";
         }
         _window.Add(txt);
     }
@@ -88,10 +87,10 @@ public class MessageManager : MonoBehaviour
     {
         if (status.target is Player)
         {
-            _window.Add("You gained " + stacks + " of " + status.id);
+            _window.Add("You gained " + stacks + " stacks of " + status.id);
         } else
         {
-            _window.Add(status.target.name + " gained " + stacks + " of " + status.id);
+            _window.Add(status.target.name + " gained " + stacks + " stacks of " + status.id);
         }
     }
 }

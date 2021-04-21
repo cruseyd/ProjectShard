@@ -91,7 +91,7 @@ public class Deck : MonoBehaviour
     public void Shuffle(Card card)
     {
         CardData data = card.data;
-        Destroy(card.gameObject);
+        card.Delete();
         Shuffle(data);
     }
     public void Insert(Card card, int index)

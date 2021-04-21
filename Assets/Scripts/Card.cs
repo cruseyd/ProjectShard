@@ -105,12 +105,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
 
 
     public Stat cost;
+
     public Stat strength;
     public Stat finesse;
     public Stat perception;
+
     public Stat power;
+    public Stat health { get { return endurance; } }
     public Stat endurance;
     public Stat upkeep;
+
+    public List<Stat> values;
 
     public int violetAffinity { get { return data.violetAffinity; } }
     public int redAffinity    { get { return data.redAffinity; } }
@@ -162,7 +167,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             } else if (playerControlled && (Dungeon.phase == GamePhase.enemy))
             {
                 flag &= Dungeon.priority;
-                flag &= (ability != null && ability.react);
+                flag &= (ability != null && react);
                 flag &= resourcesAvailable;
             }
             else if (!playerControlled && (Dungeon.phase == GamePhase.enemy))
@@ -249,7 +254,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             return flag;
         }
     }
-
+    public bool react
+    {
+        get
+        {
+            return HasKeyword(KeywordAbility.Key.QUICK);
+        }
+    }
     public bool counterable
     {
         get
@@ -341,6 +352,19 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
     }
 
+    public bool validTarget
+    {
+        get
+        {
+            if (Dungeon.targeter != null && Dungeon.targeter.source is Card)
+            {
+                Card source = Dungeon.targeter.source as Card;
+                if (source._validTargets.Contains(this)) { return true; }
+            }
+            return false;
+        }
+    }
+
     public static Card Spawn(string id, bool isPlayerCard, Vector3 spawnPoint)
     {
         CardData data = CardIndex.Get(id);
@@ -351,7 +375,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         if (Card._cardPrefab == null)
         {
-            _cardPrefab = Resources.Load("Prefabs/Card") as GameObject;
+            _cardPrefab = Resources.Load("Prefabs/LayeredCard") as GameObject;
         }
         GameObject cardGO = Instantiate(_cardPrefab,spawnPoint, Quaternion.identity);
         Card card = cardGO.GetComponent<Card>();
@@ -387,7 +411,11 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             card.endurance = new Stat(data.endurance);
             card.upkeep = new Stat(data.upkeep);
         }
-
+        card.values = new List<Stat>();
+        foreach (int val in data.values)
+        {
+            card.values.Add(new Stat(val));
+        }
         // EVENTS
         if (card.controller != null)
         {
@@ -470,15 +498,22 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
         }
 
-        if (playable || canAttack || activatable)
+        if (playable)
+        {
+            if (!Dungeon.targeting || (Dungeon.targeting && react))
+            {
+                particles.ShimmerGold();
+            }
+        }
+        else if ((activatable || canAttack) && !Dungeon.targeting)
         {
             particles.ShimmerGold();
         }
-        else if (canDefend)
+        else if (canDefend || validTarget)
         {
             particles.ShimmerBlue();
         }
-        else if (needsUpkeep)
+        else if (needsUpkeep && !Dungeon.targeting)
         {
             particles.ShimmerRed();
         }
@@ -508,6 +543,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             graphic.SetStat(Stat.Name.PERCEPTION, perception.value);
             graphic.SetStat(Stat.Name.FINESSE, finesse.value);
         }
+        graphic.ParseText(data, values, _kAbilityKeys);
     }
     public bool AddModifier(StatModifier mod)
     {
@@ -607,7 +643,6 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             default: return false;
         }
     }
-
     public void AddKeywordAbility(KeywordAbility.Key key)
     {
         if (_kAbilityKeys.Contains(key)) { return; }
@@ -615,7 +650,19 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         _kAbilities.Add(KeywordAbility.Get(key, this));
         RefreshText();
     }
-
+    public void RemoveKeywordAbility(KeywordAbility.Key key)
+    {
+        if (!_kAbilityKeys.Contains(key)) { return; }
+        foreach (KeywordAbility.Key k in _kAbilityKeys)
+        {
+            if (k == key)
+            {
+                _kAbilityKeys.Remove(k);
+                _kAbilities.Remove(KeywordAbility.Get(key, this));
+            }
+        }
+        RefreshText();
+    }
     public bool Resolve(Ability.Mode mode, List<ITargetable> targets)
     {
         bool interrupted = false;
@@ -644,14 +691,31 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         if (mode == Ability.Mode.PLAY)
         {
             if (!interrupted) { controller.actorEvents.PlayCard(this); }
-            if ((type == Type.THRALL || type == Type.CONSTANT) && !interrupted) { controller.PutInPlay(this); }
-            else { controller.Discard(this); }
+            if ((type == Type.THRALL || type == Type.CONSTANT) && !interrupted)
+            {
+                controller.PutInPlay(this);
+                if (type == Type.CONSTANT)
+                {
+                    _ability?.Use(Ability.Mode.ACTIVATE, targets);
+                    activationAvailable = false;
+                }
+            } else
+            {
+                _ability?.Use(Ability.Mode.PLAY, targets);
+                controller.Discard(this);
+            }
         } else if (mode == Ability.Mode.ACTIVATE)
         {
-            if (!interrupted) { controller.actorEvents.ActivateCard(this); }
+            if (!interrupted)
+            {
+                controller.actorEvents.ActivateCard(this);
+                _ability?.Use(Ability.Mode.ACTIVATE, targets);
+            }
             activationAvailable = false;
+        } else if (mode == Ability.Mode.ATTACK)
+        {
+            _ability?.Use(Ability.Mode.ATTACK, targets);
         }
-        if (!interrupted) { _ability?.Use(mode, targets); }
         Dungeon.ClearTargeter();
         GameEvents.current.Refresh();
         return true;
@@ -693,7 +757,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                 }
             }
             targetEvents.TakeDamage(data);
-            targetEvents.LoseHealth(data.damage);
+            if (type == Card.Type.THRALL)
+            {
+                targetEvents.LoseHealth(data.damage);
+            }
         }
         GameEvents.current.CardDamaged(data);
         controller.actorEvents.CardDamaged(data);
@@ -703,6 +770,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         Debug.Assert(type == Card.Type.CONSTANT);
         Damage(new DamageData(1, Keyword.DEFAULT, data.source, this));
+        if (endurance.value <= 0) { Delete(); }
     }
     public bool Upkeep()
     {
@@ -712,7 +780,8 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         _needsUpkeep = false;
         if (type == Type.CONSTANT)
         {
-            _ability.Use(Ability.Mode.ACTIVATE, null);
+            _ability?.Use(Ability.Mode.ACTIVATE, null);
+            activationAvailable = false;
         }
         GameEvents.current.Refresh();
         return true;
@@ -733,11 +802,13 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             controller.Discard(this);
             GameEvents.current.CardDestroyed(this);
             cardEvents.Destroy();
+            IncrementHealth(9999);
             RemoveAllStatus();
         }
     }
     public void IncrementHealth(int value)
     {
+        if (type != Card.Type.THRALL) { return; }
         int prev = endurance.value;
         endurance.baseValue = Mathf.Clamp(endurance.baseValue + value, 0, data.endurance);
         if (endurance.value > prev)
@@ -753,7 +824,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     // Motion
     public void DoubleClick()
     {
-        
+        Debug.Log("activatable: " + activatable);
         if (canDefend)
         {
             Defend();
@@ -772,13 +843,14 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
         }
         else if (activatable)
         {
-            if (needsTarget)
+            if (_ability.NumTargets(Ability.Mode.ACTIVATE) > 0)
             {
                 Dungeon.SetTargeter(this, Ability.Mode.ACTIVATE);
             } else
             {
                 ability?.Use(Ability.Mode.ACTIVATE, null);
                 GameEvents.current.Refresh();
+                Debug.Log("activatable: " + activatable);
             }
         }
     }
@@ -787,25 +859,42 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void SwitchController() { _playerControlled = !_playerControlled; }
     public void OnPointerEnter(PointerEventData eventData)
     {
-
+        if (_followingCursor) { return; }
+        //Debug.Log("PointerEnter: " + data.name);
+        if (zone.type == CardZone.Type.ACTIVE || zone.type == CardZone.Type.HAND || zone.type == CardZone.Type.MAGNIFY)
+        {
+            graphic.Zoom(true);
+        }
     }
     public void OnPointerExit(PointerEventData eventData)
     {
-        Dungeon.FixLayering();
+        if (_followingCursor) { return; }
+        //Debug.Log("PointerExit: " + data.name);
+        if (zone.type == CardZone.Type.ACTIVE || zone.type == CardZone.Type.HAND || zone.type == CardZone.Type.MAGNIFY)
+        {
+            graphic.Zoom(false);
+        }
+        //Dungeon.FixLayering();
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
         if (!playerControlled) { return; }
+        //Debug.Log("BeginDrag: " + data.name);
         Dungeon.EnableDropZones(true);
         if (needsTarget)
         {
-            zone.Organize();
-            if (playable) { Dungeon.SetTargeter(this, Ability.Mode.PLAY); }
+            if (playable)
+            {
+                Dungeon.SetTargeter(this, Ability.Mode.PLAY);
+            }
             else if (canAttack)
             {
                 Dungeon.SetTargeter(this, Ability.Mode.ATTACK);
             }
+        } else
+        {
+            _followingCursor = true;
         }
         transform.SetAsLastSibling();
         transform.parent.SetAsLastSibling();
@@ -813,6 +902,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnEndDrag(PointerEventData eventData)
     {
         if (!playerControlled) { return; }
+        //Debug.Log("EndDrag: " + data.name);
         if (OverZone(eventData, Dungeon.GetZone(CardZone.Type.TRIBUTE)) && Player.instance.burnAvailable)
         {
             Player.instance.Burn(this);
@@ -853,7 +943,7 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     public void OnDrag(PointerEventData eventData)
     {
         if (!playerControlled) { return; }
-
+        //Debug.Log("Drag: " + data.name);
         if (needsTarget)
         {
             if (OverZone(eventData, Dungeon.GetZone(CardZone.Type.TRIBUTE)))
@@ -863,10 +953,17 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
                     _followingCursor = true;
                     Dungeon.targeter?.Hide(true);
                 }
-
+                if (Player.instance.burnAvailable)
+                {
+                    particles.GlowRed();
+                } else
+                {
+                    particles.ClearGlow();
+                }
                 transform.position = eventData.position;
             } else
             {
+                particles.ClearGlow();
                 if (_followingCursor)
                 {
                     _followingCursor = false;
@@ -895,23 +992,35 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     {
         CardZone prevZone = zone;
         graphic.Move(cardZone);
-        if (prevZone == null) { return; }
-        if (prevZone.type == CardZone.Type.ACTIVE && cardZone.type != CardZone.Type.ACTIVE)
+        if (prevZone == null)
         {
-            cardEvents.LeavePlay();
-        }
-        if (prevZone.type != CardZone.Type.ACTIVE && cardZone.type == CardZone.Type.ACTIVE)
-        {
-            cardEvents.EnterPlay();
-        }
-        if (cardZone.type == CardZone.Type.DISCARD && prevZone.type != CardZone.Type.DISCARD)
-        {
-            cardEvents.EnterDiscard();
-            if (prevZone.type == CardZone.Type.HAND)
+            if (cardZone.type == CardZone.Type.ACTIVE)
             {
-                cardEvents.Discard();
+                cardEvents.EnterPlay();
+            }
+            if (cardZone.type == CardZone.Type.DISCARD)
+            {
+                cardEvents.EnterDiscard();
+            }
+        } else {
+            if (prevZone.type == CardZone.Type.ACTIVE && cardZone.type != CardZone.Type.ACTIVE)
+            {
+                cardEvents.LeavePlay();
+            }
+            if (prevZone.type != CardZone.Type.ACTIVE && cardZone.type == CardZone.Type.ACTIVE)
+            {
+                cardEvents.EnterPlay();
+            }
+            if (prevZone.type != CardZone.Type.DISCARD && cardZone.type == CardZone.Type.DISCARD)
+            {
+                cardEvents.EnterDiscard();
+                if (prevZone.type == CardZone.Type.HAND)
+                {
+                    cardEvents.Discard();
+                }
             }
         }
+        Refresh();
     }
     private bool OverZone(PointerEventData eventData, CardZone cardZone)
     {
@@ -957,6 +1066,10 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             particles.Clear();
         }
     }
+    public bool IsTargeting(ITargetable target)
+    {
+        return _validTargets.Contains(target);
+    }
     public bool Compare(TargetTemplate query, Actor self)
     {
         if (query is null) { return false; }
@@ -987,12 +1100,21 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             }
             if (!success) { return false; }
         }
-        if (query.keyword.Count > 0)
+        if (query.keywordAnd.Count > 0)
         {
-            foreach (Keyword key in query.keyword)
+            foreach (Keyword key in query.keywordAnd)
             {
                 flag &= HasKeyword(key);
             }
+        }
+        if (query.keywordOr.Count > 0)
+        {
+            bool success = false;
+            foreach (Keyword key in query.keywordOr)
+            {
+                if (HasKeyword(key)) { success = true; break; }
+            }
+            flag &= success;
         }
         if (query.notKeyword.Count > 0)
         {
@@ -1021,6 +1143,15 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
             foreach (Card.Rarity item in query.rarity)
             {
                 if (item == data.rarity) { success = true; break; }
+            }
+            if (!success) { return false; }
+        }
+        if (query.zone.Count > 0)
+        {
+            bool success = false;
+            foreach (CardZone.Type cardZone in query.zone)
+            {
+                if (zone.type == cardZone) { success = true; break; }
             }
             if (!success) { return false; }
         }
@@ -1091,27 +1222,28 @@ public class Card : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler,
     }
     public virtual void AddStatus(StatusEffect.ID id, int stacks = 1)
     {
-        Debug.Log("(REAL) Trying to add status " + id + " to " + name);
         if (gameObject == null) { return; }
         Attempt attempt = new Attempt();
         targetEvents.TryGainStatus(id, stacks, attempt);
         if (!attempt.success)
         {
-            Debug.Log("Status " + id + " was prevented");
             return;
         }
-        if (GetStatus(id) > 0 && _statusEffects[id].stackable)
+        if (GetStatus(id) > 0)
         {
-            _statusEffects[id].stacks += stacks;
+            if (_statusEffects[id].stackable)
+            {
+                _statusEffects[id].stacks += stacks;
+            } else
+            {
+                return;
+            }
         }
         else
         {
             StatusEffect effect = StatusEffect.Spawn(id, this, stacks);
             effect.transform.parent = _statusDisplays;
             _statusEffects[id] = effect;
-            //int n = _statusEffects.Count;
-            //StatusDisplay display = _statusDisplays.transform.GetChild(n).GetComponent<StatusDisplay>();
-            //StatusEffect s = new StatusEffect(id, this, display, stacks);
         }
         controller.actorEvents.CardGainedStatus(_statusEffects[id], stacks);
         targetEvents.GainStatus(_statusEffects[id], stacks);

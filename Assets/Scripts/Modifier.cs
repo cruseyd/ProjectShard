@@ -14,24 +14,45 @@ public abstract class Modifier
     }
 
     public readonly Duration duration;
-    public readonly Card source;
+    public readonly Object source;
 
-    public Modifier(Card _source, Duration dur = Duration.PERMANENT)
+    public Modifier(Object _source, Duration dur = Duration.PERMANENT)
     {
         source = _source;
         duration = dur;
-        switch (duration)
+        if (source is Card)
         {
-            case Duration.SOURCE: source.cardEvents.onLeavePlay += LeavePlayHandler; break;
-            case Duration.END_OF_TURN: source.controller.actorEvents.onEndTurn += EndTurnHandler; break;
-            case Duration.START_OF_TURN: source.controller.actorEvents.onStartTurn += StartTurnHandler; break;
-            case Duration.PERMANENT:
-            default:
-                break;
+            Card src = source as Card;
+            switch (duration)
+            {
+                case Duration.SOURCE: src.cardEvents.onLeavePlay += LeavePlayHandler; break;
+                case Duration.END_OF_TURN: src.controller.actorEvents.onEndTurn += EndTurnHandler; break;
+                case Duration.START_OF_TURN: src.controller.actorEvents.onStartTurn += StartTurnHandler; break;
+                case Duration.PERMANENT:
+                default:
+                    break;
+            }
+        } else if (source is StatusEffect)
+        {
+            StatusEffect src = source as StatusEffect;
+            switch (duration)
+            {
+                case Duration.SOURCE: src.events.onRemove += RemoveStatusHandler; break;
+                case Duration.END_OF_TURN: src.target.controller.actorEvents.onEndTurn += EndTurnHandler; break;
+                case Duration.START_OF_TURN: src.target.controller.actorEvents.onStartTurn += StartTurnHandler; break;
+                case Duration.PERMANENT:
+                default:
+                    break;
+            }
         }
+        
     }
     public abstract void Remove();
     private void LeavePlayHandler(Card source)
+    {
+        Remove();
+    }
+    private void RemoveStatusHandler(StatusEffect source)
     {
         Remove();
     }
@@ -61,7 +82,7 @@ public class StatModifier : Modifier
         }
     }
 
-    public StatModifier(int a_value, Stat.Name a_statName, Card a_source,
+    public StatModifier(int a_value, Stat.Name a_statName, Object a_source,
         Modifier.Duration dur = Modifier.Duration.PERMANENT) : base(a_source, dur)
     {
         value = a_value;
@@ -87,7 +108,6 @@ public class StatModifier : Modifier
         }
         return false;
     }
-
     public override void Remove()
     {
         for (int ii = _targets.Count-1; ii >= 0; ii--)
@@ -100,14 +120,21 @@ public class StatModifier : Modifier
 public class TemplateModifier : StatModifier
 {
     public readonly TargetTemplate template;
+    private Actor _pov;
 
-    public TemplateModifier(int a_value, Stat.Name a_statName, Card a_source, Duration a_dur, TargetTemplate a_template)
+    public TemplateModifier(int a_value, Stat.Name a_statName, Object a_source, Duration a_dur, TargetTemplate a_template)
         : base(a_value, a_statName, a_source, a_dur)
     {
         template = a_template;
+        if (a_source is Card)
+        {
+            _pov = ((Card)a_source).controller;
+        } else if (a_source is StatusEffect)
+        {
+            _pov = ((StatusEffect)a_source).target.controller;
+        }
     }
-
-    public bool Compare(Card card) { return card.Compare(template, source.controller); }
+    public bool Compare(Card card) { return card.Compare(template, _pov); }
 
 
     public override void Remove()

@@ -19,6 +19,11 @@ public class GameEvents : MonoBehaviour
         }
     }
 
+    public void Update()
+    {
+        Refresh();
+    }
+
     // Game Phase Events
 
     public event Action<Card> onSpawnCard;

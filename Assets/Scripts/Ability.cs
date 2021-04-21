@@ -30,13 +30,8 @@ public static class AbilityIndex
             case "ELIXIR_OF_PATIENCE":
                 return new A_Elixir(user);
 
-            // tokens
-            case "SLIMELING_TOKEN":
-                return new A_TokenThrall(user);
-
             // red cards
-            case "CINDER": return new A_Cinder(user);
-            case "SINGE": return new A_Singe(user);
+
             case "BLITZ": return new A_Blitz(user);
             case "SLASH": return new A_Slash(user);
             case "VICIOUS_REND": return new A_ViciousRend(user);
@@ -45,40 +40,70 @@ public static class AbilityIndex
             case "WILD_SWING": return new A_WildSwing(user);
             case "SEEING_RED": return new A_SeeingRed(user);
             case "INTO_THE_FRAY": return new A_IntoTheFray(user);
-            case "IREBLADE": return new A_Ireblade(user);
+            case "FERAL_THRASH": return new A_FeralThrash(user);
+            case "SEVER": return new A_Sever(user);
+            case "SKY_SUNDER": return new A_SkySunder(user);
             case "SHARPEN": return new A_Sharpen(user);
-            case "EMBERFALL": return new A_Emberfall(user);
-            case "EMBERSTRIKE": return new A_Emberstrike(user);
-            case "IGNITE": return new A_Ignite(user);
-            case "FLAMING_FLOURISH": return new A_FlamingFlourish(user);
-            case "INFERNO_DJINN": return new A_InfernoDjinn(user);
-            case "BLAZING_VORTEX": return new A_BlazingVortex(user);
             case "HYROC_CHAMPION": return new A_HyrocChampion(user);
-            case "FERAL_WARCAT": return new A_FeralWarcat(user);
             case "RELENTLESS": return new A_Relentless(user);
             case "HYROC_SCOUT": return new A_HyrocScout(user);
+            case "SKYSWORN_ADEPT": return new A_SkyswornAdept(user);
+            case "HYROC_STORMTAMER": return new A_HyrocStormtamer(user);
+            case "HORIX": return new A_Horix(user);
+            case "SPINETAIL": return new A_Spinetail(user);
             case "FEATHER_PHALANX": return new A_FeatherPhalanx(user);
+            case "ARCING_BOLT": return new A_ArcingBolt(user);
+            case "FULMINATE": return new A_Fulminate(user);
+            case "CHAIN_LIGHTNING": return new A_ChainLightning(user);
+
+            case "CINDER": return new A_Cinder(user);
+            case "SINGE": return new A_Singe(user);
+            case "INFERNO_DJINN": return new A_InfernoDjinn(user);
+            case "BLAZING_VORTEX": return new A_BlazingVortex(user);
+            case "FERAL_WARCAT": return new A_FeralWarcat(user);
+            case "IGNITE": return new A_Ignite(user);
+            case "FLAMING_FLOURISH": return new A_FlamingFlourish(user);
 
             // green cards
             case "TERRITORIAL_BRIAR": return new A_TerritorialBriar(user);
             case "BLOSSOMING_IVYPRONG": return new A_BlossomingIvyProng(user);
             case "RAMPAGING_SWORDTUSK": return new A_RampagingSwordtusk(user);
-            case "KYRNANOS": return new A_KyrnanosLordOfTheWild(user);
-            case "EQUANIMITY": return new A_Equanimity(user);
-            case "GENESIS_SPRING": return new A_GenesisSpring(user);
-            case "RICOCHET": return new A_Ricochet(user);
-            case "CONCUSSIVE_SHOT": return new A_ConcussiveShot(user);
-            case "RANGERS_JUDGEMENT": return new A_RangersJudgement(user);
-            case "PACK_WOLF_ALPHA": return new A_PackWolfAlpha(user);
+            
+            case "PACK_MENTALITY": return new A_PackMentality(user);
+            
+            case "SHADOW_FANG_ALPHA": return new A_ShadowFangAlpha(user);
+            case "SHADOW_FANG_AMBUSHER": return new A_ShadowFangAmbusher(user);
+            case "LOYAL_SHADOW_FANG": return new A_LoyalShadowFang(user);
             case "CONSUMING_BLOB": return new A_ConsumingBlob(user);
-            case "FENS_BLESSING": return new A_FensBlessing(user);
             case "MITOTIC_SLIME": return new A_MitoticSlime(user);
+            case "AMORPHOUS_DEVOURER": return new A_AmorphousDevourer(user);
+            case "EMPOWER": return new A_Empower(user);
+            case "VERDURE": return new A_Verdure(user);
+            case "REJUVENATE": return new A_Rejuvenate(user);
+            case "ADRENALINE_RUSH": return new A_AdrenalineRush(user);
+            case "ECHOING_HOWL": return new A_EchoingHowl(user);
+            case "IVYPRONG_SPIRITCALLER": return new A_IvyprongSpiritcaller(user);
+            case "WILL_OF_THE_WILD": return new A_WillOfTheWild(user);
+            case "PRIMAL_STRENGTH": return new A_PrimalStrength(user);
+            case "FIRST_AID": return new A_FirstAid(user);
+            case "SURVIVALISM": return new A_Survivalism(user);
+            case "OBSTINATE_OAKENWOLD": return new A_ObstinateOakenwold(user);
+            case "WEATHERED_WILLOWOLD": return new A_WeatheredWillowold(user);
+            case "LUMBERING_BANEBOUGH": return new A_LumberingBanebough(user);
+            case "TITAN_REDWOLD": return new A_TitanRedwold(user);
+            case "ERIDEA": return new A_Eridea(user);
+            case "DRYAD_WOODWEAVER": return new A_DryadWoodweaver(user);
+            case "DRYAD_MENDER": return new A_DryadMender(user);
+
+            case "KYRNANOS": return new A_Kyrnanos(user);
+            case "EQUANIMITY": return new A_Equanimity(user);
             case "STONESUNDER": return new A_Stonesunder(user);
             case "FISSURE": return new A_Fissure(user);
-            case "REJUVENATE": return new A_Rejuvenate(user);
-            case "CONSUME_ADRENALINE": return new A_ConsumeAdrenaline(user);
-            case "HOWL_OF_THE_PACK": return new A_HowlOfThePack(user);
-            case "IVYPRONG_SPIRITCALLER": return new A_IvyprongSpiritcaller(user);
+            case "RICOCHET": return new A_Ricochet(user);
+            case "PIERCING_BOLT": return new A_PiercingBolt(user);
+            case "CONCUSSIVE_ARROW": return new A_ConcussiveArrow(user);
+            case "MASTERFUL_SHOT": return new A_MasterfulShot(user);
+
 
             // blue cards
             case "CONTINUITY": return new A_Continuity(user);
@@ -86,7 +111,7 @@ public static class AbilityIndex
             case "RIMESHIELD": return new A_Rimeshield(user);
             case "CRYSTAL_LANCE": return new A_CrystalLance(user);
             case "DRIFTING_VOIDLING": return new A_DriftingVoidling(user);
-            case "GLACIER_BEHEMOTH": return new A_GlacierBehemoth(user);
+            case "GLACIER_COLOSSUS": return new A_GlacierColossus(user);
             case "MANAPLASM": return new A_Manaplasm(user);
             case "PRIMORDIAL_SLIME": return new A_PrimordialSlime(user);
             case "FROST_LATTICE": return new A_FrostLattice(user);
@@ -94,16 +119,16 @@ public static class AbilityIndex
             case "TIME_DILATION": return new A_TimeDilation(user);
             case "LEGERDEMAIN": return new A_Legerdemain(user);
             case "MNEMONIC_RECITATION": return new A_MnemonicRecitation(user);
-            case "SHARDFALL": return new A_Shardfall(user);
-            case "SHARDSTRIKE": return new A_Shardstrike(user);
+            case "STORMCALL": return new A_Stormcall(user);
+            case "PIERCING_HAIL": return new A_PiercingHail(user);
             case "HAIL_OF_SPLINTERS": return new A_HailOfSplinters(user);
             case "RIDE_THE_LIGHTNING": return new A_RideTheLightning(user);
-            case "CHAIN_LIGHTNING": return new A_ChainLightning(user);
-            case "STATIC": return new A_Static(user);
             case "KATABATIC_SQUALL": return new A_KatabaticSquall(user);
             case "EPIPHANY": return new A_Epiphany(user);
             case "MOMENT_OF_CLARITY": return new A_MomentOfClarity(user);
             case "WIND_SCREAMER": return new A_WindScreamer(user);
+            case "REPLICATE": return new A_Replicate(user);
+            case "PRISMATIC_GOLEM": return new A_PrismaticGolem(user);
             
             // null ability
             default: return new A_Null(user);
@@ -122,7 +147,6 @@ public abstract class Ability
 
     protected ITargetable _user;
     protected int _channelCost = 0;
-    protected bool _react = false;
 
     private List<TargetTemplate> _activateTargets;
     private List<TargetTemplate> _playTargets;
@@ -148,11 +172,9 @@ public abstract class Ability
             return _playTargets;
         }
     }
-    public bool react { get { return _react; } }
     public Ability(ITargetable user)
     {
         _user = user;
-        _react = false;
     }
     public virtual bool ActivationAvailable() { return false; }
     protected virtual void Activate(List<ITargetable> targets, bool undo = false, GameState state = null)
@@ -185,21 +207,23 @@ public abstract class Ability
         Debug.Assert(_user is Card);
         Card user = (Card)_user;
 
-        user.controller.targetEvents.DeclareAttack(user, target);
-        user.targetEvents.DeclareAttack(user, target);
-
-        if (!user.inPlay || user.endurance.value <= 0) { return; }
-
         DamageData _userDamage = new DamageData(user.power.value, user.damageType, _user, target, true);
         DamageData targetDamage = null;
+
+        if (state == null)
+        {
+            user.controller.targetEvents.DeclareAttack(user, target);
+            user.targetEvents.DeclareAttack(user, target);
+        }
+        if (!user.inPlay || user.endurance.value <= 0) { return; }
         if (target is Card)
         {
             Card targetCard = (Card)target;
+            if (!targetCard.inPlay || targetCard.endurance.value <= 0) { return; }
             targetDamage = new DamageData(targetCard.power.value, targetCard.damageType, targetCard, user);
         }
-
-        Damage(_userDamage, undo, state);
-        Damage(targetDamage, undo, state);
+        Ability.Damage(_userDamage, undo, state);
+        Ability.Damage(targetDamage, undo, state);
         if (state == null)
         {
             user.attackAvailable = false;
@@ -290,6 +314,7 @@ public abstract class Ability
             case Mode.ACTIVATE:
                 if (_user is Card)
                 {
+                    ((Card)_user).particles.GlowGold();
                 }
                 if (targets != null && targets.Count > 0)
                 {
@@ -314,7 +339,6 @@ public abstract class Ability
         }
     }
 
-    public abstract string Text();
     public static void Fight(Card aggressor, Card target, bool undo = false, GameState state = null)
     {
         if (!aggressor.inPlay || aggressor.endurance.value <= 0) { return; }
@@ -361,6 +385,7 @@ public abstract class Ability
     public static void Heal(ITargetable target, int value, bool undo = false, GameState state = null)
     {
         Debug.Assert(value >= 0);
+
         if (state != null)
         {
             if (target is Actor) { state.Heal((Actor)target, value, undo); }
@@ -368,6 +393,16 @@ public abstract class Ability
         } else
         {
             target.IncrementHealth(value);
+        }
+    }
+    public static void Cleanse(ITargetable target, bool undo = false, GameState state = null)
+    {
+        foreach (StatusEffect.ID status in target.GetAllStatus())
+        {
+            if (StatusData.Get(status).isDebuff)
+            {
+                Ability.Status(target, status, -9999, undo, state);
+            }
         }
     }
     public static void Status(ITargetable target, StatusEffect.ID id, int stacks, bool undo = false, GameState state = null)
@@ -423,6 +458,20 @@ public abstract class Ability
             card.Destroy();
         }
     }
+    public static void ShuffleIntoDeck(Card card, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            if (card.inPlay)
+            {
+                state.RemoveCardFromPlay(card, undo);
+            }
+        }
+        else
+        {
+            card.controller.deck.Shuffle(card);
+        }
+    }
     public static void AddCardToHand(Card card, bool undo = false, GameState state = null)
     {
         if (state != null)
@@ -441,7 +490,19 @@ public abstract class Ability
             state.AddStatModifier(card, mod, undo);
         } else
         {
-            card.AddModifier(mod);
+            Debug.Log("Adding Stat Modifier");
+            mod.SetTarget(card);
+        }
+    }
+    public static void RemoveStatModifier(Card card, StatModifier mod, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.RemoveStatModifier(card, mod, undo);
+        }
+        else
+        {
+            mod.RemoveTarget(card);
         }
     }
     public static void AddTemplateModifier(TemplateModifier mod, bool undo = false, GameState state = null)
@@ -453,7 +514,33 @@ public abstract class Ability
         {
             Dungeon.AddModifier(mod);
         }
+    }
+    public static void RemoveTemplateModifier(TemplateModifier mod, bool undo = false, GameState state = null)
+    {
+        if (state != null)
+        {
+            state.RemoveTemplateModifier(mod, undo);
+        }
+        else
+        {
+            Dungeon.RemoveModifier(mod);
+        }
+    }
+    public static void AddAffinity(Actor target, Card.Color color, int amount, bool undo = false, GameState state = null)
+    {
+        if (target is Player)
+        {
+            Player player = target as Player;
+            if (state != null)
+            {
 
+            }
+            else
+            {
+                player.addAffinity(color, amount);
+            }
+
+        }
     }
     public static void Harmonize(Actor target, Card.Color color, bool undo = false, GameState state = null)
     {
@@ -488,7 +575,6 @@ public abstract class Ability
             }
         }
     }
-
     public TargetTemplate TargetAnyOpposing(ITargetable ignore = null)
     {
         TargetTemplate t = new TargetTemplate();
@@ -498,12 +584,39 @@ public abstract class Ability
         t.isNot = ignore;
         return t;
     }
-    public TargetTemplate TargetOpposingThrall()
+    public TargetTemplate TargetAnyFriendly(ITargetable ignore = null)
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.isDamageable = true;
+        t.isSelf = true;
+        t.inPlay = true;
+        t.isNot = ignore;
+        return t;
+    }
+    public TargetTemplate TargetAnyThrall(ITargetable ignore = null)
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.cardType.Add(Card.Type.THRALL);
+        t.inPlay = true;
+        t.isNot = ignore;
+        return t;
+    }
+    public TargetTemplate TargetOpposingThrall(ITargetable ignore = null)
     {
         TargetTemplate t = new TargetTemplate();
         t.isOpposing = true;
         t.inPlay = true;
         t.cardType.Add(Card.Type.THRALL);
+        t.isNot = ignore;
+        return t;
+    }
+    public TargetTemplate TargetFriendlyThrall(ITargetable ignore = null)
+    {
+        TargetTemplate t = new TargetTemplate();
+        t.isSelf = true;
+        t.inPlay = true;
+        t.cardType.Add(Card.Type.THRALL);
+        t.isNot = ignore;
         return t;
     }
     public static List<ITargetable> ValidOpposingTargets(Card _user, TargetTemplate template)
@@ -543,10 +656,6 @@ public abstract class ActorAbility : Ability
 public class A_Null : CardAbility
 {
     public A_Null(Card user) : base(user) { }
-    public override string Text()
-    {
-        return "";
-    }
 }
 public class A_Elixir : CardAbility
 {
@@ -554,10 +663,6 @@ public class A_Elixir : CardAbility
     protected override void Play(List<ITargetable> targets, bool undo = false, GameState state = null)
     {
         
-    }
-    public override string Text()
-    {
-        return "Gain 1/1 Focus.";
     }
 }
 public class A_Ideal_0 : CardAbility
@@ -572,10 +677,6 @@ public class A_Ideal_0 : CardAbility
         {
             ((Player)user.controller).maxFocus.baseValue += 1;
         }
-    }
-    public override string Text()
-    {
-        return "If you have not played an Ideal this turn, gain 0/1 Focus. \nDraw a card. ";
     }
 }
 public class A_Ideal_1 : CardAbility
@@ -592,12 +693,6 @@ public class A_Ideal_1 : CardAbility
             Ability.Harmonize(user.controller, user.data.color, undo, state);
         }
     }
-    public override string Text()
-    {
-        return "Gain 1 " + Keywords.Parse(user.data.color) + "." +
-            "\nDraw a card." + 
-            "\nHarmonize " + Keywords.Parse(user.data.color) + ".";
-    }
 }
 public class A_Ideal_2 : CardAbility
 {
@@ -611,10 +706,6 @@ public class A_Ideal_2 : CardAbility
             Player.instance.addAffinity(user.data.color, 1);
             user.controller.Draw();
         }
-    }
-    public override string Text()
-    {
-        return "Gain 1 " + Keywords.Parse(user.data.color) + ". Draw a card.";
     }
 }
 public class A_Fatigue : CardAbility
@@ -630,32 +721,6 @@ public class A_Fatigue : CardAbility
         {
             user.controller.Draw();
         }
-    }
-
-    public override string Text()
-    {
-        string txt = "";
-        if (_user.controller is Player) { txt += "Draw a card."; }
-        txt += "\n<i>This is what I get for skipping leg day.</i>";
-        return txt;
-    }
-}
-public class A_TokenThrall : CardAbility
-{
-    public A_TokenThrall(Card user) : base(user)
-    {
-        user.targetEvents.onDealDamage += DealDamageHandler;
-    }
-
-    public override string Text()
-    {
-        string txt = "When this deals damage, destroy this.";
-        return txt;
-    }
-
-    private void DealDamageHandler(DamageData data)
-    {
-        user.Destroy();
     }
 }
 

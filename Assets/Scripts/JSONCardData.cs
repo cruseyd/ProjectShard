@@ -11,6 +11,8 @@ public class JSONCardArray
 [System.Serializable]
 public class JSONCardData
 {
+    public string impl;
+    public int set;
     public string name;
     public string color;
     public string type;

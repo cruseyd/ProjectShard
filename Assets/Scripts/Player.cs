@@ -109,6 +109,9 @@ public class Player : Actor, IEndDragHandler, IBeginDragHandler, IDragHandler
         if (GameData.instance.playerDeck != null)
         {
             _deck.Init(GameData.instance.playerDeck);
+        }  else if (GameData.playerDecklist != null)
+        {
+            _deck.Init(GameData.playerDecklist);
         }
         _deck.Shuffle();
         focus.baseValue = maxFocus.value;

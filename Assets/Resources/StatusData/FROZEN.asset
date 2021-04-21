@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 4
   stackable: 0
+  isDebuff: 1
+  isBuff: 0
   tooltipHeader: Frozen
   tooltipContent: "Frozen Thralls cannot block, attack, or use abilities until the
     end of their controller's next turn. \n\nA Frozen Player must discard a card
